@@ -29,11 +29,11 @@ function extOf(name: string): string {
 function ForgeLogo() {
   return (
     <div
-      className="w-5 h-5 border border-forge-blue/40 flex items-center justify-center flex-shrink-0"
-      style={{ boxShadow: "0 0 6px rgba(45,142,255,0.12)" }}
+      className="w-4 h-4 border border-forge-blue/35 flex items-center justify-center flex-shrink-0"
+      style={{ boxShadow: "0 0 4px rgba(45,142,255,0.08)" }}
     >
-      <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
-        <polygon points="7,1 13,4 13,10 7,13 1,10 1,4" stroke="#2D8EFF" strokeWidth="1" fill="none" />
+      <svg width="9" height="9" viewBox="0 0 14 14" fill="none">
+        <polygon points="7,1 13,4 13,10 7,13 1,10 1,4" stroke="#2D8EFF" strokeWidth="1.2" fill="none" />
         <circle cx="7" cy="7" r="1.5" fill="#2D8EFF" />
       </svg>
     </div>
@@ -211,67 +211,146 @@ export default function WorkspaceShell() {
   return (
     <div className="flex flex-col h-screen bg-forge-black text-forge-chrome overflow-hidden">
 
-      {/* ── TOP BAR ───────────────────────────────────────────────── */}
-      <header className="flex items-center h-10 border-b border-forge-border/40 bg-forge-obsidian/50 flex-shrink-0">
+      {/* ── TOP BAR — IDE chrome ─────────────────────────────────── */}
+      <header className="flex items-center h-9 border-b border-forge-border/30 bg-[#0b0d10] flex-shrink-0 select-none overflow-hidden">
 
-        {/* Sidebar toggle + brand */}
-        <div className="flex items-center gap-2 px-3 border-r border-forge-border/30 h-full flex-shrink-0">
+        {/* LEFT: sidebar toggle + brand + menu items */}
+        <div className="flex items-center h-full flex-shrink-0">
+
+          {/* Sidebar toggle */}
           <button
             onClick={() => setSidebarOpen((o) => !o)}
-            className="p-1.5 rounded text-forge-silver/25 hover:text-forge-chrome hover:bg-forge-panel/40 transition-colors"
             title="Toggle explorer"
+            className="px-2.5 h-full flex items-center text-forge-silver/20 hover:text-forge-chrome/65 hover:bg-white/[0.04] transition-colors"
           >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <rect x="0" y="1"    width="12" height="1.5" rx="0.75" fill="currentColor" />
-              <rect x="0" y="5.25" width="12" height="1.5" rx="0.75" fill="currentColor" />
-              <rect x="0" y="9.5"  width="12" height="1.5" rx="0.75" fill="currentColor" />
+            <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+              <rect y="0" width="12" height="1.4" rx="0.7" fill="currentColor" />
+              <rect y="4.3" width="12" height="1.4" rx="0.7" fill="currentColor" />
+              <rect y="8.6" width="12" height="1.4" rx="0.7" fill="currentColor" />
             </svg>
           </button>
-          <ForgeLogo />
-          <span className="text-[10px] text-forge-chrome/50 tracking-widest uppercase forge-mono hidden sm:block">
-            Forge
-          </span>
+
+          {/* Brand block */}
+          <div className="flex items-center gap-1.5 px-2.5 h-full border-r border-forge-border/22">
+            <ForgeLogo />
+            <div className="flex flex-col justify-center leading-none">
+              <span className="text-[9px] font-semibold text-forge-chrome/78 tracking-[0.10em] uppercase">
+                Tavronus Forge
+              </span>
+              <span className="text-[7px] text-forge-muted/22 mt-[3px] hidden sm:block">
+                by Tavronus Labs
+              </span>
+            </div>
+          </div>
+
+          {/* Menu items — desktop only */}
+          <nav className="hidden lg:flex items-center h-full" aria-label="App menu">
+            {["File", "Edit", "Selection", "View", "Go", "Run", "Terminal", "Help"].map((item) => (
+              <button
+                key={item}
+                className="px-2 h-full text-[11px] text-forge-silver/32 hover:text-forge-chrome/70 hover:bg-white/[0.04] transition-colors"
+              >
+                {item}
+              </button>
+            ))}
+          </nav>
         </div>
 
-        {/* File tab */}
-        <div className="flex-1 flex items-center h-full overflow-hidden">
+        {/* CENTER: file tab — fills remaining space */}
+        <div className="flex-1 flex items-center h-full min-w-0 overflow-hidden">
           {activeFileName ? (
-            <div className="flex items-center gap-2 px-4 h-full border-r border-forge-border/25 bg-forge-black/20 text-[11px] forge-mono text-forge-chrome/60 flex-shrink-0">
-              <span className="text-[8px]" style={{ color: getFileColor(fileExt) }}>●</span>
-              <span>{activeFileName}</span>
+            <div className="flex items-center gap-1.5 px-3 h-full border-r border-forge-border/18 bg-forge-black/10 text-[11px] forge-mono text-forge-chrome/52 flex-shrink-0">
+              <span className="text-[7px] flex-shrink-0" style={{ color: getFileColor(fileExt) }}>●</span>
+              <span className="truncate max-w-[160px]">{activeFileName}</span>
               <button
                 onClick={() => { setActiveFilePath(""); setActiveFileName(""); setEditorContent(""); }}
-                className="text-forge-muted/25 hover:text-forge-chrome/50 ml-0.5 transition-colors leading-none"
-                title="Close"
+                className="text-forge-muted/18 hover:text-forge-chrome/50 transition-colors leading-none flex-shrink-0 ml-0.5"
               >
                 ×
               </button>
             </div>
           ) : (
-            <span className="px-4 text-[11px] forge-mono text-forge-muted/25">
+            <span className="px-3 text-[11px] forge-mono text-forge-muted/18 truncate">
               {urlName}
             </span>
           )}
         </div>
 
-        {/* Right: status */}
-        <div className="flex items-center gap-3 px-4 flex-shrink-0">
-          <div
-            className="hidden sm:flex items-center gap-1.5 text-[10px] forge-mono"
-            style={{ color: "rgba(45,142,255,0.5)" }}
-          >
-            <div className="w-1.5 h-1.5 rounded-full bg-forge-blue/50 animate-pulse" />
-            Local Mock Mode
-          </div>
-          <div className="w-px h-3 bg-forge-border/30 hidden sm:block" />
-          <div className="flex items-center gap-1 text-[10px] forge-mono text-green-500/50">
+        {/* RIGHT: status + utility icons */}
+        <div className="flex items-center h-full flex-shrink-0">
+
+          {/* Ready */}
+          <div className="hidden sm:flex items-center gap-1 px-2.5 text-[10px] forge-mono text-green-500/48">
             <span>✓</span>
             <span>Ready</span>
           </div>
-          <div className="w-px h-3 bg-forge-border/30" />
+
+          <div className="w-px h-3.5 bg-forge-border/18 mx-0.5 hidden sm:block" />
+
+          {/* Local Mock Mode */}
+          <div
+            className="hidden lg:flex items-center gap-1.5 px-2.5 text-[10px] forge-mono"
+            style={{ color: "rgba(45,142,255,0.38)" }}
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-forge-blue/38 animate-pulse" />
+            <span>Local Mock Mode</span>
+          </div>
+
+          <div className="w-px h-3.5 bg-forge-border/18 mx-0.5 hidden lg:block" />
+
+          {/* Plus: new file */}
+          <Link
+            href="/workspace?mode=file&name=untitled.tsx"
+            title="New file"
+            className="px-2 h-full flex items-center text-forge-muted/22 hover:text-forge-chrome/65 hover:bg-white/[0.04] transition-colors"
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            </svg>
+          </Link>
+
+          {/* Layout panels */}
+          <button
+            onClick={() => setSidebarOpen((o) => !o)}
+            title="Toggle layout"
+            className="px-2 h-full flex items-center text-forge-muted/22 hover:text-forge-chrome/65 hover:bg-white/[0.04] transition-colors"
+          >
+            <svg width="11" height="10" viewBox="0 0 11 10" fill="none">
+              <rect x="0.5" y="0.5" width="3"  height="9" rx="0.4" stroke="currentColor" strokeWidth="0.9" />
+              <rect x="5"   y="0.5" width="5.5" height="4" rx="0.4" stroke="currentColor" strokeWidth="0.9" />
+              <rect x="5"   y="5.5" width="5.5" height="4" rx="0.4" stroke="currentColor" strokeWidth="0.9" />
+            </svg>
+          </button>
+
+          {/* Forge AI — blue tinted */}
+          <button
+            title="Forge AI"
+            className="px-2 h-full flex items-center text-forge-blue/30 hover:text-forge-blue/60 hover:bg-white/[0.04] transition-colors"
+          >
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+              <polygon points="7,1 13,4 13,10 7,13 1,10 1,4" stroke="currentColor" strokeWidth="1.2" fill="none" />
+              <circle cx="7" cy="7" r="1.4" fill="currentColor" />
+            </svg>
+          </button>
+
+          {/* Settings */}
+          <button
+            title="Settings"
+            className="px-2 h-full flex items-center text-forge-muted/22 hover:text-forge-chrome/65 hover:bg-white/[0.04] transition-colors"
+          >
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+              <circle cx="7" cy="7" r="2.2" stroke="currentColor" strokeWidth="1" />
+              <path d="M7 1v2M7 11v2M1 7h2M11 7h2M3.22 3.22l1.41 1.41M9.37 9.37l1.41 1.41M3.22 10.78l1.41-1.41M9.37 4.63l1.41-1.41"
+                stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" />
+            </svg>
+          </button>
+
+          <div className="w-px h-3.5 bg-forge-border/18 mx-1" />
+
+          {/* Home */}
           <Link
             href="/"
-            className="text-[10px] text-forge-muted/30 hover:text-forge-chrome/60 transition-colors forge-mono"
+            className="px-2.5 h-full flex items-center text-[10px] forge-mono text-forge-muted/22 hover:text-forge-chrome/65 transition-colors"
           >
             ← Home
           </Link>
@@ -384,7 +463,7 @@ export default function WorkspaceShell() {
         <div className="flex flex-col w-96 flex-shrink-0 bg-forge-obsidian/25 overflow-hidden">
 
           {/* AI panel header */}
-          <div className="flex items-center justify-between px-4 h-10 border-b border-forge-border/35 flex-shrink-0">
+          <div className="flex items-center justify-between px-4 h-9 border-b border-forge-border/30 flex-shrink-0">
             <span className="text-xs font-medium text-forge-chrome/75 tracking-wide">
               ◈ Forge AI
             </span>
