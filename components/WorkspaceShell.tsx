@@ -385,9 +385,15 @@ export default function WorkspaceShell() {
 
           {/* AI panel header */}
           <div className="flex items-center justify-between px-4 h-10 border-b border-forge-border/35 flex-shrink-0">
-            <span className="text-xs font-medium text-forge-chrome/80 tracking-wide">
+            <span className="text-xs font-medium text-forge-chrome/75 tracking-wide">
               ◈ Forge AI
             </span>
+            {activeFileName && (
+              <span className="text-[10px] forge-mono text-forge-muted/28">
+                Context:{" "}
+                <span className="text-forge-silver/38">{activeFileName}</span>
+              </span>
+            )}
           </div>
 
           {/* Mode chips */}
@@ -402,7 +408,7 @@ export default function WorkspaceShell() {
                     ? "border border-forge-blue/50 bg-forge-blue/10 text-forge-blue"
                     : "border border-forge-border/35 text-forge-muted/45 hover:text-forge-silver/60 hover:border-forge-border/55"}
                 `}
-                style={activeMode === m.id ? { boxShadow: "0 0 8px rgba(45,142,255,0.12)" } : undefined}
+                style={activeMode === m.id ? { boxShadow: "0 0 5px rgba(45,142,255,0.08)" } : undefined}
               >
                 {m.shortLabel}
               </button>
