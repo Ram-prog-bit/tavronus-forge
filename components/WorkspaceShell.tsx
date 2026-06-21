@@ -7,7 +7,7 @@ import OutputCard from "./OutputCard";
 import { ModeId, getModeById, MODES } from "@/lib/modes";
 import { FileNode, FILE_MODE_TREE, PROJECT_MODE_TREE, MOCK_CODE, getFileColor } from "@/lib/mockFiles";
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ── Helpers ─────────────────────────────────────────────────────────────────
 
 function getContent(path: string, name: string): string {
   if (MOCK_CODE[path]) return MOCK_CODE[path];
@@ -24,13 +24,13 @@ function extOf(name: string): string {
   return i === -1 ? "" : name.slice(i + 1);
 }
 
-// ── Sub-components ─────────────────────────────────────────────────────────
+// ── Sub-components ───────────────────────────────────────────────────────────
 
 function ForgeLogo() {
   return (
     <div
       className="w-5 h-5 border border-forge-blue/40 flex items-center justify-center flex-shrink-0"
-      style={{ boxShadow: "0 0 6px rgba(45,142,255,0.15)" }}
+      style={{ boxShadow: "0 0 6px rgba(45,142,255,0.12)" }}
     >
       <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
         <polygon points="7,1 13,4 13,10 7,13 1,10 1,4" stroke="#2D8EFF" strokeWidth="1" fill="none" />
@@ -64,10 +64,10 @@ function TreeNode({
           className="w-full flex items-center gap-1.5 py-[3px] text-left hover:bg-forge-panel/25 transition-colors"
           style={{ paddingLeft: `${6 + indent}px`, paddingRight: "8px" }}
         >
-          <span className="text-forge-muted/30 text-[9px] w-3 flex-shrink-0">
+          <span className="text-forge-muted/25 text-[9px] w-3 flex-shrink-0">
             {isExpanded ? "▾" : "▸"}
           </span>
-          <span className="text-[11px] text-forge-silver/45 truncate">{node.name}</span>
+          <span className="text-[11px] text-forge-silver/40 truncate">{node.name}</span>
         </button>
         {isExpanded &&
           node.children?.map((child) => (
@@ -91,25 +91,23 @@ function TreeNode({
     <button
       onClick={() => onFileSelect(path, node.name)}
       className={`
-        w-full flex items-center gap-1.5 py-[3px] text-left transition-colors
+        w-full flex items-center gap-1.5 py-[3px] text-left transition-all duration-100
         ${isActive
-          ? "bg-forge-blue/10 border-l-[2px] border-forge-blue/60"
-          : "border-l-[2px] border-transparent hover:bg-forge-panel/25"}
+          ? "bg-forge-blue/8 border-l-[2px] border-forge-blue/60"
+          : "border-l-[2px] border-transparent hover:bg-forge-panel/20"}
       `}
       style={{ paddingLeft: `${indent + 8}px`, paddingRight: "8px" }}
     >
       <span className="w-3 flex-shrink-0" />
-      <span className="text-[7px] flex-shrink-0" style={{ color: getFileColor(node.ext) }}>
-        ●
-      </span>
-      <span className={`text-[11px] truncate ${isActive ? "text-forge-chrome" : "text-forge-silver/45"}`}>
+      <span className="text-[7px] flex-shrink-0" style={{ color: getFileColor(node.ext) }}>●</span>
+      <span className={`text-[11px] truncate ${isActive ? "text-forge-chrome" : "text-forge-silver/40"}`}>
         {node.name}
       </span>
     </button>
   );
 }
 
-// ── Main component ──────────────────────────────────────────────────────────
+// ── Main component ───────────────────────────────────────────────────────────
 
 export default function WorkspaceShell() {
   const searchParams = useSearchParams();
@@ -122,6 +120,7 @@ export default function WorkspaceShell() {
   const [editorContent, setEditorContent] = useState("");
 
   // Explorer
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
     new Set([
       "tavronus-forge-demo",
@@ -130,6 +129,7 @@ export default function WorkspaceShell() {
       "tavronus-forge-demo/lib",
       "app",
       "components",
+      "lib",
     ])
   );
 
@@ -139,30 +139,23 @@ export default function WorkspaceShell() {
   const [aiOutput, setAiOutput] = useState<{ title: string; content: string }[] | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Layout
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [terminalOpen, setTerminalOpen] = useState(true);
-
-  // Refs for scroll sync between line numbers and textarea
+  // Scroll sync
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const lineNumRef = useRef<HTMLDivElement>(null);
 
   const mode = getModeById(activeMode);
   const fileTree = urlMode === "file" ? FILE_MODE_TREE : PROJECT_MODE_TREE;
 
-  // Initialise active file from URL params
   useEffect(() => {
     if (urlMode === "file") {
-      const content = getContent(urlName, urlName);
       setActiveFilePath(urlName);
       setActiveFileName(urlName);
-      setEditorContent(content);
+      setEditorContent(getContent(urlName, urlName));
     } else {
       const defaultPath = `${urlName}/app/page.tsx`;
-      const content = getContent(defaultPath, "page.tsx");
       setActiveFilePath(defaultPath);
       setActiveFileName("page.tsx");
-      setEditorContent(content);
+      setEditorContent(getContent(defaultPath, "page.tsx"));
     }
   }, [urlMode, urlName]);
 
@@ -206,86 +199,97 @@ export default function WorkspaceShell() {
 
   const lineCount = editorContent.split("\n").length;
   const fileExt = extOf(activeFileName);
+  const langLabel =
+    fileExt === "tsx" ? "TypeScript JSX"
+    : fileExt === "ts" ? "TypeScript"
+    : fileExt === "json" ? "JSON"
+    : fileExt === "css" ? "CSS"
+    : "Plain Text";
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // ── Render ───────────────────────────────────────────────────────────────
 
   return (
     <div className="flex flex-col h-screen bg-forge-black text-forge-chrome overflow-hidden">
 
-      {/* ── TOP BAR ─────────────────────────────────────────────── */}
-      <header className="flex items-center h-10 border-b border-forge-border/50 bg-forge-obsidian/60 flex-shrink-0">
+      {/* ── TOP BAR ───────────────────────────────────────────────── */}
+      <header className="flex items-center h-10 border-b border-forge-border/40 bg-forge-obsidian/50 flex-shrink-0">
 
-        {/* Brand + sidebar toggle */}
-        <div className="flex items-center gap-2 px-3 border-r border-forge-border/40 h-full flex-shrink-0">
+        {/* Sidebar toggle + brand */}
+        <div className="flex items-center gap-2 px-3 border-r border-forge-border/30 h-full flex-shrink-0">
           <button
             onClick={() => setSidebarOpen((o) => !o)}
-            className="p-1.5 rounded text-forge-silver/30 hover:text-forge-chrome hover:bg-forge-panel/40 transition-colors"
+            className="p-1.5 rounded text-forge-silver/25 hover:text-forge-chrome hover:bg-forge-panel/40 transition-colors"
             title="Toggle explorer"
           >
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <rect x="0" y="1"   width="12" height="1.5" rx="0.75" fill="currentColor" />
+              <rect x="0" y="1"    width="12" height="1.5" rx="0.75" fill="currentColor" />
               <rect x="0" y="5.25" width="12" height="1.5" rx="0.75" fill="currentColor" />
-              <rect x="0" y="9.5" width="12" height="1.5" rx="0.75" fill="currentColor" />
+              <rect x="0" y="9.5"  width="12" height="1.5" rx="0.75" fill="currentColor" />
             </svg>
           </button>
           <ForgeLogo />
-          <span className="text-[10px] text-forge-chrome/55 tracking-widest uppercase forge-mono hidden sm:block">
+          <span className="text-[10px] text-forge-chrome/50 tracking-widest uppercase forge-mono hidden sm:block">
             Forge
           </span>
         </div>
 
         {/* File tab */}
         <div className="flex-1 flex items-center h-full overflow-hidden">
-          {activeFileName && (
-            <div className="flex items-center gap-2 px-4 h-full border-r border-forge-border/30 bg-forge-black/25 text-xs forge-mono text-forge-chrome/65 flex-shrink-0">
+          {activeFileName ? (
+            <div className="flex items-center gap-2 px-4 h-full border-r border-forge-border/25 bg-forge-black/20 text-[11px] forge-mono text-forge-chrome/60 flex-shrink-0">
               <span className="text-[8px]" style={{ color: getFileColor(fileExt) }}>●</span>
               <span>{activeFileName}</span>
               <button
-                onClick={() => {
-                  setActiveFilePath("");
-                  setActiveFileName("");
-                  setEditorContent("");
-                }}
-                className="text-forge-muted/30 hover:text-forge-chrome/60 ml-1 transition-colors text-[11px]"
-                title="Close file"
+                onClick={() => { setActiveFilePath(""); setActiveFileName(""); setEditorContent(""); }}
+                className="text-forge-muted/25 hover:text-forge-chrome/50 ml-0.5 transition-colors leading-none"
+                title="Close"
               >
                 ×
               </button>
             </div>
+          ) : (
+            <span className="px-4 text-[11px] forge-mono text-forge-muted/25">
+              {urlName}
+            </span>
           )}
         </div>
 
-        {/* Right: status + home */}
-        <div className="flex items-center gap-3 px-3 flex-shrink-0">
+        {/* Right: status */}
+        <div className="flex items-center gap-3 px-4 flex-shrink-0">
           <div
-            className="hidden md:flex items-center gap-1.5 px-2 py-0.5 rounded border border-forge-border/30 text-[10px] forge-mono"
-            style={{ color: "rgba(45,142,255,0.45)" }}
+            className="hidden sm:flex items-center gap-1.5 text-[10px] forge-mono"
+            style={{ color: "rgba(45,142,255,0.5)" }}
           >
-            <div className="w-1 h-1 rounded-full bg-forge-blue/40 animate-pulse" />
-            mock mode
+            <div className="w-1.5 h-1.5 rounded-full bg-forge-blue/50 animate-pulse" />
+            Local Mock Mode
           </div>
-          <div className="w-px h-3 bg-forge-border/40" />
+          <div className="w-px h-3 bg-forge-border/30 hidden sm:block" />
+          <div className="flex items-center gap-1 text-[10px] forge-mono text-green-500/50">
+            <span>✓</span>
+            <span>Ready</span>
+          </div>
+          <div className="w-px h-3 bg-forge-border/30" />
           <Link
             href="/"
-            className="text-[10px] text-forge-silver/30 hover:text-forge-chrome transition-colors forge-mono"
+            className="text-[10px] text-forge-muted/30 hover:text-forge-chrome/60 transition-colors forge-mono"
           >
             ← Home
           </Link>
         </div>
       </header>
 
-      {/* ── MAIN BODY ───────────────────────────────────────────── */}
+      {/* ── MAIN BODY ─────────────────────────────────────────────── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
 
-        {/* LEFT: File Explorer */}
+        {/* ── LEFT: Explorer ──────────────────────────────────────── */}
         <aside
           className={`
-            flex flex-col border-r border-forge-border/40 bg-forge-obsidian/40 flex-shrink-0
+            flex flex-col border-r border-forge-border/35 bg-forge-obsidian/35 flex-shrink-0
             transition-all duration-200
-            ${sidebarOpen ? "w-44" : "w-0 overflow-hidden border-r-0"}
+            ${sidebarOpen ? "w-56" : "w-0 overflow-hidden border-r-0"}
           `}
         >
-          <div className="flex items-center px-3 py-1.5 border-b border-forge-border/30">
+          <div className="flex items-center px-3 py-2 border-b border-forge-border/25">
             <span className="text-[9px] text-forge-muted/30 uppercase tracking-widest forge-mono">
               Explorer
             </span>
@@ -306,24 +310,28 @@ export default function WorkspaceShell() {
           </div>
         </aside>
 
-        {/* CENTER: Code Editor */}
-        <div className="flex flex-col flex-1 min-w-0 overflow-hidden border-r border-forge-border/30">
+        {/* ── CENTER: Editor ──────────────────────────────────────── */}
+        <div className="flex flex-col flex-1 min-w-0 overflow-hidden border-r border-forge-border/25">
 
           {/* Editor meta bar */}
-          <div className="flex items-center justify-between px-4 py-1 border-b border-forge-border/20 bg-forge-obsidian/20 flex-shrink-0">
+          <div className="flex items-center justify-between px-4 h-8 border-b border-forge-border/20 bg-forge-obsidian/15 flex-shrink-0">
             <div className="flex items-center gap-2 text-[10px] forge-mono text-forge-muted/30">
-              <span>{activeFileName || "No file open"}</span>
-              {activeFileName && (
+              {activeFileName ? (
                 <>
+                  <span>{activeFileName}</span>
+                  <span>·</span>
+                  <span className="text-forge-muted/20">mock file</span>
                   <span>·</span>
                   <span>{lineCount} lines</span>
                 </>
+              ) : (
+                <span>No file open</span>
               )}
             </div>
             <div className="flex items-center gap-2 text-[10px] forge-mono text-forge-muted/20">
-              {fileExt === "tsx" || fileExt === "ts" ? "TypeScript JSX" : fileExt.toUpperCase() || "Plain Text"}
+              <span>{langLabel}</span>
               <span>·</span>
-              UTF-8
+              <span>UTF-8</span>
             </div>
           </div>
 
@@ -333,22 +341,22 @@ export default function WorkspaceShell() {
               {/* Line numbers */}
               <div
                 ref={lineNumRef}
-                className="w-10 flex-shrink-0 border-r border-forge-border/15 overflow-hidden"
+                className="w-10 flex-shrink-0 border-r border-forge-border/12 overflow-hidden"
                 style={{ scrollbarWidth: "none" }}
               >
                 <div className="py-3 select-none">
                   {Array.from({ length: lineCount }, (_, i) => (
                     <div
                       key={i}
-                      className="text-right pr-3 text-[11px] text-forge-muted/20 forge-mono"
-                      style={{ lineHeight: "1.55rem" }}
+                      className="text-right pr-3 text-[11px] text-forge-muted/18 forge-mono"
+                      style={{ lineHeight: "1.6rem" }}
                     >
                       {i + 1}
                     </div>
                   ))}
                 </div>
               </div>
-              {/* Editable textarea */}
+              {/* Textarea */}
               <textarea
                 ref={editorRef}
                 value={editorContent}
@@ -356,7 +364,7 @@ export default function WorkspaceShell() {
                 onScroll={handleEditorScroll}
                 className="flex-1 bg-transparent text-forge-chrome text-[13px] forge-mono
                   outline-none resize-none px-4 py-3 overflow-auto"
-                style={{ lineHeight: "1.55rem" }}
+                style={{ lineHeight: "1.6rem" }}
                 spellCheck={false}
                 autoComplete="off"
                 autoCorrect="off"
@@ -365,49 +373,45 @@ export default function WorkspaceShell() {
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center">
-              <p className="text-sm text-forge-muted/20 forge-mono">
+              <p className="text-sm text-forge-muted/18 forge-mono">
                 Select a file from the explorer
               </p>
             </div>
           )}
         </div>
 
-        {/* RIGHT: Forge AI Panel */}
-        <div className="flex flex-col w-72 flex-shrink-0 bg-forge-obsidian/30 overflow-hidden">
+        {/* ── RIGHT: Forge AI ─────────────────────────────────────── */}
+        <div className="flex flex-col w-96 flex-shrink-0 bg-forge-obsidian/25 overflow-hidden">
 
-          {/* Panel header */}
-          <div className="flex items-center gap-2 px-4 py-2.5 border-b border-forge-border/40 flex-shrink-0">
-            <span className="text-xs font-semibold text-forge-chrome">◈ Forge AI</span>
+          {/* AI panel header */}
+          <div className="flex items-center justify-between px-4 h-10 border-b border-forge-border/35 flex-shrink-0">
+            <span className="text-xs font-medium text-forge-chrome/80 tracking-wide">
+              ◈ Forge AI
+            </span>
           </div>
 
-          {/* Mode icon tabs */}
-          <div className="flex border-b border-forge-border/30 flex-shrink-0">
+          {/* Mode chips */}
+          <div className="flex flex-wrap gap-1.5 px-3 py-3 border-b border-forge-border/20 flex-shrink-0">
             {MODES.map((m) => (
               <button
                 key={m.id}
-                onClick={() => {
-                  setActiveMode(m.id);
-                  setAiOutput(null);
-                }}
-                title={m.label}
+                onClick={() => { setActiveMode(m.id); setAiOutput(null); }}
                 className={`
-                  flex-1 py-1.5 text-sm transition-colors
+                  px-2.5 py-1 rounded text-[11px] forge-mono font-medium transition-all duration-150
                   ${activeMode === m.id
-                    ? "text-forge-blue border-b-[1.5px] border-forge-blue bg-forge-blue/5"
-                    : "text-forge-muted/35 hover:text-forge-silver/60 border-b-[1.5px] border-transparent"}
+                    ? "border border-forge-blue/50 bg-forge-blue/10 text-forge-blue"
+                    : "border border-forge-border/35 text-forge-muted/45 hover:text-forge-silver/60 hover:border-forge-border/55"}
                 `}
+                style={activeMode === m.id ? { boxShadow: "0 0 8px rgba(45,142,255,0.12)" } : undefined}
               >
-                {m.icon}
+                {m.shortLabel}
               </button>
             ))}
           </div>
 
-          {/* Mode label */}
-          <div className="px-4 py-2 border-b border-forge-border/20 flex-shrink-0">
-            <span className="text-[10px] text-forge-blue/50 forge-mono uppercase tracking-widest">
-              {mode.icon} {mode.label}
-            </span>
-            <p className="text-[10px] text-forge-muted/30 mt-0.5 leading-relaxed">
+          {/* Mode description (single subtle line) */}
+          <div className="px-3 py-2 border-b border-forge-border/15 flex-shrink-0">
+            <p className="text-[10px] text-forge-muted/30 forge-mono leading-relaxed">
               {mode.description}
             </p>
           </div>
@@ -418,22 +422,20 @@ export default function WorkspaceShell() {
               value={aiInput}
               onChange={(e) => setAiInput(e.target.value)}
               onKeyDown={handleAIKeyDown}
-              placeholder={mode.placeholder}
+              placeholder="Ask Forge about this file or project..."
               rows={4}
-              className="w-full bg-forge-black/40 border border-forge-border/40 rounded
-                text-xs text-forge-chrome forge-mono placeholder:text-forge-muted/25
-                outline-none resize-none px-3 py-2 leading-relaxed
+              className="w-full bg-forge-black/40 border border-forge-border/35 rounded
+                text-xs text-forge-chrome forge-mono placeholder:text-forge-muted/22
+                outline-none resize-none px-3 py-2.5 leading-relaxed
                 focus:border-forge-blue/25 transition-colors"
             />
-            <div className="flex gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-2">
               {(aiInput || aiOutput) && (
                 <button
-                  onClick={() => {
-                    setAiInput("");
-                    setAiOutput(null);
-                  }}
-                  className="text-[10px] forge-mono px-2.5 py-1.5 border border-forge-border/40 rounded
-                    text-forge-muted/40 hover:text-forge-silver/60 hover:border-forge-border/60 transition-colors"
+                  onClick={() => { setAiInput(""); setAiOutput(null); }}
+                  className="text-[11px] forge-mono px-3 py-1.5 border border-forge-border/35 rounded
+                    text-forge-muted/40 hover:text-forge-silver/60 hover:border-forge-border/55
+                    transition-colors flex-shrink-0"
                 >
                   Clear
                 </button>
@@ -445,18 +447,15 @@ export default function WorkspaceShell() {
                   flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded
                   text-xs font-semibold forge-mono transition-all duration-200
                   ${!aiInput.trim() || isGenerating
-                    ? "opacity-30 cursor-not-allowed text-forge-silver bg-forge-panel border border-forge-border/30"
+                    ? "opacity-25 cursor-not-allowed text-forge-silver bg-forge-panel/50 border border-forge-border/25"
                     : "forge-btn-primary text-white cursor-pointer"}
                 `}
               >
                 {isGenerating ? (
                   <>
                     <svg className="animate-spin" width="10" height="10" viewBox="0 0 12 12" fill="none">
-                      <circle
-                        cx="6" cy="6" r="5"
-                        stroke="currentColor" strokeWidth="1.5"
-                        strokeDasharray="16" strokeDashoffset="8"
-                      />
+                      <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.5"
+                        strokeDasharray="16" strokeDashoffset="8" />
                     </svg>
                     Forging...
                   </>
@@ -465,15 +464,12 @@ export default function WorkspaceShell() {
                 )}
               </button>
             </div>
-            <p className="text-[9px] text-forge-muted/18 forge-mono mt-1.5 text-right">
-              ⌘↵ to generate
-            </p>
           </div>
 
           {/* AI output */}
           <div className="flex-1 overflow-y-auto p-3">
             {isGenerating ? (
-              <div className="flex flex-col items-center justify-center min-h-[80px] gap-3 pt-6">
+              <div className="flex flex-col items-center justify-center min-h-[100px] gap-3 pt-8">
                 <div className="flex gap-1.5">
                   {[0, 1, 2].map((i) => (
                     <div
@@ -492,11 +488,10 @@ export default function WorkspaceShell() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center min-h-[80px] gap-2 text-center pt-6">
-                <span className="text-2xl text-forge-muted/12">{mode.icon}</span>
-                <p className="text-[10px] text-forge-muted/25 forge-mono">No output yet</p>
-                <p className="text-[9px] text-forge-muted/15 forge-mono leading-relaxed">
-                  Type a prompt and click<br />⚡ Forge Output
+              <div className="flex flex-col items-center justify-center min-h-[100px] gap-2 text-center pt-8">
+                <p className="text-xs text-forge-muted/25 forge-mono">No output yet.</p>
+                <p className="text-[10px] text-forge-muted/18 forge-mono leading-relaxed max-w-[200px]">
+                  Ask Forge to plan, prompt, review, debug, or create a checklist.
                 </p>
               </div>
             )}
@@ -505,63 +500,35 @@ export default function WorkspaceShell() {
         </div>
       </div>
 
-      {/* ── TERMINAL ────────────────────────────────────────────── */}
-      <div
-        className={`
-          border-t border-forge-border/40 bg-forge-black flex-shrink-0 overflow-hidden
-          transition-all duration-200
-          ${terminalOpen ? "h-[6.5rem]" : "h-7"}
-        `}
-      >
-        {/* Terminal tab */}
-        <div className="flex items-center justify-between px-3 h-7 border-b border-forge-border/30 bg-forge-obsidian/40">
-          <div className="flex items-center">
-            <button className="flex items-center gap-1.5 text-[10px] text-forge-chrome/55 forge-mono border-b border-forge-blue/40 pb-px">
-              Terminal
-            </button>
-          </div>
-          <button
-            onClick={() => setTerminalOpen((o) => !o)}
-            className="text-[10px] text-forge-muted/30 hover:text-forge-chrome transition-colors px-1 forge-mono"
-            title={terminalOpen ? "Collapse terminal" : "Expand terminal"}
-          >
-            {terminalOpen ? "∨" : "∧"}
-          </button>
+      {/* ── BOTTOM: Terminal + status ────────────────────────────── */}
+      <div className="border-t border-forge-border/35 bg-forge-black flex-shrink-0">
+
+        {/* Compact terminal line */}
+        <div className="flex items-center gap-3 px-4 h-8 border-b border-forge-border/20 bg-forge-obsidian/30">
+          <span className="text-[10px] forge-mono text-forge-muted/30">$</span>
+          <span className="text-[10px] forge-mono text-forge-muted/40">npm run dev</span>
+          <span className="text-[10px] forge-mono text-forge-muted/20">·</span>
+          <span className="text-[10px] forge-mono text-green-500/50">✓ ready</span>
+          <span className="text-[10px] forge-mono text-forge-muted/20">—</span>
+          <span className="text-[10px] forge-mono text-forge-blue/45">http://localhost:5642</span>
+          <span className="inline-block w-1.5 h-[0.65rem] bg-forge-muted/20 animate-pulse align-middle ml-0.5" />
         </div>
-        {/* Terminal content */}
-        {terminalOpen && (
-          <div className="px-4 py-2 overflow-y-auto h-[calc(100%-1.75rem)]">
-            <pre className="text-[11px] forge-mono leading-relaxed text-forge-muted/45 whitespace-pre select-text">
-{`$ npm run dev
 
-   ▲ Next.js 14.2.5
-
-   - Local:        `}<span className="text-forge-blue/55">http://localhost:5642</span>{`
-   - Environments: .env.local
-
- ✓ Starting...
- ✓ Ready in 1.2s`}
-            </pre>
-            <span className="text-[11px] forge-mono text-forge-muted/40">$ </span>
-            <span className="inline-block w-1.5 h-[0.7rem] bg-forge-muted/25 animate-pulse align-middle ml-px" />
+        {/* Status bar */}
+        <div className="flex items-center justify-between px-4 h-6">
+          <div className="flex items-center gap-2.5">
+            <div className="w-1 h-1 rounded-full bg-green-500/55 animate-pulse" />
+            <span className="text-[10px] forge-mono text-forge-muted/35">Forge shell active</span>
+            <span className="text-[10px] forge-mono text-forge-border/50">·</span>
+            <span className="text-[10px] forge-mono text-forge-muted/25">localhost:5642</span>
+            <span className="text-[10px] forge-mono text-forge-border/50">·</span>
+            <span className="text-[10px] forge-mono text-forge-muted/25">mock mode</span>
           </div>
-        )}
-      </div>
-
-      {/* ── STATUS BAR ──────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 h-6 border-t border-forge-border/40 bg-forge-black/80 flex-shrink-0">
-        <div className="flex items-center gap-2.5">
-          <div className="w-1 h-1 rounded-full bg-green-500/60 animate-pulse" />
-          <span className="text-[10px] forge-mono text-forge-muted/35">Forge</span>
-          <span className="text-[10px] forge-mono text-forge-blue/20">·</span>
-          <span className="text-[10px] forge-mono text-forge-muted/30">localhost:5642</span>
-          <span className="text-[10px] forge-mono text-forge-blue/20">·</span>
-          <span className="text-[10px] forge-mono text-forge-muted/25">mock mode</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] forge-mono text-forge-muted/25">{mode.label}</span>
-          <span className="text-[10px] forge-mono text-forge-blue/15">·</span>
-          <span className="text-[10px] forge-mono text-forge-muted/20">v0.1</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] forge-mono text-forge-muted/22">{mode.label}</span>
+            <span className="text-[10px] forge-mono text-forge-border/40">·</span>
+            <span className="text-[10px] forge-mono text-forge-muted/18">v0.1</span>
+          </div>
         </div>
       </div>
 

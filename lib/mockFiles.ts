@@ -6,9 +6,9 @@ export interface FileNode {
 }
 
 export const MOCK_CODE: Record<string, string> = {
-  "untitled.tsx": `export default function Untitled() {\n  return (\n    <div>\n      {/* Start building here */}\n    </div>\n  )\n}`,
+  "untitled.tsx": `export default function Untitled() {\n  return (\n    <main>\n      Start building with Tavronus Forge.\n    </main>\n  )\n}`,
 
-  "example-component.tsx": `import { useState } from 'react'\n\ninterface Props {\n  title: string\n  description?: string\n}\n\nexport default function ExampleComponent({ title, description }: Props) {\n  const [active, setActive] = useState(false)\n\n  return (\n    <div className="rounded-lg border border-gray-800 p-4">\n      <h2 className="text-lg font-semibold">{title}</h2>\n      {description && (\n        <p className="text-sm text-gray-400 mt-1">{description}</p>\n      )}\n      <button\n        onClick={() => setActive(!active)}\n        className="mt-3 px-4 py-2 bg-blue-600 text-white rounded"\n      >\n        {active ? 'Active' : 'Inactive'}\n      </button>\n    </div>\n  )\n}`,
+  "example-component.tsx": `export default function ExampleComponent() {\n  return (\n    <div className="rounded-xl border border-sky-500/20 bg-black/40 p-6">\n      Start building with Tavronus Forge.\n    </div>\n  )\n}`,
 
   "homework-tracker.tsx": `'use client'\n\nimport { useState } from 'react'\n\ninterface Assignment {\n  id: string\n  subject: string\n  due: string\n  done: boolean\n}\n\nexport default function HomeworkTracker() {\n  const [assignments, setAssignments] = useState<Assignment[]>([\n    { id: '1', subject: 'Math', due: 'Tomorrow', done: false },\n    { id: '2', subject: 'English', due: 'Friday', done: true },\n  ])\n\n  const toggle = (id: string) =>\n    setAssignments(a => a.map(x => x.id === id ? { ...x, done: !x.done } : x))\n\n  return (\n    <div className="max-w-md mx-auto p-6">\n      <h1 className="text-2xl font-bold mb-4">Homework Tracker</h1>\n      {assignments.map(a => (\n        <div key={a.id} className="flex items-center gap-3 py-2 border-b">\n          <input type="checkbox" checked={a.done} onChange={() => toggle(a.id)} />\n          <span className={a.done ? 'line-through text-gray-400' : ''}>{a.subject}</span>\n          <span className="ml-auto text-sm text-gray-500">{a.due}</span>\n        </div>\n      ))}\n    </div>\n  )\n}`,
 
@@ -29,8 +29,9 @@ export const MOCK_CODE: Record<string, string> = {
   "package.json": `{\n  "name": "tavronus-forge",\n  "version": "0.1.0",\n  "private": true,\n  "scripts": {\n    "dev": "next dev -p 5642",\n    "build": "next build",\n    "start": "next start -p 5642",\n    "lint": "next lint"\n  },\n  "dependencies": {\n    "next": "14.2.5",\n    "react": "^18",\n    "react-dom": "^18"\n  },\n  "devDependencies": {\n    "typescript": "^5",\n    "tailwindcss": "^3.4.1",\n    "@types/react": "^18"\n  }\n}`,
 };
 
-// File tree for single-file mode
+// File tree for single-file mode (used for both New File and Open File)
 export const FILE_MODE_TREE: FileNode[] = [
+  { name: "untitled.tsx", type: "file", ext: "tsx" },
   { name: "example-component.tsx", type: "file", ext: "tsx" },
   { name: "package.json", type: "file", ext: "json" },
   {
@@ -40,6 +41,10 @@ export const FILE_MODE_TREE: FileNode[] = [
   {
     name: "components", type: "dir",
     children: [{ name: "ForgePanel.tsx", type: "file", ext: "tsx" }],
+  },
+  {
+    name: "lib", type: "dir",
+    children: [{ name: "modes.ts", type: "file", ext: "ts" }],
   },
 ];
 
