@@ -132,7 +132,7 @@ export default function WorkspaceShell() {
               href="/"
               className="text-xs text-forge-silver/40 hover:text-forge-silver/70 transition-colors forge-mono"
             >
-              ← Home
+              ← Command Center
             </Link>
           </div>
         </header>

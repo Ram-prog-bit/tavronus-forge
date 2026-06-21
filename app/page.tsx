@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import BootScreen from "@/components/BootScreen";
-import LandingPage from "@/components/LandingPage";
+import ForgeCommandCenter from "@/components/ForgeCommandCenter";
 
 export default function Home() {
   const [booted, setBooted] = useState(false);
@@ -13,11 +13,12 @@ export default function Home() {
       <div
         style={{
           opacity: booted ? 1 : 0,
-          transition: "opacity 0.5s ease",
+          transition: "opacity 0.45s ease",
           pointerEvents: booted ? "auto" : "none",
+          height: "100vh",
         }}
       >
-        <LandingPage />
+        <ForgeCommandCenter />
       </div>
     </>
   );
