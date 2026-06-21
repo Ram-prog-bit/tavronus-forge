@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import BootScreen from "@/components/BootScreen";
-import ForgeCommandCenter from "@/components/ForgeCommandCenter";
+import StartScreen from "@/components/StartScreen";
 
 export default function Home() {
   const [booted, setBooted] = useState(false);
@@ -18,7 +18,7 @@ export default function Home() {
           height: "100vh",
         }}
       >
-        <ForgeCommandCenter />
+        <StartScreen />
       </div>
     </>
   );

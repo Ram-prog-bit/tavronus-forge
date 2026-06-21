@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import WorkspaceShell from "@/components/WorkspaceShell";
 
 export const metadata = {
@@ -6,5 +7,9 @@ export const metadata = {
 };
 
 export default function WorkspacePage() {
-  return <WorkspaceShell />;
+  return (
+    <Suspense>
+      <WorkspaceShell />
+    </Suspense>
+  );
 }
