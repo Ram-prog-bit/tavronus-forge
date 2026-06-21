@@ -118,92 +118,18 @@ const SHORTCUTS = [
   { label: "Add Folder",    keys: ["Ctrl", "Alt", "A"] },
 ];
 
-function TavronusSymbol() {
-  return (
-    <svg
-      viewBox="0 0 100 140"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ width: 72, height: "auto" }}
-    >
-      <defs>
-        <linearGradient id="tav-left" x1="50" y1="5" x2="24" y2="131" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#1e222c" />
-          <stop offset="100%" stopColor="#0c0f13" />
-        </linearGradient>
-        <linearGradient id="tav-right" x1="50" y1="5" x2="74" y2="131" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#262c38" />
-          <stop offset="100%" stopColor="#161a22" />
-        </linearGradient>
-        <linearGradient id="tav-seam" x1="50" y1="5" x2="50" y2="138" gradientUnits="userSpaceOnUse">
-          <stop offset="0%"   stopColor="#80C0FF" stopOpacity="0.90" />
-          <stop offset="45%"  stopColor="#2D8EFF" stopOpacity="0.75" />
-          <stop offset="100%" stopColor="#0F4FA0" stopOpacity="0.28" />
-        </linearGradient>
-      </defs>
-
-      {/* Left face — near-black */}
-      <polygon
-        points="50,5 10,33 24,131 50,126"
-        fill="url(#tav-left)"
-        stroke="#1a1e27"
-        strokeWidth="0.4"
-        strokeLinejoin="round"
-      />
-
-      {/* Right face — slightly lighter dark */}
-      <polygon
-        points="50,5 87,23 74,131 50,126"
-        fill="url(#tav-right)"
-        stroke="#20252f"
-        strokeWidth="0.4"
-        strokeLinejoin="round"
-      />
-
-      {/* Bottom tip */}
-      <polygon
-        points="24,131 50,138 74,131 50,126"
-        fill="#101318"
-        stroke="#161a21"
-        strokeWidth="0.4"
-        strokeLinejoin="round"
-      />
-
-      {/* Top-right edge — metallic highlight */}
-      <line x1="50" y1="5" x2="87" y2="23" stroke="#3E4A5A" strokeWidth="0.9" />
-
-      {/* Top-left edge — muted */}
-      <line x1="10" y1="33" x2="50" y2="5" stroke="#222730" strokeWidth="0.4" />
-
-      {/* Blue seam — soft glow halo */}
-      <line x1="50" y1="5" x2="50" y2="138" stroke="#2D8EFF" strokeWidth="6" strokeOpacity="0.07" strokeLinecap="round" />
-
-      {/* Blue seam — main */}
-      <line x1="50" y1="5" x2="50" y2="138" stroke="url(#tav-seam)" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function WelcomeScreen() {
-  const [hovered, setHovered] = useState(false);
-
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-forge-black select-none px-6">
 
-      {/* Symbol with hover glow */}
-      <div
-        className="mb-10 cursor-default"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          opacity: hovered ? 0.80 : 0.52,
-          filter: hovered
-            ? "drop-shadow(0 0 22px rgba(45,142,255,0.24)) drop-shadow(0 0 8px rgba(45,142,255,0.16))"
-            : "drop-shadow(0 0 4px rgba(45,142,255,0.03))",
-          transition: "opacity 0.5s ease, filter 0.5s ease",
-        }}
-      >
-        <TavronusSymbol />
+      {/* Logo */}
+      <div className="mb-10">
+        <img
+          src="/tavronus-symbol.png"
+          alt="Tavronus symbol"
+          className="w-[115px] h-auto opacity-55 hover:opacity-80 transition-all duration-500"
+          style={{ filter: "drop-shadow(0 0 10px rgba(45,142,255,0.12))" }}
+        />
       </div>
 
       {/* Shortcut rows */}
