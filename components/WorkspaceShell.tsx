@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import OutputCard from "./OutputCard";
 import { ModeId, getModeById, MODES } from "@/lib/modes";
@@ -163,10 +163,131 @@ function WelcomeScreen({ commands }: { commands: WelcomeCommand[] }) {
   );
 }
 
+// ── Command palette ──────────────────────────────────────────────────────────
+
+interface PaletteCommand {
+  label: string;
+  hint: string;
+  onClick: () => void;
+}
+
+function CommandPalette({
+  commands,
+  onClose,
+}: {
+  commands: PaletteCommand[];
+  onClose: () => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const filtered = commands.filter((c) =>
+    c.label.toLowerCase().includes(query.trim().toLowerCase())
+  );
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    setSelected(0);
+  }, [query]);
+
+  const runAt = (i: number) => {
+    const cmd = filtered[i];
+    if (cmd) {
+      cmd.onClick();
+      onClose();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelected((s) => Math.min(s + 1, filtered.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelected((s) => Math.max(s - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      runAt(selected);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      onClose();
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-start justify-center pt-[18vh] px-4"
+      onMouseDown={onClose}
+    >
+      <div className="absolute inset-0 bg-black/60" />
+      <div
+        className="relative w-full max-w-[520px] rounded-lg border border-forge-blue/25 bg-forge-gunmetal/95 overflow-hidden"
+        style={{ boxShadow: "0 0 0 1px rgba(45,142,255,0.06), 0 16px 48px rgba(0,0,0,0.55)" }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-forge-border/25">
+          <span className="text-[10px] uppercase tracking-widest forge-mono text-forge-muted/40">
+            Forge Command Palette
+          </span>
+          <kbd className="text-[9px] forge-mono text-forge-muted/30 border border-forge-border/25 rounded px-1.5 py-0.5">
+            Esc
+          </kbd>
+        </div>
+
+        {/* Search */}
+        <input
+          ref={inputRef}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Search commands..."
+          className="w-full bg-transparent px-4 py-3 text-sm text-forge-chrome forge-mono outline-none
+            placeholder:text-forge-muted/25 border-b border-forge-border/20"
+        />
+
+        {/* List */}
+        <div className="max-h-[300px] overflow-y-auto py-1">
+          {filtered.length === 0 ? (
+            <p className="px-4 py-3 text-[11px] forge-mono text-forge-muted/30">
+              No matching commands.
+            </p>
+          ) : (
+            filtered.map((c, i) => (
+              <button
+                key={c.label}
+                onMouseEnter={() => setSelected(i)}
+                onClick={() => runAt(i)}
+                className={`w-full flex items-center justify-between px-4 py-2 text-left transition-colors ${
+                  i === selected ? "bg-forge-blue/10" : "hover:bg-forge-panel/20"
+                }`}
+              >
+                <span
+                  className={`text-[12px] forge-mono ${
+                    i === selected ? "text-forge-chrome" : "text-forge-silver/55"
+                  }`}
+                >
+                  {c.label}
+                </span>
+                <span className="text-[10px] forge-mono text-forge-muted/30">{c.hint}</span>
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main component ───────────────────────────────────────────────────────────
 
 export default function WorkspaceShell() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const urlMode = searchParams.get("mode") ?? "project";
   const urlName = searchParams.get("name") ?? "tavronus-forge-demo";
 
@@ -196,6 +317,13 @@ export default function WorkspaceShell() {
   const [aiInput, setAiInput] = useState("");
   const [aiOutput, setAiOutput] = useState<{ title: string; content: string }[] | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Overlays / panels
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [menu, setMenu] = useState<{ name: string; left: number; top: number } | null>(null);
+  const [settings, setSettings] = useState<{ left: number; top: number } | null>(null);
+  const [aiPanelOpen, setAiPanelOpen] = useState(true);
+  const [terminalOpen, setTerminalOpen] = useState(true);
 
   // Scroll sync
   const editorRef = useRef<HTMLTextAreaElement>(null);
@@ -229,6 +357,24 @@ export default function WorkspaceShell() {
       setEditorContent(getContent(defaultPath, "page.tsx"));
     }
   }, [urlMode, urlName]);
+
+  // Global keyboard: Ctrl/Cmd+K toggles palette, Escape closes overlays
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        setMenu(null);
+        setSettings(null);
+        setPaletteOpen((o) => !o);
+      } else if (e.key === "Escape") {
+        setPaletteOpen(false);
+        setMenu(null);
+        setSettings(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const handleFileSelect = useCallback((path: string, name: string) => {
     setActiveFilePath(path);
@@ -265,6 +411,7 @@ export default function WorkspaceShell() {
   const focusForgeAI = useCallback((nextMode: ModeId) => {
     setActiveMode(nextMode);
     setAiOutput(null);
+    setAiPanelOpen(true);
     requestAnimationFrame(() => aiInputRef.current?.focus());
   }, []);
 
@@ -298,6 +445,62 @@ export default function WorkspaceShell() {
       lineNumRef.current.scrollTop = editorRef.current.scrollTop;
     }
   };
+
+  // Shared actions (reused by palette, menus, top bar, welcome rows)
+  const clearOutput = useCallback(() => {
+    setAiInput("");
+    setAiOutput(null);
+  }, []);
+
+  const copyEditor = useCallback(() => {
+    if (editorContent) navigator.clipboard?.writeText(editorContent).catch(() => {});
+  }, [editorContent]);
+
+  const focusAIInput = useCallback(() => {
+    setAiPanelOpen(true);
+    requestAnimationFrame(() => aiInputRef.current?.focus());
+  }, []);
+
+  const paletteCommands: PaletteCommand[] = [
+    { label: "New File",          hint: "file",      onClick: openUntitled },
+    { label: "Open Workspace",    hint: "workspace", onClick: () => showWelcome("workspace") },
+    { label: "Open Mock Project", hint: "project",   onClick: () => showWelcome("mock-project") },
+    { label: "Generate Prompt",   hint: "forge ai",  onClick: () => focusForgeAI("prompt") },
+    { label: "Review Code",       hint: "forge ai",  onClick: () => focusForgeAI("review") },
+    { label: "Debug Error",       hint: "forge ai",  onClick: () => focusForgeAI("debug") },
+    { label: "Clear Output",      hint: "forge ai",  onClick: clearOutput },
+  ];
+
+  const menus: { name: string; items: { label: string; onClick: () => void }[] }[] = [
+    { name: "File", items: [
+      { label: "New File", onClick: openUntitled },
+      { label: "Open Workspace", onClick: () => showWelcome("workspace") },
+      { label: "Open Mock Project", onClick: () => showWelcome("mock-project") },
+    ] },
+    { name: "Edit", items: [
+      { label: "Copy", onClick: copyEditor },
+      { label: "Clear Output", onClick: clearOutput },
+    ] },
+    { name: "Selection", items: [
+      { label: "Select All", onClick: () => { editorRef.current?.focus(); editorRef.current?.select(); } },
+    ] },
+    { name: "View", items: [
+      { label: "Toggle Explorer", onClick: () => setSidebarOpen((o) => !o) },
+      { label: "Toggle Forge AI", onClick: () => setAiPanelOpen((o) => !o) },
+    ] },
+    { name: "Go", items: [
+      { label: "Command Palette…", onClick: () => setPaletteOpen(true) },
+    ] },
+    { name: "Run", items: [
+      { label: "Forge Output", onClick: () => handleGenerate() },
+    ] },
+    { name: "Terminal", items: [
+      { label: "Toggle Terminal", onClick: () => setTerminalOpen((o) => !o) },
+    ] },
+    { name: "Help", items: [
+      { label: "About Forge", onClick: () => router.push("/about") },
+    ] },
+  ];
 
   const lineCount = editorContent.split("\n").length;
   const fileExt = extOf(activeFileName);
@@ -347,12 +550,23 @@ export default function WorkspaceShell() {
 
           {/* Menu items — desktop only */}
           <nav className="hidden lg:flex items-center h-full" aria-label="App menu">
-            {["File", "Edit", "Selection", "View", "Go", "Run", "Terminal", "Help"].map((item) => (
+            {menus.map((m) => (
               <button
-                key={item}
-                className="px-2 h-full text-[11px] text-forge-silver/32 hover:text-forge-chrome/70 hover:bg-white/[0.04] transition-colors"
+                key={m.name}
+                onClick={(e) => {
+                  const r = e.currentTarget.getBoundingClientRect();
+                  setSettings(null);
+                  setMenu((cur) =>
+                    cur?.name === m.name ? null : { name: m.name, left: r.left, top: r.bottom }
+                  );
+                }}
+                className={`px-2 h-full text-[11px] transition-colors ${
+                  menu?.name === m.name
+                    ? "text-forge-chrome/80 bg-white/[0.05]"
+                    : "text-forge-silver/32 hover:text-forge-chrome/70 hover:bg-white/[0.04]"
+                }`}
               >
-                {item}
+                {m.name}
               </button>
             ))}
           </nav>
@@ -402,6 +616,23 @@ export default function WorkspaceShell() {
 
           <div className="w-px h-3.5 bg-forge-border/18 mx-0.5 hidden lg:block" />
 
+          {/* Command palette trigger */}
+          <button
+            onClick={() => { setMenu(null); setSettings(null); setPaletteOpen(true); }}
+            title="Command palette"
+            className="hidden sm:flex items-center gap-1.5 mx-1 px-2 py-1 rounded border border-forge-border/30
+              text-forge-muted/30 hover:text-forge-silver/55 hover:border-forge-border/50 transition-colors"
+          >
+            <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+              <circle cx="5" cy="5" r="3.2" stroke="currentColor" strokeWidth="1.2" />
+              <path d="M7.6 7.6L10.5 10.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+            </svg>
+            <span className="text-[10px] forge-mono">Search</span>
+            <kbd className="text-[8px] forge-mono text-forge-muted/30 border border-forge-border/25 rounded px-1 py-px leading-none">
+              Ctrl K
+            </kbd>
+          </button>
+
           {/* Plus: new file */}
           <Link
             href="/workspace?mode=file&name=untitled.tsx"
@@ -428,7 +659,8 @@ export default function WorkspaceShell() {
 
           {/* Forge AI — blue tinted */}
           <button
-            title="Forge AI"
+            title="Focus Forge AI"
+            onClick={() => { setMenu(null); setSettings(null); focusAIInput(); }}
             className="px-2 h-full flex items-center text-forge-blue/30 hover:text-forge-blue/60 hover:bg-white/[0.04] transition-colors"
           >
             <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
@@ -440,7 +672,14 @@ export default function WorkspaceShell() {
           {/* Settings */}
           <button
             title="Settings"
-            className="px-2 h-full flex items-center text-forge-muted/22 hover:text-forge-chrome/65 hover:bg-white/[0.04] transition-colors"
+            onClick={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              setMenu(null);
+              setSettings((cur) => (cur ? null : { left: r.right, top: r.bottom }));
+            }}
+            className={`px-2 h-full flex items-center transition-colors hover:bg-white/[0.04] ${
+              settings ? "text-forge-chrome/70" : "text-forge-muted/22 hover:text-forge-chrome/65"
+            }`}
           >
             <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
               <circle cx="7" cy="7" r="2.2" stroke="currentColor" strokeWidth="1" />
@@ -460,6 +699,61 @@ export default function WorkspaceShell() {
           </Link>
         </div>
       </header>
+
+      {/* ── Floating overlays: menu dropdowns + settings popover ──── */}
+      {(menu || settings) && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => { setMenu(null); setSettings(null); }}
+        />
+      )}
+
+      {menu && (
+        <div
+          className="fixed z-50 min-w-[190px] rounded-b-md border border-forge-border/30 bg-forge-gunmetal/95 py-1"
+          style={{ left: menu.left, top: menu.top, boxShadow: "0 14px 34px rgba(0,0,0,0.5)" }}
+        >
+          {menus.find((m) => m.name === menu.name)?.items.map((it) => (
+            <button
+              key={it.label}
+              onClick={() => { it.onClick(); setMenu(null); }}
+              className="w-full text-left px-3 py-1.5 text-[11px] forge-mono text-forge-silver/55
+                hover:bg-forge-blue/10 hover:text-forge-chrome transition-colors"
+            >
+              {it.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {settings && (
+        <div
+          className="fixed z-50 w-[180px] rounded-md border border-forge-blue/25 bg-forge-gunmetal/95 p-3"
+          style={{
+            left: settings.left,
+            top: settings.top,
+            transform: "translateX(-100%)",
+            boxShadow: "0 14px 34px rgba(0,0,0,0.5)",
+          }}
+        >
+          <p className="text-[9px] uppercase tracking-widest forge-mono text-forge-muted/40 mb-2">
+            Settings
+          </p>
+          <div className="flex flex-col gap-1.5 text-[11px] forge-mono">
+            {[
+              ["Theme", "Dark"],
+              ["Mode", "Mock"],
+              ["Port", "5642"],
+              ["Version", "v0.1"],
+            ].map(([k, v]) => (
+              <div key={k} className="flex items-center justify-between">
+                <span className="text-forge-muted/40">{k}</span>
+                <span className="text-forge-silver/60">{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── MAIN BODY ─────────────────────────────────────────────── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
@@ -569,6 +863,7 @@ export default function WorkspaceShell() {
         </div>
 
         {/* ── RIGHT: Forge AI ─────────────────────────────────────── */}
+        {aiPanelOpen && (
         <div className="flex flex-col w-96 flex-shrink-0 bg-forge-obsidian/25 overflow-hidden">
 
           {/* AI panel header */}
@@ -627,7 +922,7 @@ export default function WorkspaceShell() {
             <div className="flex items-center gap-2 mt-2">
               {(aiInput || aiOutput) && (
                 <button
-                  onClick={() => { setAiInput(""); setAiOutput(null); }}
+                  onClick={clearOutput}
                   className="text-[11px] forge-mono px-3 py-1.5 border border-forge-border/35 rounded
                     text-forge-muted/40 hover:text-forge-silver/60 hover:border-forge-border/55
                     transition-colors flex-shrink-0"
@@ -693,21 +988,24 @@ export default function WorkspaceShell() {
           </div>
 
         </div>
+        )}
       </div>
 
       {/* ── BOTTOM: Terminal + status ────────────────────────────── */}
       <div className="border-t border-forge-border/35 bg-forge-black flex-shrink-0">
 
         {/* Compact terminal line */}
-        <div className="flex items-center gap-3 px-4 h-8 border-b border-forge-border/20 bg-forge-obsidian/30">
-          <span className="text-[10px] forge-mono text-forge-muted/30">$</span>
-          <span className="text-[10px] forge-mono text-forge-muted/40">npm run dev</span>
-          <span className="text-[10px] forge-mono text-forge-muted/20">·</span>
-          <span className="text-[10px] forge-mono text-green-500/50">✓ ready</span>
-          <span className="text-[10px] forge-mono text-forge-muted/20">—</span>
-          <span className="text-[10px] forge-mono text-forge-blue/45">http://localhost:5642</span>
-          <span className="inline-block w-1.5 h-[0.65rem] bg-forge-muted/20 animate-pulse align-middle ml-0.5" />
-        </div>
+        {terminalOpen && (
+          <div className="flex items-center gap-3 px-4 h-8 border-b border-forge-border/20 bg-forge-obsidian/30">
+            <span className="text-[10px] forge-mono text-forge-muted/30">$</span>
+            <span className="text-[10px] forge-mono text-forge-muted/40">npm run dev</span>
+            <span className="text-[10px] forge-mono text-forge-muted/20">·</span>
+            <span className="text-[10px] forge-mono text-green-500/50">✓ ready</span>
+            <span className="text-[10px] forge-mono text-forge-muted/20">—</span>
+            <span className="text-[10px] forge-mono text-forge-blue/45">http://localhost:5642</span>
+            <span className="inline-block w-1.5 h-[0.65rem] bg-forge-muted/20 animate-pulse align-middle ml-0.5" />
+          </div>
+        )}
 
         {/* Status bar */}
         <div className="flex items-center justify-between px-4 h-6">
@@ -726,6 +1024,11 @@ export default function WorkspaceShell() {
           </div>
         </div>
       </div>
+
+      {/* ── Command palette ──────────────────────────────────────── */}
+      {paletteOpen && (
+        <CommandPalette commands={paletteCommands} onClose={() => setPaletteOpen(false)} />
+      )}
 
     </div>
   );
