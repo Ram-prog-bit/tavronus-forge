@@ -107,41 +107,57 @@ function TreeNode({
   );
 }
 
-// ── Empty editor state ───────────────────────────────────────────────────────
+// ── Welcome screen ───────────────────────────────────────────────────────────
 
-function EmptyEditorState() {
+const SHORTCUTS = [
+  { label: "New File",          keys: ["Ctrl", "N"] },
+  { label: "Open Workspace",    keys: ["Ctrl", "Shift", "W"] },
+  { label: "Open Mock Project", keys: ["Ctrl", "Alt", "P"] },
+  { label: "Generate Prompt",   keys: ["Ctrl", "G"] },
+  { label: "Review Code",       keys: ["Ctrl", "Shift", "R"] },
+  { label: "Debug Error",       keys: ["Ctrl", "D"] },
+];
+
+function WelcomeScreen() {
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-forge-black select-none px-6">
-      <div className="flex flex-col items-center gap-3 text-center">
-        <div
-          className="w-px h-6 bg-forge-blue/20 mb-2"
-          aria-hidden="true"
+
+      {/* Logo */}
+      <div className="mb-10">
+        <img
+          src="/tavronus-symbol.png"
+          alt="Tavronus symbol"
+          className="w-[115px] h-auto opacity-55 hover:opacity-80 transition-all duration-500"
+          style={{ filter: "drop-shadow(0 0 10px rgba(45,142,255,0.12))" }}
         />
-        <p className="text-[13px] text-forge-silver/35 forge-mono font-medium">
-          No file open
-        </p>
-        <p className="text-[11px] text-forge-muted/25 forge-mono leading-relaxed max-w-[260px]">
-          Select a file from Explorer or create a new file to start building.
-        </p>
-        <div className="flex items-center gap-2 mt-4">
-          <Link
-            href="/workspace?mode=file&name=untitled.tsx"
-            className="px-3 py-1.5 text-[11px] forge-mono border border-forge-border/30
-              text-forge-muted/40 hover:text-forge-silver/60 hover:border-forge-blue/30
-              transition-colors rounded"
-          >
-            New File
-          </Link>
-          <Link
-            href="/workspace?mode=project&name=tavronus-forge-demo"
-            className="px-3 py-1.5 text-[11px] forge-mono border border-forge-border/30
-              text-forge-muted/40 hover:text-forge-silver/60 hover:border-forge-blue/30
-              transition-colors rounded"
-          >
-            Open Mock Project
-          </Link>
-        </div>
       </div>
+
+      {/* Command rows */}
+      <div className="flex flex-col w-full max-w-[258px]">
+        {SHORTCUTS.map(({ label, keys }, i) => (
+          <div
+            key={label}
+            className={`flex items-center justify-between py-[5px] ${
+              i < SHORTCUTS.length - 1 ? "border-b border-forge-border/10" : ""
+            }`}
+          >
+            <span className="text-[11px] text-forge-muted/28 forge-mono">{label}</span>
+            <div className="flex items-center gap-[3px]">
+              {keys.map((key) => (
+                <kbd
+                  key={key}
+                  className="inline-flex items-center px-[5px] py-[2px] rounded text-[9px]
+                    forge-mono text-forge-muted/22 leading-none
+                    bg-forge-gunmetal/60 border border-forge-border/20"
+                >
+                  {key}
+                </kbd>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 }
@@ -190,6 +206,10 @@ export default function WorkspaceShell() {
       setActiveFilePath(urlName);
       setActiveFileName(urlName);
       setEditorContent(getContent(urlName, urlName));
+    } else if (urlMode === "workspace" || urlMode === "mock-project") {
+      setActiveFilePath("");
+      setActiveFileName("");
+      setEditorContent("");
     } else {
       const defaultPath = `${urlName}/app/page.tsx`;
       setActiveFilePath(defaultPath);
@@ -490,7 +510,7 @@ export default function WorkspaceShell() {
               />
             </div>
           ) : (
-            <EmptyEditorState />
+            <WelcomeScreen />
           )}
         </div>
 
