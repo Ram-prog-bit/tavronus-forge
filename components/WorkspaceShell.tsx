@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import OutputCard from "./OutputCard";
 import { ModeId, getModeById, MODES } from "@/lib/modes";
-import { ForgeArtifact, buildForgeArtifacts } from "@/lib/forgeArtifacts";
+import { ForgeArtifact, buildForgeArtifacts, analyzeEditorContent } from "@/lib/forgeArtifacts";
 import { FileNode, FILE_MODE_TREE, PROJECT_MODE_TREE, MOCK_CODE, getFileColor } from "@/lib/mockFiles";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -317,6 +317,7 @@ export default function WorkspaceShell() {
   const [activeMode, setActiveMode] = useState<ModeId>("review");
   const [aiInput, setAiInput] = useState("");
   const [aiOutput, setAiOutput] = useState<ForgeArtifact[] | null>(null);
+  const [outputContext, setOutputContext] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Overlays / panels
@@ -431,7 +432,13 @@ export default function WorkspaceShell() {
     setAiOutput(null);
     await new Promise((r) => setTimeout(r, 900));
     const context = activeFileName || "Workspace context";
-    setAiOutput(buildForgeArtifacts(activeMode, aiInput, context));
+    const analysis = analyzeEditorContent(editorContent);
+    setAiOutput(buildForgeArtifacts(activeMode, aiInput, context, editorContent));
+    setOutputContext(
+      analysis.hasContent
+        ? `Context: ${context} · ${analysis.lineCount} lines · ${analysis.languageGuess} detected`
+        : `Context: ${context}`
+    );
     setIsGenerating(false);
   };
 
@@ -975,6 +982,14 @@ export default function WorkspaceShell() {
               </div>
             ) : aiOutput ? (
               <div className="flex flex-col gap-2">
+                {outputContext && (
+                  <div className="flex items-center gap-1.5 px-2 py-1.5 mb-0.5 rounded border border-forge-border/20 bg-forge-black/30">
+                    <span className="w-1 h-1 rounded-full bg-forge-blue/50 flex-shrink-0" />
+                    <span className="text-[10px] forge-mono text-forge-muted/40 truncate">
+                      {outputContext}
+                    </span>
+                  </div>
+                )}
                 {aiOutput.map((card, i) => (
                   <OutputCard
                     key={card.title}
