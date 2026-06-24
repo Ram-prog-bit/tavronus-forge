@@ -109,16 +109,13 @@ function TreeNode({
 
 // ── Welcome screen ───────────────────────────────────────────────────────────
 
-const SHORTCUTS = [
-  { label: "New File",          keys: ["Ctrl", "N"] },
-  { label: "Open Workspace",    keys: ["Ctrl", "Shift", "W"] },
-  { label: "Open Mock Project", keys: ["Ctrl", "Alt", "P"] },
-  { label: "Generate Prompt",   keys: ["Ctrl", "G"] },
-  { label: "Review Code",       keys: ["Ctrl", "Shift", "R"] },
-  { label: "Debug Error",       keys: ["Ctrl", "D"] },
-];
+interface WelcomeCommand {
+  label: string;
+  keys: string[];
+  onClick: () => void;
+}
 
-function WelcomeScreen() {
+function WelcomeScreen({ commands }: { commands: WelcomeCommand[] }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-forge-black select-none px-6">
 
@@ -134,27 +131,31 @@ function WelcomeScreen() {
 
       {/* Command rows */}
       <div className="flex flex-col w-full max-w-[258px]">
-        {SHORTCUTS.map(({ label, keys }, i) => (
-          <div
+        {commands.map(({ label, keys, onClick }, i) => (
+          <button
             key={label}
-            className={`flex items-center justify-between py-[5px] ${
-              i < SHORTCUTS.length - 1 ? "border-b border-forge-border/10" : ""
+            onClick={onClick}
+            className={`group flex items-center justify-between py-[5px] px-1.5 -mx-1.5 rounded text-left
+              hover:bg-forge-panel/20 transition-colors ${
+              i < commands.length - 1 ? "border-b border-forge-border/10" : ""
             }`}
           >
-            <span className="text-[11px] text-forge-muted/28 forge-mono">{label}</span>
+            <span className="text-[11px] text-forge-muted/35 group-hover:text-forge-silver/65 forge-mono transition-colors">
+              {label}
+            </span>
             <div className="flex items-center gap-[3px]">
               {keys.map((key) => (
                 <kbd
                   key={key}
                   className="inline-flex items-center px-[5px] py-[2px] rounded text-[9px]
-                    forge-mono text-forge-muted/22 leading-none
-                    bg-forge-gunmetal/60 border border-forge-border/20"
+                    forge-mono text-forge-muted/22 group-hover:text-forge-muted/35 leading-none
+                    bg-forge-gunmetal/60 border border-forge-border/20 transition-colors"
                 >
                   {key}
                 </kbd>
               ))}
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
@@ -173,6 +174,8 @@ export default function WorkspaceShell() {
   const [activeFilePath, setActiveFilePath] = useState("");
   const [activeFileName, setActiveFileName] = useState("");
   const [editorContent, setEditorContent] = useState("");
+  const [workspaceMode, setWorkspaceMode] =
+    useState<"file" | "workspace" | "mock-project" | "project">("workspace");
 
   // Explorer
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -197,20 +200,29 @@ export default function WorkspaceShell() {
   // Scroll sync
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const lineNumRef = useRef<HTMLDivElement>(null);
+  const aiInputRef = useRef<HTMLTextAreaElement>(null);
 
   const mode = getModeById(activeMode);
-  const fileTree = urlMode === "file" ? FILE_MODE_TREE : PROJECT_MODE_TREE;
+  const fileTree = workspaceMode === "file" ? FILE_MODE_TREE : PROJECT_MODE_TREE;
 
   useEffect(() => {
     if (urlMode === "file") {
+      setWorkspaceMode("file");
       setActiveFilePath(urlName);
       setActiveFileName(urlName);
       setEditorContent(getContent(urlName, urlName));
-    } else if (urlMode === "workspace" || urlMode === "mock-project") {
+    } else if (urlMode === "mock-project") {
+      setWorkspaceMode("mock-project");
+      setActiveFilePath("");
+      setActiveFileName("");
+      setEditorContent("");
+    } else if (urlMode === "workspace") {
+      setWorkspaceMode("workspace");
       setActiveFilePath("");
       setActiveFileName("");
       setEditorContent("");
     } else {
+      setWorkspaceMode("project");
       const defaultPath = `${urlName}/app/page.tsx`;
       setActiveFilePath(defaultPath);
       setActiveFileName("page.tsx");
@@ -233,6 +245,37 @@ export default function WorkspaceShell() {
       return next;
     });
   }, []);
+
+  // Welcome-screen command handlers
+  const openUntitled = useCallback(() => {
+    setWorkspaceMode("file");
+    setActiveFilePath("untitled.tsx");
+    setActiveFileName("untitled.tsx");
+    setEditorContent(getContent("untitled.tsx", "untitled.tsx"));
+    setAiOutput(null);
+  }, []);
+
+  const showWelcome = useCallback((nextMode: "workspace" | "mock-project") => {
+    setWorkspaceMode(nextMode);
+    setActiveFilePath("");
+    setActiveFileName("");
+    setEditorContent("");
+  }, []);
+
+  const focusForgeAI = useCallback((nextMode: ModeId) => {
+    setActiveMode(nextMode);
+    setAiOutput(null);
+    requestAnimationFrame(() => aiInputRef.current?.focus());
+  }, []);
+
+  const welcomeCommands: WelcomeCommand[] = [
+    { label: "New File",          keys: ["Ctrl", "N"],          onClick: openUntitled },
+    { label: "Open Workspace",    keys: ["Ctrl", "Shift", "W"], onClick: () => showWelcome("workspace") },
+    { label: "Open Mock Project", keys: ["Ctrl", "Alt", "P"],   onClick: () => showWelcome("mock-project") },
+    { label: "Generate Prompt",   keys: ["Ctrl", "G"],          onClick: () => focusForgeAI("prompt") },
+    { label: "Review Code",       keys: ["Ctrl", "Shift", "R"], onClick: () => focusForgeAI("review") },
+    { label: "Debug Error",       keys: ["Ctrl", "D"],          onClick: () => focusForgeAI("debug") },
+  ];
 
   const handleGenerate = async () => {
     if (!aiInput.trim() || isGenerating) return;
@@ -330,7 +373,9 @@ export default function WorkspaceShell() {
             </div>
           ) : (
             <span className="px-3 text-[11px] forge-mono text-forge-muted/18 truncate">
-              {urlName}
+              {workspaceMode === "mock-project" || workspaceMode === "project"
+                ? urlName
+                : "Forge Workspace"}
             </span>
           )}
         </div>
@@ -433,18 +478,27 @@ export default function WorkspaceShell() {
             </span>
           </div>
           <div className="flex-1 overflow-y-auto py-1">
-            {fileTree.map((node) => (
-              <TreeNode
-                key={node.name}
-                node={node}
-                path={node.name}
-                depth={0}
-                activeFilePath={activeFilePath}
-                expandedPaths={expandedPaths}
-                onFileSelect={handleFileSelect}
-                onDirToggle={toggleDir}
-              />
-            ))}
+            {workspaceMode === "workspace" ? (
+              <div className="px-3 py-4 flex flex-col gap-1.5">
+                <p className="text-[11px] text-forge-silver/40 forge-mono">No project opened</p>
+                <p className="text-[10px] text-forge-muted/28 forge-mono leading-relaxed">
+                  Start a new file or open the mock project.
+                </p>
+              </div>
+            ) : (
+              fileTree.map((node) => (
+                <TreeNode
+                  key={node.name}
+                  node={node}
+                  path={node.name}
+                  depth={0}
+                  activeFilePath={activeFilePath}
+                  expandedPaths={expandedPaths}
+                  onFileSelect={handleFileSelect}
+                  onDirToggle={toggleDir}
+                />
+              ))
+            )}
           </div>
         </aside>
 
@@ -510,7 +564,7 @@ export default function WorkspaceShell() {
               />
             </div>
           ) : (
-            <WelcomeScreen />
+            <WelcomeScreen commands={welcomeCommands} />
           )}
         </div>
 
@@ -559,6 +613,7 @@ export default function WorkspaceShell() {
           {/* AI input */}
           <div className="px-3 py-3 border-b border-forge-border/20 flex-shrink-0">
             <textarea
+              ref={aiInputRef}
               value={aiInput}
               onChange={(e) => setAiInput(e.target.value)}
               onKeyDown={handleAIKeyDown}
