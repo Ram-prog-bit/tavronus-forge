@@ -25,6 +25,26 @@ function extOf(name: string): string {
   return i === -1 ? "" : name.slice(i + 1);
 }
 
+function langOf(name: string): string {
+  const ext = extOf(name);
+  return ext === "tsx" ? "TypeScript JSX"
+    : ext === "ts" ? "TypeScript"
+    : ext === "json" ? "JSON"
+    : ext === "css" ? "CSS"
+    : "Plain Text";
+}
+
+type OpenTab = {
+  id: string;
+  name: string;
+  path: string;
+  content: string;
+  originalContent: string;
+  language: string;
+  isDirty: boolean;
+  isUntitled: boolean;
+};
+
 // ── Sub-components ───────────────────────────────────────────────────────────
 
 function ForgeLogo() {
@@ -292,12 +312,12 @@ export default function WorkspaceShell() {
   const urlMode = searchParams.get("mode") ?? "project";
   const urlName = searchParams.get("name") ?? "tavronus-forge-demo";
 
-  // Editor
-  const [activeFilePath, setActiveFilePath] = useState("");
-  const [activeFileName, setActiveFileName] = useState("");
-  const [editorContent, setEditorContent] = useState("");
+  // Editor — multi-tab file state
+  const [openTabs, setOpenTabs] = useState<OpenTab[]>([]);
+  const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [workspaceMode, setWorkspaceMode] =
     useState<"file" | "workspace" | "mock-project" | "project">("workspace");
+  const idRef = useRef(0);
 
   // Explorer
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -332,31 +352,50 @@ export default function WorkspaceShell() {
   const lineNumRef = useRef<HTMLDivElement>(null);
   const aiInputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Derived from the active tab
+  const activeTab = openTabs.find((t) => t.id === activeTabId) ?? null;
+  const activeFileName = activeTab?.name ?? "";
+  const activeFilePath = activeTab?.path ?? "";
+  const editorContent = activeTab?.content ?? "";
+
   const mode = getModeById(activeMode);
   const fileTree = workspaceMode === "file" ? FILE_MODE_TREE : PROJECT_MODE_TREE;
 
   useEffect(() => {
     if (urlMode === "file") {
       setWorkspaceMode("file");
-      setActiveFilePath(urlName);
-      setActiveFileName(urlName);
-      setEditorContent(getContent(urlName, urlName));
+      const id = `tab-${idRef.current++}`;
+      if (urlName.startsWith("untitled")) {
+        setOpenTabs([{
+          id, name: "untitled-1.tsx", path: "untitled-1.tsx", content: "",
+          originalContent: "", language: "TypeScript JSX", isDirty: false, isUntitled: true,
+        }]);
+      } else {
+        const content = getContent(urlName, urlName);
+        setOpenTabs([{
+          id, name: urlName, path: urlName, content, originalContent: content,
+          language: langOf(urlName), isDirty: false, isUntitled: false,
+        }]);
+      }
+      setActiveTabId(id);
+      setAiOutput(null);
     } else if (urlMode === "mock-project") {
       setWorkspaceMode("mock-project");
-      setActiveFilePath("");
-      setActiveFileName("");
-      setEditorContent("");
+      setOpenTabs([]); setActiveTabId(null); setAiOutput(null);
     } else if (urlMode === "workspace") {
       setWorkspaceMode("workspace");
-      setActiveFilePath("");
-      setActiveFileName("");
-      setEditorContent("");
+      setOpenTabs([]); setActiveTabId(null); setAiOutput(null);
     } else {
       setWorkspaceMode("project");
       const defaultPath = `${urlName}/app/page.tsx`;
-      setActiveFilePath(defaultPath);
-      setActiveFileName("page.tsx");
-      setEditorContent(getContent(defaultPath, "page.tsx"));
+      const content = getContent(defaultPath, "page.tsx");
+      const id = `tab-${idRef.current++}`;
+      setOpenTabs([{
+        id, name: "page.tsx", path: defaultPath, content, originalContent: content,
+        language: langOf("page.tsx"), isDirty: false, isUntitled: false,
+      }]);
+      setActiveTabId(id);
+      setAiOutput(null);
     }
   }, [urlMode, urlName]);
 
@@ -378,12 +417,26 @@ export default function WorkspaceShell() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const handleFileSelect = useCallback((path: string, name: string) => {
-    setActiveFilePath(path);
-    setActiveFileName(name);
-    setEditorContent(getContent(path, name));
+  // Open a file as a tab (focus it if already open)
+  const openFile = useCallback((path: string, name: string) => {
+    const existing = openTabs.find((t) => t.path === path);
+    if (existing) {
+      setActiveTabId(existing.id);
+      setAiOutput(null);
+      return;
+    }
+    const content = getContent(path, name);
+    const id = `tab-${idRef.current++}`;
+    setOpenTabs((prev) => [
+      ...prev,
+      {
+        id, name, path, content, originalContent: content,
+        language: langOf(name), isDirty: false, isUntitled: false,
+      },
+    ]);
+    setActiveTabId(id);
     setAiOutput(null);
-  }, []);
+  }, [openTabs]);
 
   const toggleDir = useCallback((path: string) => {
     setExpandedPaths((prev) => {
@@ -394,21 +447,57 @@ export default function WorkspaceShell() {
     });
   }, []);
 
-  // Welcome-screen command handlers
-  const openUntitled = useCallback(() => {
+  // Create a blank untitled tab (untitled-1.tsx, untitled-2.tsx, …)
+  const createNewFile = useCallback(() => {
+    const id = `tab-${idRef.current++}`;
+    setOpenTabs((prev) => {
+      let n = 1;
+      const used = new Set(prev.map((t) => t.name));
+      while (used.has(`untitled-${n}.tsx`)) n++;
+      const name = `untitled-${n}.tsx`;
+      return [
+        ...prev,
+        {
+          id, name, path: name, content: "", originalContent: "",
+          language: "TypeScript JSX", isDirty: false, isUntitled: true,
+        },
+      ];
+    });
+    setActiveTabId(id);
     setWorkspaceMode("file");
-    setActiveFilePath("untitled.tsx");
-    setActiveFileName("untitled.tsx");
-    setEditorContent(getContent("untitled.tsx", "untitled.tsx"));
     setAiOutput(null);
   }, []);
 
+  // Switch to the branded welcome screen (no active tab)
   const showWelcome = useCallback((nextMode: "workspace" | "mock-project") => {
     setWorkspaceMode(nextMode);
-    setActiveFilePath("");
-    setActiveFileName("");
-    setEditorContent("");
+    setOpenTabs([]);
+    setActiveTabId(null);
+    setAiOutput(null);
   }, []);
+
+  // Edit the active tab's content (tracks dirty state)
+  const updateActiveContent = useCallback((value: string) => {
+    setOpenTabs((prev) =>
+      prev.map((t) =>
+        t.id === activeTabId
+          ? { ...t, content: value, isDirty: value !== t.originalContent }
+          : t
+      )
+    );
+  }, [activeTabId]);
+
+  // Close a tab; if it was active, pick the right neighbour, else the left
+  const closeTab = useCallback((id: string) => {
+    const idx = openTabs.findIndex((t) => t.id === id);
+    if (idx === -1) return;
+    const next = openTabs.filter((t) => t.id !== id);
+    setOpenTabs(next);
+    if (activeTabId === id) {
+      if (next.length === 0) setActiveTabId(null);
+      else setActiveTabId(idx < next.length ? next[idx].id : next[next.length - 1].id);
+    }
+  }, [openTabs, activeTabId]);
 
   const focusForgeAI = useCallback((nextMode: ModeId) => {
     setActiveMode(nextMode);
@@ -418,7 +507,7 @@ export default function WorkspaceShell() {
   }, []);
 
   const welcomeCommands: WelcomeCommand[] = [
-    { label: "New File",          keys: ["Ctrl", "N"],          onClick: openUntitled },
+    { label: "New File",          keys: ["Ctrl", "N"],          onClick: createNewFile },
     { label: "Open Workspace",    keys: ["Ctrl", "Shift", "W"], onClick: () => showWelcome("workspace") },
     { label: "Open Mock Project", keys: ["Ctrl", "Alt", "P"],   onClick: () => showWelcome("mock-project") },
     { label: "Generate Prompt",   keys: ["Ctrl", "G"],          onClick: () => focusForgeAI("prompt") },
@@ -471,7 +560,7 @@ export default function WorkspaceShell() {
   }, []);
 
   const paletteCommands: PaletteCommand[] = [
-    { label: "New File",          hint: "file",      onClick: openUntitled },
+    { label: "New File",          hint: "file",      onClick: createNewFile },
     { label: "Open Workspace",    hint: "workspace", onClick: () => showWelcome("workspace") },
     { label: "Open Mock Project", hint: "project",   onClick: () => showWelcome("mock-project") },
     { label: "Generate Prompt",   hint: "forge ai",  onClick: () => focusForgeAI("prompt") },
@@ -482,7 +571,7 @@ export default function WorkspaceShell() {
 
   const menus: { name: string; items: { label: string; onClick: () => void }[] }[] = [
     { name: "File", items: [
-      { label: "New File", onClick: openUntitled },
+      { label: "New File", onClick: createNewFile },
       { label: "Open Workspace", onClick: () => showWelcome("workspace") },
       { label: "Open Mock Project", onClick: () => showWelcome("mock-project") },
     ] },
@@ -511,14 +600,8 @@ export default function WorkspaceShell() {
     ] },
   ];
 
-  const lineCount = editorContent.split("\n").length;
-  const fileExt = extOf(activeFileName);
-  const langLabel =
-    fileExt === "tsx" ? "TypeScript JSX"
-    : fileExt === "ts" ? "TypeScript"
-    : fileExt === "json" ? "JSON"
-    : fileExt === "css" ? "CSS"
-    : "Plain Text";
+  const lineCount = editorContent ? editorContent.split("\n").length : 1;
+  const langLabel = activeTab?.language ?? "Plain Text";
 
   // ── Render ───────────────────────────────────────────────────────────────
 
@@ -581,25 +664,47 @@ export default function WorkspaceShell() {
           </nav>
         </div>
 
-        {/* CENTER: file tab — fills remaining space */}
-        <div className="flex-1 flex items-center h-full min-w-0 overflow-hidden">
-          {activeFileName ? (
-            <div className="flex items-center gap-1.5 px-3 h-full border-r border-forge-border/18 bg-forge-black/10 text-[11px] forge-mono text-forge-chrome/52 flex-shrink-0">
-              <span className="text-[7px] flex-shrink-0" style={{ color: getFileColor(fileExt) }}>●</span>
-              <span className="truncate max-w-[160px]">{activeFileName}</span>
-              <button
-                onClick={() => { setActiveFilePath(""); setActiveFileName(""); setEditorContent(""); }}
-                className="text-forge-muted/18 hover:text-forge-chrome/50 transition-colors leading-none flex-shrink-0 ml-0.5"
-              >
-                ×
-              </button>
-            </div>
-          ) : (
+        {/* CENTER: tab strip — fills remaining space */}
+        <div
+          className="flex-1 flex items-center h-full min-w-0 overflow-x-auto"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {openTabs.length === 0 ? (
             <span className="px-3 text-[11px] forge-mono text-forge-muted/18 truncate">
               {workspaceMode === "mock-project" || workspaceMode === "project"
                 ? urlName
                 : "Forge Workspace"}
             </span>
+          ) : (
+            openTabs.map((tab) => {
+              const isActive = tab.id === activeTabId;
+              return (
+                <div
+                  key={tab.id}
+                  onClick={() => { setActiveTabId(tab.id); setAiOutput(null); }}
+                  className={`group flex items-center gap-1.5 px-3 h-full border-r border-forge-border/18
+                    text-[11px] forge-mono cursor-pointer flex-shrink-0 transition-colors ${
+                    isActive
+                      ? "bg-forge-black/25 text-forge-chrome/65"
+                      : "text-forge-muted/35 hover:text-forge-silver/55 hover:bg-white/[0.02]"
+                  }`}
+                  style={isActive ? { boxShadow: "inset 0 1.5px 0 rgba(45,142,255,0.55)" } : undefined}
+                >
+                  {tab.isDirty ? (
+                    <span className="w-1.5 h-1.5 rounded-full bg-forge-blue/70 flex-shrink-0" title="Unsaved" />
+                  ) : (
+                    <span className="text-[7px] flex-shrink-0" style={{ color: getFileColor(extOf(tab.name)) }}>●</span>
+                  )}
+                  <span className="truncate max-w-[120px]">{tab.name}</span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); closeTab(tab.id); }}
+                    className="text-forge-muted/25 hover:text-forge-chrome/60 transition-colors leading-none flex-shrink-0 ml-0.5"
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })
           )}
         </div>
 
@@ -643,15 +748,15 @@ export default function WorkspaceShell() {
           </button>
 
           {/* Plus: new file */}
-          <Link
-            href="/workspace?mode=file&name=untitled.tsx"
+          <button
+            onClick={createNewFile}
             title="New file"
             className="px-2 h-full flex items-center text-forge-muted/22 hover:text-forge-chrome/65 hover:bg-white/[0.04] transition-colors"
           >
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
               <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
             </svg>
-          </Link>
+          </button>
 
           {/* Layout panels */}
           <button
@@ -797,7 +902,7 @@ export default function WorkspaceShell() {
                   depth={0}
                   activeFilePath={activeFilePath}
                   expandedPaths={expandedPaths}
-                  onFileSelect={handleFileSelect}
+                  onFileSelect={openFile}
                   onDirToggle={toggleDir}
                 />
               ))
@@ -811,11 +916,13 @@ export default function WorkspaceShell() {
           {/* Editor meta bar */}
           <div className="flex items-center justify-between px-4 h-8 border-b border-forge-border/20 bg-forge-obsidian/15 flex-shrink-0">
             <div className="flex items-center gap-2 text-[10px] forge-mono text-forge-muted/30">
-              {activeFileName ? (
+              {activeTab ? (
                 <>
-                  <span>{activeFileName}</span>
+                  <span>{activeTab.name}</span>
                   <span>·</span>
-                  <span className="text-forge-muted/20">mock file</span>
+                  <span className={activeTab.isDirty ? "text-forge-blue/45" : "text-forge-muted/20"}>
+                    {activeTab.isDirty ? "Unsaved" : activeTab.isUntitled ? "new file" : "mock file"}
+                  </span>
                   <span>·</span>
                   <span>{lineCount} lines</span>
                 </>
@@ -831,7 +938,7 @@ export default function WorkspaceShell() {
           </div>
 
           {/* Editor body */}
-          {activeFileName ? (
+          {activeTab ? (
             <div className="flex flex-1 min-h-0 overflow-hidden">
               {/* Line numbers */}
               <div
@@ -855,7 +962,7 @@ export default function WorkspaceShell() {
               <textarea
                 ref={editorRef}
                 value={editorContent}
-                onChange={(e) => setEditorContent(e.target.value)}
+                onChange={(e) => updateActiveContent(e.target.value)}
                 onScroll={handleEditorScroll}
                 className="flex-1 bg-transparent text-forge-chrome text-[13px] forge-mono
                   outline-none resize-none px-4 py-3 overflow-auto"
