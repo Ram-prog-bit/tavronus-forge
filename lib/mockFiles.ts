@@ -92,3 +92,29 @@ export function getFileColor(ext?: string): string {
     default: return "#6B7280";
   }
 }
+
+// ── File content / naming helpers ─────────────────────────────────────────────
+
+export function getContent(path: string, name: string): string {
+  if (MOCK_CODE[path]) return MOCK_CODE[path];
+  const parts = path.split("/");
+  if (parts.length >= 2) {
+    const twoSeg = `${parts[parts.length - 2]}/${parts[parts.length - 1]}`;
+    if (MOCK_CODE[twoSeg]) return MOCK_CODE[twoSeg];
+  }
+  return MOCK_CODE[name] ?? `// ${name}\n// No preview available.`;
+}
+
+export function extOf(name: string): string {
+  const i = name.lastIndexOf(".");
+  return i === -1 ? "" : name.slice(i + 1);
+}
+
+export function langOf(name: string): string {
+  const ext = extOf(name);
+  return ext === "tsx" ? "TypeScript JSX"
+    : ext === "ts" ? "TypeScript"
+    : ext === "json" ? "JSON"
+    : ext === "css" ? "CSS"
+    : "Plain Text";
+}
