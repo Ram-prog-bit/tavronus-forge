@@ -107,57 +107,41 @@ function TreeNode({
   );
 }
 
-// ── Welcome screen ───────────────────────────────────────────────────────────
+// ── Empty editor state ───────────────────────────────────────────────────────
 
-const SHORTCUTS = [
-  { label: "New Agent",     keys: ["Ctrl", "Shift", "L"] },
-  { label: "Show Terminal", keys: ["Ctrl", "J"] },
-  { label: "Search Files",  keys: ["Ctrl", "P"] },
-  { label: "Open Browser",  keys: ["Ctrl", "Shift", "B"] },
-  { label: "Maximize Chat", keys: ["Ctrl", "Alt", "E"] },
-  { label: "Add Folder",    keys: ["Ctrl", "Alt", "A"] },
-];
-
-function WelcomeScreen() {
+function EmptyEditorState() {
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-forge-black select-none px-6">
-
-      {/* Logo */}
-      <div className="mb-10">
-        <img
-          src="/tavronus-symbol.png"
-          alt="Tavronus symbol"
-          className="w-[115px] h-auto opacity-55 hover:opacity-80 transition-all duration-500"
-          style={{ filter: "drop-shadow(0 0 10px rgba(45,142,255,0.12))" }}
+      <div className="flex flex-col items-center gap-3 text-center">
+        <div
+          className="w-px h-6 bg-forge-blue/20 mb-2"
+          aria-hidden="true"
         />
-      </div>
-
-      {/* Shortcut rows */}
-      <div className="flex flex-col w-full max-w-[258px]">
-        {SHORTCUTS.map(({ label, keys }, i) => (
-          <div
-            key={label}
-            className={`flex items-center justify-between py-[5px] ${
-              i < SHORTCUTS.length - 1 ? "border-b border-forge-border/10" : ""
-            }`}
+        <p className="text-[13px] text-forge-silver/35 forge-mono font-medium">
+          No file open
+        </p>
+        <p className="text-[11px] text-forge-muted/25 forge-mono leading-relaxed max-w-[260px]">
+          Select a file from Explorer or create a new file to start building.
+        </p>
+        <div className="flex items-center gap-2 mt-4">
+          <Link
+            href="/workspace?mode=file&name=untitled.tsx"
+            className="px-3 py-1.5 text-[11px] forge-mono border border-forge-border/30
+              text-forge-muted/40 hover:text-forge-silver/60 hover:border-forge-blue/30
+              transition-colors rounded"
           >
-            <span className="text-[11px] text-forge-muted/28 forge-mono">{label}</span>
-            <div className="flex items-center gap-[3px]">
-              {keys.map((key) => (
-                <kbd
-                  key={key}
-                  className="inline-flex items-center px-[5px] py-[2px] rounded text-[9px]
-                    forge-mono text-forge-muted/22 leading-none
-                    bg-forge-gunmetal/60 border border-forge-border/20"
-                >
-                  {key}
-                </kbd>
-              ))}
-            </div>
-          </div>
-        ))}
+            New File
+          </Link>
+          <Link
+            href="/workspace?mode=project&name=tavronus-forge-demo"
+            className="px-3 py-1.5 text-[11px] forge-mono border border-forge-border/30
+              text-forge-muted/40 hover:text-forge-silver/60 hover:border-forge-blue/30
+              transition-colors rounded"
+          >
+            Open Mock Project
+          </Link>
+        </div>
       </div>
-
     </div>
   );
 }
@@ -506,7 +490,7 @@ export default function WorkspaceShell() {
               />
             </div>
           ) : (
-            <WelcomeScreen />
+            <EmptyEditorState />
           )}
         </div>
 
