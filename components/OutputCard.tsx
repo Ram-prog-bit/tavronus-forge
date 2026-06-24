@@ -4,21 +4,29 @@ import { useState } from "react";
 
 interface OutputCardProps {
   title: string;
-  content: string;
   index: number;
+  label?: string;
+  body?: string[];
+  code?: string;
+  /** Legacy single-string body (used by ForgeCommandCenter). */
+  content?: string;
 }
 
-export default function OutputCard({ title, content, index }: OutputCardProps) {
+export default function OutputCard({ title, index, label, body, code, content }: OutputCardProps) {
   const [copied, setCopied] = useState(false);
+
+  const copyText = body
+    ? body.join("\n") + (code ? `\n\n${code}` : "")
+    : content ?? "";
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(content);
+      await navigator.clipboard.writeText(copyText);
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
       const el = document.createElement("textarea");
-      el.value = content;
+      el.value = copyText;
       document.body.appendChild(el);
       el.select();
       document.execCommand("copy");
@@ -38,16 +46,21 @@ export default function OutputCard({ title, content, index }: OutputCardProps) {
     >
       {/* Card header */}
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-forge-border/20 bg-forge-panel/20">
-        <div className="flex items-center gap-2">
-          <div className="w-0.5 h-3 bg-forge-blue/50 rounded-full" />
-          <span className="text-[10px] font-medium text-forge-chrome/70 tracking-wider uppercase forge-mono">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-0.5 h-3 bg-forge-blue/50 rounded-full flex-shrink-0" />
+          <span className="text-[10px] font-medium text-forge-chrome/70 tracking-wider uppercase forge-mono truncate">
             {title}
           </span>
+          {label && (
+            <span className="text-[8px] forge-mono text-forge-muted/35 border border-forge-border/25 rounded px-1.5 py-px uppercase tracking-wider flex-shrink-0">
+              {label}
+            </span>
+          )}
         </div>
         <button
           onClick={handleCopy}
           className={`
-            flex items-center gap-1 px-2 py-0.5 rounded text-[10px] forge-mono transition-all duration-150
+            flex items-center gap-1 px-2 py-0.5 rounded text-[10px] forge-mono transition-all duration-150 flex-shrink-0
             ${copied
               ? "text-green-400/70 border border-green-500/20"
               : "text-forge-muted/40 border border-transparent hover:border-forge-border/40 hover:text-forge-silver/60"}
@@ -74,9 +87,33 @@ export default function OutputCard({ title, content, index }: OutputCardProps) {
 
       {/* Card body */}
       <div className="px-3 py-2.5">
-        <pre className="text-[12px] text-forge-silver/75 forge-mono whitespace-pre-wrap leading-relaxed break-words">
-          {content}
-        </pre>
+        {body ? (
+          <>
+            {body.length > 0 && (
+              <ul className="flex flex-col gap-1">
+                {body.map((line, i) => (
+                  <li
+                    key={i}
+                    className="flex gap-2 text-[12px] text-forge-silver/75 forge-mono leading-relaxed"
+                  >
+                    <span className="text-forge-blue/40 flex-shrink-0 select-none">›</span>
+                    <span className="whitespace-pre-wrap break-words">{line}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {code && (
+              <pre className="mt-2 p-2.5 rounded bg-forge-black/50 border border-forge-border/20
+                text-[11px] text-forge-silver/70 forge-mono whitespace-pre-wrap break-words overflow-x-auto leading-relaxed">
+                {code}
+              </pre>
+            )}
+          </>
+        ) : (
+          <pre className="text-[12px] text-forge-silver/75 forge-mono whitespace-pre-wrap leading-relaxed break-words">
+            {content}
+          </pre>
+        )}
       </div>
     </div>
   );

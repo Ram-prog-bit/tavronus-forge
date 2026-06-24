@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import OutputCard from "./OutputCard";
 import { ModeId, getModeById, MODES } from "@/lib/modes";
+import { ForgeArtifact, buildForgeArtifacts } from "@/lib/forgeArtifacts";
 import { FileNode, FILE_MODE_TREE, PROJECT_MODE_TREE, MOCK_CODE, getFileColor } from "@/lib/mockFiles";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -315,7 +316,7 @@ export default function WorkspaceShell() {
   // AI panel
   const [activeMode, setActiveMode] = useState<ModeId>("review");
   const [aiInput, setAiInput] = useState("");
-  const [aiOutput, setAiOutput] = useState<{ title: string; content: string }[] | null>(null);
+  const [aiOutput, setAiOutput] = useState<ForgeArtifact[] | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Overlays / panels
@@ -429,7 +430,8 @@ export default function WorkspaceShell() {
     setIsGenerating(true);
     setAiOutput(null);
     await new Promise((r) => setTimeout(r, 900));
-    setAiOutput(mode.outputSections.map((s) => ({ title: s.title, content: s.content })));
+    const context = activeFileName || "Workspace context";
+    setAiOutput(buildForgeArtifacts(activeMode, aiInput, context));
     setIsGenerating(false);
   };
 
@@ -974,7 +976,14 @@ export default function WorkspaceShell() {
             ) : aiOutput ? (
               <div className="flex flex-col gap-2">
                 {aiOutput.map((card, i) => (
-                  <OutputCard key={card.title} title={card.title} content={card.content} index={i} />
+                  <OutputCard
+                    key={card.title}
+                    title={card.title}
+                    label={card.label}
+                    body={card.body}
+                    code={card.code}
+                    index={i}
+                  />
                 ))}
               </div>
             ) : (
