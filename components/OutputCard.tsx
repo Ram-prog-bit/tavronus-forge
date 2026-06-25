@@ -10,9 +10,13 @@ interface OutputCardProps {
   code?: string;
   /** Legacy single-string body (used by ForgeCommandCenter). */
   content?: string;
+  /** When provided, shows an "Apply to File" action (passes the card title). */
+  onApply?: (title: string) => void;
+  applyDisabled?: boolean;
+  applyHint?: string;
 }
 
-function OutputCard({ title, index, label, body, code, content }: OutputCardProps) {
+function OutputCard({ title, index, label, body, code, content, onApply, applyDisabled, applyHint }: OutputCardProps) {
   const [copied, setCopied] = useState(false);
 
   const copyText = body
@@ -57,32 +61,52 @@ function OutputCard({ title, index, label, body, code, content }: OutputCardProp
             </span>
           )}
         </div>
-        <button
-          onClick={handleCopy}
-          className={`
-            flex items-center gap-1 px-2 py-0.5 rounded text-[10px] forge-mono transition-all duration-150 flex-shrink-0
-            ${copied
-              ? "text-green-400/70 border border-green-500/20"
-              : "text-forge-muted/40 border border-transparent hover:border-forge-border/40 hover:text-forge-silver/60"}
-          `}
-        >
-          {copied ? (
-            <>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {onApply && (
+            <button
+              onClick={() => onApply(title)}
+              disabled={applyDisabled}
+              title={applyDisabled ? applyHint : "Apply this change to the active file"}
+              aria-label={`Apply ${title} to file`}
+              className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] forge-mono transition-all duration-150 ${
+                applyDisabled
+                  ? "text-forge-muted/25 cursor-not-allowed border border-transparent"
+                  : "text-forge-blue/60 border border-forge-blue/25 hover:text-forge-blue/85 hover:border-forge-blue/40"
+              }`}
+            >
               <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M2 6.5L5 9.5L10 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              Copied
-            </>
-          ) : (
-            <>
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-                <rect x="4" y="1" width="7" height="8" rx="1" stroke="currentColor" strokeWidth="1.2" />
-                <path d="M1 4h2v7h7v-2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
-              Copy
-            </>
+              Apply
+            </button>
           )}
-        </button>
+          <button
+            onClick={handleCopy}
+            className={`
+              flex items-center gap-1 px-2 py-0.5 rounded text-[10px] forge-mono transition-all duration-150
+              ${copied
+                ? "text-green-400/70 border border-green-500/20"
+                : "text-forge-muted/40 border border-transparent hover:border-forge-border/40 hover:text-forge-silver/60"}
+            `}
+          >
+            {copied ? (
+              <>
+                <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Copied
+              </>
+            ) : (
+              <>
+                <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+                  <rect x="4" y="1" width="7" height="8" rx="1" stroke="currentColor" strokeWidth="1.2" />
+                  <path d="M1 4h2v7h7v-2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                </svg>
+                Copy
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Card body */}

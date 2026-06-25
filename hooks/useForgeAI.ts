@@ -56,6 +56,8 @@ export function useForgeAI() {
   const [activeMode, setActiveModeState] = useState<ModeId>("review");
   const [aiOutput, setAiOutput] = useState<ForgeArtifact[] | null>(null);
   const [outputContext, setOutputContext] = useState<string | null>(null);
+  // The file the current output was generated for (null = no file / workspace).
+  const [outputFile, setOutputFile] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Forge Session — persists across Clear and reloads; reset only intentionally.
@@ -100,6 +102,7 @@ export function useForgeAI() {
     reqRef.current++;
     setAiOutput(null);
     setOutputContext(null);
+    setOutputFile(null);
     setIsGenerating(false);
   }, []);
 
@@ -109,6 +112,7 @@ export function useForgeAI() {
     setAiInput("");
     setAiOutput(null);
     setOutputContext(null);
+    setOutputFile(null);
     setIsGenerating(false);
   }, []);
 
@@ -118,6 +122,7 @@ export function useForgeAI() {
     setActiveModeState(m);
     setAiOutput(null);
     setOutputContext(null);
+    setOutputFile(null);
     setIsGenerating(false);
   }, []);
 
@@ -158,6 +163,7 @@ export function useForgeAI() {
           ? `Context: ${context} · ${analysis.lineCount} lines · ${analysis.languageGuess} detected`
           : `Context: ${context}`
       );
+      setOutputFile(context === "Workspace context" ? null : context);
       setIsGenerating(false);
 
       // Advance the Forge session from this successful generation.
@@ -183,6 +189,7 @@ export function useForgeAI() {
     setActiveMode,
     aiOutput,
     outputContext,
+    outputFile,
     isGenerating,
     generate,
     clearOutput,

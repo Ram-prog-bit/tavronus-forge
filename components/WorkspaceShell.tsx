@@ -7,12 +7,25 @@ import OutputCard from "./OutputCard";
 import TabStrip from "./workspace/TabStrip";
 import EditorPane, { type WelcomeCommand } from "./workspace/EditorPane";
 import ForgeSessionCard from "./workspace/ForgeSessionCard";
+import ApplyPreview, { type PendingApply } from "./workspace/ApplyPreview";
 import { ModeId, getModeById, MODES } from "@/lib/modes";
 import { FileNode, getFileColor } from "@/lib/mockFiles";
 import { buildTreeFromPaths } from "@/lib/vfs";
+import { buildPatch } from "@/lib/forgePatch";
 import { useTabs } from "@/hooks/useTabs";
 import { useForgeAI } from "@/hooks/useForgeAI";
 import { useVfs } from "@/hooks/useVfs";
+
+// Artifact cards that offer an Apply-to-File action (code-oriented titles).
+const ACTIONABLE_TITLES = new Set([
+  "Suggested Improvements",
+  "Issues Found",
+  "Fix Plan",
+  "Code Areas To Inspect",
+  "Build Steps",
+  "Cursor Prompt",
+  "Today",
+]);
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
@@ -267,10 +280,13 @@ export default function WorkspaceShell() {
 
   // Forge AI state
   const {
-    aiInput, setAiInput, activeMode, setActiveMode, aiOutput, outputContext,
+    aiInput, setAiInput, activeMode, setActiveMode, aiOutput, outputContext, outputFile,
     isGenerating, generate, clearOutput, resetOutput, focusInput, aiInputRef,
     session, updateSessionFile, updateSessionGoal, resetSession,
   } = useForgeAI();
+
+  // Pending mock apply (preview before it touches the active tab).
+  const [pendingApply, setPendingApply] = useState<PendingApply | null>(null);
 
   const mode = getModeById(activeMode);
 
@@ -412,6 +428,32 @@ export default function WorkspaceShell() {
     writeFile(activeTab.path, activeTab.content);
     markActiveSaved();
   }, [activeTab, writeFile, markActiveSaved]);
+
+  // Refs let the (stable) apply handler read the latest tab/mode at click time.
+  const activeTabRef = useRef(activeTab);
+  activeTabRef.current = activeTab;
+  const activeModeRef = useRef(activeMode);
+  activeModeRef.current = activeMode;
+
+  // Apply-to-file: build a mock patch from the CURRENT active tab and preview it.
+  const handleApply = useCallback((title: string) => {
+    const t = activeTabRef.current;
+    if (!t) return;
+    const patch = buildPatch(activeModeRef.current, t.content, t.name);
+    setPendingApply({
+      artifactTitle: title,
+      targetFile: t.name,
+      summary: patch.summary,
+      before: t.content,
+      after: patch.after,
+    });
+  }, []);
+
+  // Accept: update the active tab only (becomes dirty). No VFS write — Ctrl+S saves.
+  const handleAccept = useCallback(() => {
+    if (pendingApply) updateActiveContent(pendingApply.after);
+    setPendingApply(null);
+  }, [pendingApply, updateActiveContent]);
 
   // Ctrl/Cmd+S → save. Uses a ref so the listener subscribes once (no per-keystroke churn).
   const saveRef = useRef(handleSave);
@@ -901,16 +943,26 @@ export default function WorkspaceShell() {
                     </span>
                   </div>
                 )}
-                {aiOutput.map((card, i) => (
-                  <OutputCard
-                    key={card.title}
-                    title={card.title}
-                    label={card.label}
-                    body={card.body}
-                    code={card.code}
-                    index={i}
-                  />
-                ))}
+                {aiOutput.map((card, i) => {
+                  // Apply shows on code-oriented cards, only when there's an active
+                  // tab and the output targeted a file. It's enabled only when that
+                  // tab still matches the generated file (avoids the wrong-file apply).
+                  const showApply = ACTIONABLE_TITLES.has(card.title) && !!activeTab && outputFile !== null;
+                  const canApply = showApply && activeFileName === outputFile;
+                  return (
+                    <OutputCard
+                      key={card.title}
+                      title={card.title}
+                      label={card.label}
+                      body={card.body}
+                      code={card.code}
+                      index={i}
+                      onApply={showApply ? handleApply : undefined}
+                      applyDisabled={!canApply}
+                      applyHint={!canApply ? `Switch to ${outputFile} to apply` : undefined}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center min-h-[100px] gap-2 text-center pt-8">
@@ -964,6 +1016,13 @@ export default function WorkspaceShell() {
       {paletteOpen && (
         <CommandPalette commands={paletteCommands} onClose={() => setPaletteOpen(false)} />
       )}
+
+      {/* ── Apply-to-file preview ────────────────────────────────── */}
+      <ApplyPreview
+        pending={pendingApply}
+        onAccept={handleAccept}
+        onCancel={() => setPendingApply(null)}
+      />
 
     </div>
   );
