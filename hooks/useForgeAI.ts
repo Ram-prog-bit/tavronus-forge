@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { ModeId } from "@/lib/modes";
 import { ForgeArtifact, buildForgeArtifacts, analyzeEditorContent } from "@/lib/forgeArtifacts";
 
 const GENERATE_DELAY = 900;
+const SESSION_KEY = "tavronus-forge-session-v1";
 
 // ── Forge Session ─────────────────────────────────────────────────────────────
 
@@ -36,6 +37,20 @@ const NEXT_STEP_BY_PHASE: Record<ForgePhase, string> = {
   Shipping: "Run build and final QA",
 };
 
+// Defensive validation for anything we read back out of localStorage.
+function isValidSession(v: unknown): v is ForgeSession {
+  if (!v || typeof v !== "object") return false;
+  const s = v as Record<string, unknown>;
+  return (
+    typeof s.projectGoal === "string" &&
+    typeof s.phase === "string" &&
+    Array.isArray(s.artifactsCreated) &&
+    s.artifactsCreated.every((a) => typeof a === "string") &&
+    typeof s.currentFile === "string" &&
+    typeof s.nextStep === "string"
+  );
+}
+
 export function useForgeAI() {
   const [aiInput, setAiInput] = useState("");
   const [activeMode, setActiveModeState] = useState<ModeId>("review");
@@ -43,8 +58,37 @@ export function useForgeAI() {
   const [outputContext, setOutputContext] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Forge Session — persists across Clear; reset only intentionally.
+  // Forge Session — persists across Clear and reloads; reset only intentionally.
   const [session, setSession] = useState<ForgeSession | null>(null);
+
+  // Hydrate from localStorage once on mount (client only — no SSR mismatch).
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (isValidSession(parsed)) setSession(parsed);
+      }
+    } catch {
+      /* ignore corrupt / unavailable storage */
+    }
+  }, []);
+
+  // Persist on change. The first run is skipped so the initial null can never
+  // clobber a stored session before hydration applies.
+  const firstPersist = useRef(true);
+  useEffect(() => {
+    if (firstPersist.current) {
+      firstPersist.current = false;
+      return;
+    }
+    try {
+      if (session) localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      else localStorage.removeItem(SESSION_KEY);
+    } catch {
+      /* ignore storage errors (quota / disabled) */
+    }
+  }, [session]);
 
   // Monotonic request id — bumping it invalidates any in-flight generation,
   // so a stale (delayed) result can never overwrite current state.
@@ -86,6 +130,11 @@ export function useForgeAI() {
     setSession((prev) => (prev && prev.currentFile !== file ? { ...prev, currentFile: file } : prev));
   }, []);
 
+  // Manual goal edit from the session card.
+  const updateSessionGoal = useCallback((goal: string) => {
+    setSession((prev) => (prev ? { ...prev, projectGoal: goal } : prev));
+  }, []);
+
   const resetSession = useCallback(() => setSession(null), []);
 
   const generate = useCallback(
@@ -116,7 +165,8 @@ export function useForgeAI() {
       const titles = artifacts.map((a) => a.title);
       const goal = aiInput.trim();
       setSession((prev) => ({
-        projectGoal: goal || prev?.projectGoal || "",
+        // Keep the original goal — only the first generation (or a manual edit) sets it.
+        projectGoal: prev?.projectGoal || goal,
         phase,
         artifactsCreated: Array.from(new Set([...(prev?.artifactsCreated ?? []), ...titles])),
         currentFile: context,
@@ -141,6 +191,7 @@ export function useForgeAI() {
     aiInputRef,
     session,
     updateSessionFile,
+    updateSessionGoal,
     resetSession,
   };
 }

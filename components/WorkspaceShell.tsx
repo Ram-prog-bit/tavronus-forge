@@ -264,7 +264,7 @@ export default function WorkspaceShell() {
   const {
     aiInput, setAiInput, activeMode, setActiveMode, aiOutput, outputContext,
     isGenerating, generate, clearOutput, resetOutput, focusInput, aiInputRef,
-    session, updateSessionFile, resetSession,
+    session, updateSessionFile, updateSessionGoal, resetSession,
   } = useForgeAI();
 
   const mode = getModeById(activeMode);
@@ -838,7 +838,7 @@ export default function WorkspaceShell() {
           </div>
 
           {/* Forge session tracker */}
-          <ForgeSessionCard session={session} onReset={resetSession} />
+          <ForgeSessionCard session={session} onReset={resetSession} onEditGoal={updateSessionGoal} />
 
           {/* AI output */}
           <div className="flex-1 overflow-y-auto p-3">

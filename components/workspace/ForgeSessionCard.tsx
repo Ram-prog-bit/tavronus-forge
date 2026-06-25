@@ -1,13 +1,39 @@
 "use client";
 
+import { useState } from "react";
 import type { ForgeSession } from "@/hooks/useForgeAI";
+
+const MAX_CHIPS = 6;
 
 interface ForgeSessionCardProps {
   session: ForgeSession | null;
   onReset: () => void;
+  onEditGoal: (goal: string) => void;
 }
 
-export default function ForgeSessionCard({ session, onReset }: ForgeSessionCardProps) {
+export default function ForgeSessionCard({ session, onReset, onEditGoal }: ForgeSessionCardProps) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [expanded, setExpanded] = useState(false);
+
+  const startEdit = () => {
+    setDraft(session?.projectGoal ?? "");
+    setEditing(true);
+  };
+
+  const saveEdit = () => {
+    if (!editing) return;
+    const next = draft.trim();
+    if (next) onEditGoal(next);
+    setEditing(false);
+  };
+
+  const cancelEdit = () => setEditing(false);
+
+  const chips = session?.artifactsCreated ?? [];
+  const visible = expanded ? chips : chips.slice(0, MAX_CHIPS);
+  const hidden = chips.length - visible.length;
+
   return (
     <div className="px-3 py-2.5 border-b border-forge-border/20 flex-shrink-0">
       <div className="flex items-center justify-between mb-1.5">
@@ -15,13 +41,22 @@ export default function ForgeSessionCard({ session, onReset }: ForgeSessionCardP
           Current Forge Session
         </span>
         {session && (
-          <button
-            onClick={onReset}
-            aria-label="Reset Forge session"
-            className="text-[9px] forge-mono text-forge-muted/30 hover:text-forge-silver/55 transition-colors"
-          >
-            Reset
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={startEdit}
+              aria-label="Edit project goal"
+              className="text-[9px] forge-mono text-forge-muted/30 hover:text-forge-silver/55 transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              onClick={onReset}
+              aria-label="Reset Forge session"
+              className="text-[9px] forge-mono text-forge-muted/30 hover:text-forge-silver/55 transition-colors"
+            >
+              Reset
+            </button>
+          </div>
         )}
       </div>
 
@@ -33,9 +68,25 @@ export default function ForgeSessionCard({ session, onReset }: ForgeSessionCardP
           {/* Goal */}
           <div className="flex items-start gap-2 text-[10px] forge-mono">
             <span className="text-forge-muted/35 w-[58px] flex-shrink-0">Goal</span>
-            <span className="text-forge-silver/65 flex-1 min-w-0 truncate" title={session.projectGoal}>
-              {session.projectGoal || "—"}
-            </span>
+            {editing ? (
+              <input
+                autoFocus
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onBlur={saveEdit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") { e.preventDefault(); saveEdit(); }
+                  else if (e.key === "Escape") { e.preventDefault(); cancelEdit(); }
+                }}
+                aria-label="Project goal"
+                className="flex-1 min-w-0 bg-forge-black/40 border border-forge-blue/30 rounded
+                  px-1.5 py-0.5 text-forge-chrome outline-none focus:border-forge-blue/50"
+              />
+            ) : (
+              <span className="text-forge-silver/65 flex-1 min-w-0 truncate" title={session.projectGoal}>
+                {session.projectGoal || "—"}
+              </span>
+            )}
           </div>
 
           {/* Phase */}
@@ -47,19 +98,37 @@ export default function ForgeSessionCard({ session, onReset }: ForgeSessionCardP
             </span>
           </div>
 
-          {/* Artifacts */}
+          {/* Artifacts (capped, expandable) */}
           <div className="flex items-start gap-2 text-[10px] forge-mono">
             <span className="text-forge-muted/35 w-[58px] flex-shrink-0 pt-0.5">Artifacts</span>
             <div className="flex flex-wrap gap-1 flex-1 min-w-0">
-              {session.artifactsCreated.length ? (
-                session.artifactsCreated.map((a) => (
-                  <span
-                    key={a}
-                    className="px-1.5 py-px rounded bg-forge-gunmetal/70 border border-forge-border/25 text-forge-silver/55"
-                  >
-                    {a}
-                  </span>
-                ))
+              {chips.length ? (
+                <>
+                  {visible.map((a) => (
+                    <span
+                      key={a}
+                      className="px-1.5 py-px rounded bg-forge-gunmetal/70 border border-forge-border/25 text-forge-silver/55"
+                    >
+                      {a}
+                    </span>
+                  ))}
+                  {hidden > 0 && (
+                    <button
+                      onClick={() => setExpanded(true)}
+                      className="px-1.5 py-px rounded border border-forge-blue/25 text-forge-blue/55 hover:text-forge-blue/80 transition-colors"
+                    >
+                      +{hidden} more
+                    </button>
+                  )}
+                  {expanded && chips.length > MAX_CHIPS && (
+                    <button
+                      onClick={() => setExpanded(false)}
+                      className="px-1.5 py-px rounded border border-forge-border/25 text-forge-muted/40 hover:text-forge-silver/55 transition-colors"
+                    >
+                      show less
+                    </button>
+                  )}
+                </>
               ) : (
                 <span className="text-forge-silver/40">—</span>
               )}
