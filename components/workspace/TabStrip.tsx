@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useRef, useState, useEffect, useLayoutEffect } from "react";
-import { getFileColor, extOf } from "@/lib/mockFiles";
+import { getFileColor, getFileIcon, extOf } from "@/lib/mockFiles";
 import type { OpenTab } from "@/hooks/useTabs";
 
 interface TabStripProps {
@@ -109,10 +109,10 @@ function TabStrip({
                   text-[11px] forge-mono cursor-pointer flex-shrink-0 transition-colors outline-none
                   focus-visible:bg-white/[0.05] ${
                   isActive
-                    ? "bg-forge-obsidian/55 text-forge-chrome/90"
+                    ? "bg-forge-obsidian/50 text-forge-chrome/90"
                     : "text-forge-silver/55 hover:text-forge-silver/80 hover:bg-white/[0.03]"
                 }`}
-                style={isActive ? { boxShadow: "inset 0 1.5px 0 rgba(45,142,255,0.7)" } : undefined}
+                style={isActive ? { boxShadow: "inset 0 2px 0 rgba(45,142,255,0.85)" } : undefined}
               >
                 {tab.isDirty ? (
                   <span
@@ -121,7 +121,12 @@ function TabStrip({
                     title="Unsaved"
                   />
                 ) : (
-                  <span className="text-[7px] flex-shrink-0" style={{ color: getFileColor(extOf(tab.name)) }}>●</span>
+                  <span
+                    className="text-[8px] forge-mono font-semibold w-3.5 text-center flex-shrink-0 leading-none"
+                    style={{ color: getFileColor(extOf(tab.name)) }}
+                  >
+                    {getFileIcon(extOf(tab.name))}
+                  </span>
                 )}
                 <span className="truncate max-w-[120px]">{tab.name}</span>
                 <button

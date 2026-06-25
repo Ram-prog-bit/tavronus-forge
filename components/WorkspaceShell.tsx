@@ -9,7 +9,7 @@ import EditorPane, { type WelcomeCommand } from "./workspace/EditorPane";
 import ForgeSessionCard from "./workspace/ForgeSessionCard";
 import ApplyPreview, { type PendingApply } from "./workspace/ApplyPreview";
 import { ModeId, getModeById, MODES } from "@/lib/modes";
-import { FileNode, getFileColor } from "@/lib/mockFiles";
+import { FileNode, getFileColor, getFileIcon } from "@/lib/mockFiles";
 import { buildTreeFromPaths } from "@/lib/vfs";
 import { buildPatch } from "@/lib/forgePatch";
 import { useTabs } from "@/hooks/useTabs";
@@ -102,7 +102,12 @@ const TreeNode = memo(function TreeNode({
       style={{ paddingLeft: `${indent + 8}px`, paddingRight: "8px" }}
     >
       <span className="w-3 flex-shrink-0" />
-      <span className="text-[7px] flex-shrink-0" style={{ color: getFileColor(node.ext) }}>●</span>
+      <span
+        className="text-[8px] forge-mono font-semibold w-3.5 text-center flex-shrink-0 leading-none"
+        style={{ color: getFileColor(node.ext) }}
+      >
+        {getFileIcon(node.ext)}
+      </span>
       <span className={`text-[11px] truncate ${isActive ? "text-forge-chrome" : "text-forge-silver/70"}`}>
         {node.name}
       </span>
@@ -526,7 +531,7 @@ export default function WorkspaceShell() {
     <div className="flex flex-col h-screen bg-forge-black text-forge-chrome overflow-hidden">
 
       {/* ── TOP BAR — IDE chrome ─────────────────────────────────── */}
-      <header className="flex items-center h-9 border-b border-forge-border/45 bg-[#0b0d10] flex-shrink-0 select-none overflow-hidden">
+      <header className="relative z-10 forge-topbar-depth flex items-center h-9 border-b border-forge-border/45 bg-[#0b0d10] flex-shrink-0 select-none overflow-hidden">
 
         {/* LEFT: sidebar toggle + brand + menu items */}
         <div className="flex items-center h-full flex-shrink-0">

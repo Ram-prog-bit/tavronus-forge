@@ -93,6 +93,21 @@ export function getFileColor(ext?: string): string {
   }
 }
 
+// Tiny mono-friendly file-type glyphs for tabs + Explorer (no icon library).
+export function getFileIcon(ext?: string): string {
+  switch (ext) {
+    case "tsx":
+    case "jsx": return "◇";
+    case "ts": return "TS";
+    case "js": return "JS";
+    case "json": return "{}";
+    case "css": return "#";
+    case "md": return "M";
+    case "py": return "PY";
+    default: return "•";
+  }
+}
+
 // ── File content / naming helpers ─────────────────────────────────────────────
 
 export function getContent(path: string, name: string): string {

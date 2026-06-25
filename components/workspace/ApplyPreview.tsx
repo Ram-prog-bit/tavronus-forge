@@ -80,7 +80,7 @@ export default function ApplyPreview({ pending, onAccept, onCancel }: ApplyPrevi
         aria-modal="true"
         aria-label="Apply change preview"
         className="relative w-full max-w-[680px] max-h-[80vh] flex flex-col rounded-lg border border-forge-blue/25 bg-forge-gunmetal/95 overflow-hidden"
-        style={{ boxShadow: "0 0 0 1px rgba(45,142,255,0.06), 0 16px 48px rgba(0,0,0,0.55)" }}
+        style={{ boxShadow: "0 0 0 1px rgba(45,142,255,0.1), 0 28px 70px rgba(0,0,0,0.65), 0 4px 12px rgba(0,0,0,0.5)" }}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}

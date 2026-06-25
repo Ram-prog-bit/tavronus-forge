@@ -130,3 +130,27 @@ code {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Depth / elevation system (restrained) ───────────────────────────────────
+   Subtle black shadows for layering; blue tint only where already accented.
+   No neon glow. */
+
+/* Soft downward depth under the top bar. */
+.forge-topbar-depth {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* Recesses the editor column so the docked side panels read as raised. */
+.forge-editor-recessed {
+  box-shadow:
+    inset 7px 0 12px -10px rgba(0, 0, 0, 0.55),
+    inset -7px 0 12px -10px rgba(0, 0, 0, 0.55);
+}
+
+/* Artifact / output cards lifted off the panel surface. */
+.forge-card-raised {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 4px 12px -6px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(45, 142, 255, 0.04);
+}

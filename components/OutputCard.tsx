@@ -42,7 +42,7 @@ function OutputCard({ title, index, label, body, code, content, onApply, applyDi
 
   return (
     <div
-      className="group rounded border border-forge-border/30 overflow-hidden"
+      className="group forge-card-raised rounded border border-forge-border/30 overflow-hidden"
       style={{
         background: "rgba(13, 15, 18, 0.7)",
         animation: `slide-up 0.3s ease-out ${index * 0.05}s both`,
