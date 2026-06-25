@@ -129,8 +129,9 @@ export default function EditorPane({ activeTab, content, onChange, welcomeComman
   return (
     <div className="forge-editor-recessed flex flex-col flex-1 min-w-0 overflow-hidden border-r border-forge-border/40">
 
-      {/* Editor meta bar — tonally matches the active tab so it reads as one surface */}
-      <div className="flex items-center justify-between px-4 h-8 border-b border-forge-border/30 bg-forge-obsidian/40 flex-shrink-0">
+      {/* Editor meta bar — same surface as the active tab; the active tab's 1px
+          bottom-cut bridges the header divider so the tab reads as the editor's top lip */}
+      <div className="flex items-center justify-between px-4 h-8 border-b border-forge-border/30 bg-forge-obsidian/50 flex-shrink-0">
         <div className="flex items-center gap-2 text-[10px] forge-mono text-forge-silver/55">
           {activeTab ? (
             <>

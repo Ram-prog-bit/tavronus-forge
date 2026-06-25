@@ -154,3 +154,25 @@ code {
     0 4px 12px -6px rgba(0, 0, 0, 0.4),
     inset 0 0 0 1px rgba(45, 142, 255, 0.04);
 }
+
+/* ── Micro-interactions (restrained) ─────────────────────────────────────────
+   Fast press feedback + a consistent electric-blue keyboard focus ring. */
+
+.forge-press {
+  transition:
+    transform 120ms ease,
+    background-color 130ms ease,
+    color 130ms ease,
+    border-color 130ms ease,
+    box-shadow 130ms ease;
+}
+.forge-press:active {
+  transform: translateY(0.5px);
+}
+
+button:focus-visible,
+[role="tab"]:focus-visible,
+[role="menuitem"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1.5px rgba(45, 142, 255, 0.5);
+}

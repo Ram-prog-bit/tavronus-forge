@@ -45,14 +45,14 @@ export default function ForgeSessionCard({ session, onReset, onEditGoal }: Forge
             <button
               onClick={startEdit}
               aria-label="Edit project goal"
-              className="text-[9px] forge-mono text-forge-silver/50 hover:text-forge-chrome/75 transition-colors"
+              className="forge-press text-[9px] forge-mono text-forge-silver/50 hover:text-forge-chrome/75"
             >
               Edit
             </button>
             <button
               onClick={onReset}
               aria-label="Reset Forge session"
-              className="text-[9px] forge-mono text-forge-silver/50 hover:text-forge-chrome/75 transition-colors"
+              className="forge-press text-[9px] forge-mono text-forge-silver/50 hover:text-forge-chrome/75"
             >
               Reset
             </button>

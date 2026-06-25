@@ -110,8 +110,8 @@ export default function ApplyPreview({ pending, onAccept, onCancel }: ApplyPrevi
         <div className="px-4 py-2.5 border-t border-forge-border/25 flex items-center justify-end gap-2 flex-shrink-0">
           <button
             onClick={onCancel}
-            className="text-[11px] forge-mono px-3 py-1.5 border border-forge-border/40 rounded
-              text-forge-silver/60 hover:text-forge-chrome/80 hover:border-forge-border/60 transition-colors"
+            className="forge-press text-[11px] forge-mono px-3 py-1.5 border border-forge-border/40 rounded
+              text-forge-silver/60 hover:text-forge-chrome/80 hover:border-forge-border/60"
           >
             Cancel
           </button>

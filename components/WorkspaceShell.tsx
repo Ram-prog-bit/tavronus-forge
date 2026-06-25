@@ -64,7 +64,7 @@ const TreeNode = memo(function TreeNode({
       <div>
         <button
           onClick={() => onDirToggle(path)}
-          className="w-full flex items-center gap-1.5 py-[3px] text-left hover:bg-white/[0.03] transition-colors"
+          className="forge-press w-full flex items-center gap-1.5 py-[3px] text-left hover:bg-white/[0.03]"
           style={{ paddingLeft: `${6 + indent}px`, paddingRight: "8px" }}
         >
           <span className="text-forge-muted/55 text-[9px] w-3 flex-shrink-0">
@@ -94,7 +94,7 @@ const TreeNode = memo(function TreeNode({
     <button
       onClick={() => onFileSelect(path, node.name)}
       className={`
-        w-full flex items-center gap-1.5 py-[3px] text-left transition-all duration-100
+        forge-press w-full flex items-center gap-1.5 py-[3px] text-left
         ${isActive
           ? "bg-forge-blue/12 border-l-[2px] border-forge-blue/70"
           : "border-l-[2px] border-transparent hover:bg-white/[0.03]"}
@@ -181,7 +181,7 @@ function CommandPalette({
         aria-modal="true"
         aria-label="Command palette"
         className="relative w-full max-w-[520px] rounded-lg border border-forge-blue/25 bg-forge-gunmetal/95 overflow-hidden"
-        style={{ boxShadow: "0 0 0 1px rgba(45,142,255,0.06), 0 16px 48px rgba(0,0,0,0.55)" }}
+        style={{ boxShadow: "0 0 0 1px rgba(45,142,255,0.1), 0 28px 70px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.5)" }}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -203,7 +203,7 @@ function CommandPalette({
           placeholder="Search commands..."
           aria-label="Search commands"
           className="w-full bg-transparent px-4 py-3 text-sm text-forge-chrome forge-mono outline-none
-            placeholder:text-forge-muted/45 border-b border-forge-border/30"
+            placeholder:text-forge-muted/45 border-b border-forge-border/30 focus:border-forge-blue/45 transition-colors"
         />
 
         {/* List */}
@@ -218,8 +218,10 @@ function CommandPalette({
                 key={c.label}
                 onMouseEnter={() => setSelected(i)}
                 onClick={() => runAt(i)}
-                className={`w-full flex items-center justify-between px-4 py-2 text-left transition-colors ${
-                  i === selected ? "bg-forge-blue/12" : "hover:bg-forge-panel/25"
+                className={`forge-press w-full flex items-center justify-between pl-3.5 pr-4 py-2 text-left border-l-2 ${
+                  i === selected
+                    ? "bg-forge-blue/12 border-forge-blue/70"
+                    : "border-transparent hover:bg-forge-panel/25"
                 }`}
               >
                 <span
@@ -229,10 +231,23 @@ function CommandPalette({
                 >
                   {c.label}
                 </span>
-                <span className="text-[10px] forge-mono text-forge-muted/50">{c.hint}</span>
+                <span
+                  className={`text-[10px] forge-mono ${
+                    i === selected ? "text-forge-blue/60" : "text-forge-muted/50"
+                  }`}
+                >
+                  {c.hint}
+                </span>
               </button>
             ))
           )}
+        </div>
+
+        {/* Footer hints */}
+        <div className="flex items-center gap-3 px-4 py-1.5 border-t border-forge-border/25 text-[9px] forge-mono text-forge-muted/45">
+          <span><span className="text-forge-silver/55">↑↓</span> navigate</span>
+          <span><span className="text-forge-silver/55">↵</span> run</span>
+          <span><span className="text-forge-silver/55">esc</span> dismiss</span>
         </div>
       </div>
     </div>
@@ -577,7 +592,7 @@ export default function WorkspaceShell() {
                     cur?.name === m.name ? null : { name: m.name, left: r.left, top: r.bottom }
                   );
                 }}
-                className={`px-2.5 h-full text-[11px] transition-colors ${
+                className={`forge-press px-2.5 h-full text-[11px] ${
                   menu?.name === m.name
                     ? "text-forge-chrome/90 bg-white/[0.07]"
                     : "text-forge-silver/55 hover:text-forge-chrome/85 hover:bg-white/[0.04]"
@@ -734,7 +749,7 @@ export default function WorkspaceShell() {
               role="menuitem"
               disabled={it.disabled}
               onClick={() => { if (!it.disabled) { it.onClick(); setMenu(null); } }}
-              className={`w-full text-left px-3 py-1.5 text-[11px] forge-mono transition-colors ${
+              className={`forge-press w-full text-left px-3 py-1.5 text-[11px] forge-mono ${
                 it.disabled
                   ? "text-forge-muted/40 cursor-not-allowed"
                   : "text-forge-silver/70 hover:bg-forge-blue/12 hover:text-forge-chrome"
@@ -849,7 +864,7 @@ export default function WorkspaceShell() {
                 key={m.id}
                 onClick={() => setActiveMode(m.id)}
                 className={`
-                  px-2.5 py-1 rounded text-[11px] forge-mono font-medium transition-all duration-150
+                  forge-press px-2.5 py-1 rounded text-[11px] forge-mono font-medium
                   ${activeMode === m.id
                     ? "border border-forge-blue/55 bg-forge-blue/12 text-forge-blue"
                     : "border border-forge-border/40 text-forge-silver/55 hover:text-forge-chrome/80 hover:border-forge-border/60"}

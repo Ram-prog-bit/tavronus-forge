@@ -42,7 +42,7 @@ function OutputCard({ title, index, label, body, code, content, onApply, applyDi
 
   return (
     <div
-      className="group forge-card-raised rounded border border-forge-border/30 overflow-hidden"
+      className="group forge-card-raised rounded border border-forge-border/30 hover:border-forge-border/45 transition-colors overflow-hidden"
       style={{
         background: "rgba(13, 15, 18, 0.7)",
         animation: `slide-up 0.3s ease-out ${index * 0.05}s both`,
@@ -68,7 +68,7 @@ function OutputCard({ title, index, label, body, code, content, onApply, applyDi
               disabled={applyDisabled}
               title={applyDisabled ? applyHint : "Apply this change to the active file"}
               aria-label={`Apply ${title} to file`}
-              className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] forge-mono transition-all duration-150 ${
+              className={`forge-press flex items-center gap-1 px-2 py-0.5 rounded text-[10px] forge-mono ${
                 applyDisabled
                   ? "text-forge-muted/25 cursor-not-allowed border border-transparent"
                   : "text-forge-blue/60 border border-forge-blue/25 hover:text-forge-blue/85 hover:border-forge-blue/40"
@@ -83,7 +83,7 @@ function OutputCard({ title, index, label, body, code, content, onApply, applyDi
           <button
             onClick={handleCopy}
             className={`
-              flex items-center gap-1 px-2 py-0.5 rounded text-[10px] forge-mono transition-all duration-150
+              forge-press flex items-center gap-1 px-2 py-0.5 rounded text-[10px] forge-mono
               ${copied
                 ? "text-green-400/75 border border-green-500/25"
                 : "text-forge-silver/55 border border-transparent hover:border-forge-border/45 hover:text-forge-chrome/80"}

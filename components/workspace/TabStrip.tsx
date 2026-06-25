@@ -112,7 +112,7 @@ function TabStrip({
                     ? "bg-forge-obsidian/50 text-forge-chrome/90"
                     : "text-forge-silver/55 hover:text-forge-silver/80 hover:bg-white/[0.03]"
                 }`}
-                style={isActive ? { boxShadow: "inset 0 2px 0 rgba(45,142,255,0.85)" } : undefined}
+                style={isActive ? { boxShadow: "inset 0 2px 0 rgba(45,142,255,0.85), 0 1px 0 0 #0d0f12" } : undefined}
               >
                 {tab.isDirty ? (
                   <span
@@ -132,7 +132,7 @@ function TabStrip({
                 <button
                   onClick={(e) => { e.stopPropagation(); onClose(tab.id); }}
                   aria-label={`Close ${tab.name}`}
-                  className="text-forge-muted/25 hover:text-forge-chrome/75 hover:bg-white/[0.08] rounded-sm px-[3px] transition-colors leading-none flex-shrink-0 ml-0.5"
+                  className="forge-press text-forge-muted/25 hover:text-forge-chrome/75 hover:bg-white/[0.08] rounded-sm px-[3px] leading-none flex-shrink-0 ml-0.5"
                 >
                   ×
                 </button>
