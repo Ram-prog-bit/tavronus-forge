@@ -6,6 +6,7 @@ import Link from "next/link";
 import OutputCard from "./OutputCard";
 import TabStrip from "./workspace/TabStrip";
 import EditorPane, { type WelcomeCommand } from "./workspace/EditorPane";
+import ForgeSessionCard from "./workspace/ForgeSessionCard";
 import { ModeId, getModeById, MODES } from "@/lib/modes";
 import { FileNode, FILE_MODE_TREE, PROJECT_MODE_TREE, getFileColor } from "@/lib/mockFiles";
 import { useTabs } from "@/hooks/useTabs";
@@ -263,6 +264,7 @@ export default function WorkspaceShell() {
   const {
     aiInput, setAiInput, activeMode, setActiveMode, aiOutput, outputContext,
     isGenerating, generate, clearOutput, resetOutput, focusInput, aiInputRef,
+    session, updateSessionFile, resetSession,
   } = useForgeAI();
 
   const mode = getModeById(activeMode);
@@ -307,6 +309,11 @@ export default function WorkspaceShell() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // Keep the Forge session's Current File in sync with the active tab.
+  useEffect(() => {
+    updateSessionFile(activeFileName || "Workspace context");
+  }, [activeFileName, updateSessionFile]);
 
   const toggleDir = useCallback((path: string) => {
     setExpandedPaths((prev) => {
@@ -829,6 +836,9 @@ export default function WorkspaceShell() {
               </button>
             </div>
           </div>
+
+          {/* Forge session tracker */}
+          <ForgeSessionCard session={session} onReset={resetSession} />
 
           {/* AI output */}
           <div className="flex-1 overflow-y-auto p-3">
