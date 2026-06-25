@@ -122,3 +122,11 @@ code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.85em;
 }
+
+/* Artifact card entrance — referenced by OutputCard's inline animation.
+   Defined here because Tailwind only emits keyframes for `animate-*` utility
+   classes, and OutputCard applies the animation via an inline style. */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

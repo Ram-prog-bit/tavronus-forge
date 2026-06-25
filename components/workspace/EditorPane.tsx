@@ -9,9 +9,11 @@ export interface WelcomeCommand {
   onClick: () => void;
 }
 
-// 1.6rem line-height at a 16px root = 25.6px per line. Padding mirrors the
-// textarea's py-3 (12px top) so gutter numbers align with text rows.
-const LINE_HEIGHT = 25.6;
+// Gutter geometry. DEFAULT_LINE_HEIGHT (1.6rem @ 16px root = 25.6px) is only a
+// fallback — the real line height is measured from the textarea at runtime, so
+// the gutter stays aligned even if the root font size changes. PADDING_TOP
+// mirrors the textarea's py-3 (12px) so line numbers line up with text rows.
+const DEFAULT_LINE_HEIGHT = 25.6;
 const PADDING_TOP = 12;
 const OVERSCAN = 8;
 const LARGE_FILE_LINES = 2000;
@@ -76,6 +78,7 @@ export default function EditorPane({ activeTab, content, onChange, welcomeComman
   const lineNumRef = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewHeight, setViewHeight] = useState(600);
+  const [lineHeight, setLineHeight] = useState(DEFAULT_LINE_HEIGHT);
 
   // Latest active tab (read inside id-keyed effects without re-running them).
   const activeTabRef = useRef(activeTab);
@@ -93,18 +96,24 @@ export default function EditorPane({ activeTab, content, onChange, welcomeComman
     setScrollTop(ta.scrollTop);
   };
 
-  // Measure the textarea viewport so we only render visible line numbers.
+  // Measure the textarea viewport (and its real line height) so we render only
+  // the visible line numbers. ResizeObserver is disconnected on cleanup.
   useEffect(() => {
     const ta = editorRef.current;
     if (!ta) return;
-    const measure = () => setViewHeight(ta.clientHeight || 600);
+    const measure = () => {
+      setViewHeight(ta.clientHeight || 600);
+      const lh = parseFloat(getComputedStyle(ta).lineHeight);
+      if (Number.isFinite(lh) && lh > 0) setLineHeight(lh);
+    };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(ta);
     return () => ro.disconnect();
   }, [editorRef, activeId]);
 
-  // Restore caret + scroll when switching to a different tab.
+  // Restore caret + scroll on tab switch. Keyed on the tab id only (not the tab
+  // object) so it never fires while typing — otherwise the caret would jump.
   useLayoutEffect(() => {
     const ta = editorRef.current;
     const t = activeTabRef.current;
@@ -120,9 +129,10 @@ export default function EditorPane({ activeTab, content, onChange, welcomeComman
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId]);
 
-  // Visible window of line numbers (virtualized — bounded regardless of file size).
-  const start = Math.max(0, Math.floor(scrollTop / LINE_HEIGHT) - OVERSCAN);
-  const end = Math.min(lineCount, Math.ceil((scrollTop + viewHeight) / LINE_HEIGHT) + OVERSCAN);
+  // Virtualized line numbers: only the visible window (plus overscan) is
+  // rendered, so a huge paste never creates one DOM node per line.
+  const start = Math.max(0, Math.floor(scrollTop / lineHeight) - OVERSCAN);
+  const end = Math.min(lineCount, Math.ceil((scrollTop + viewHeight) / lineHeight) + OVERSCAN);
   const lineNumbers: number[] = [];
   for (let i = start; i < end; i++) lineNumbers.push(i);
 
@@ -170,21 +180,24 @@ export default function EditorPane({ activeTab, content, onChange, welcomeComman
             className="w-10 flex-shrink-0 border-r border-forge-border/12 overflow-hidden"
             style={{ scrollbarWidth: "none" }}
           >
-            <div className="relative select-none" style={{ height: lineCount * LINE_HEIGHT + PADDING_TOP * 2 }}>
+            <div className="relative select-none" style={{ height: lineCount * lineHeight + PADDING_TOP * 2 }}>
               {lineNumbers.map((i) => (
                 <div
                   key={i}
                   className="absolute right-0 pr-3 text-right text-[11px] text-forge-muted/18 forge-mono"
-                  style={{ top: PADDING_TOP + i * LINE_HEIGHT, height: "1.6rem", lineHeight: "1.6rem" }}
+                  style={{ top: PADDING_TOP + i * lineHeight, height: lineHeight, lineHeight: `${lineHeight}px` }}
                 >
                   {i + 1}
                 </div>
               ))}
             </div>
           </div>
-          {/* Textarea */}
+          {/* Textarea stays immediately controlled (value = active tab content):
+              edits commit synchronously, so Forge AI always reads the latest text
+              and there is no second source of truth that could drift. */}
           <textarea
             ref={editorRef}
+            aria-label="Code editor"
             value={content}
             onChange={(e) => onChange(e.target.value)}
             onScroll={handleScroll}

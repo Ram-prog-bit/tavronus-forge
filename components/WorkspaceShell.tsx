@@ -356,6 +356,8 @@ export default function WorkspaceShell() {
     focusInput();
   }, [setActiveMode, focusInput]);
 
+  // editorContent is committed synchronously on every keystroke, so this always
+  // hands generate() the latest typed content (no debounce/flush needed).
   const handleGenerate = useCallback(() => {
     generate(activeFileName || "Workspace context", editorContent);
   }, [generate, activeFileName, editorContent]);
