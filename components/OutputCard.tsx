@@ -42,21 +42,21 @@ function OutputCard({ title, index, label, body, code, content, onApply, applyDi
 
   return (
     <div
-      className="group rounded border border-forge-border/25 overflow-hidden"
+      className="group rounded border border-forge-border/30 overflow-hidden"
       style={{
         background: "rgba(13, 15, 18, 0.7)",
         animation: `slide-up 0.3s ease-out ${index * 0.05}s both`,
       }}
     >
       {/* Card header */}
-      <div className="flex items-center justify-between px-3 py-1.5 border-b border-forge-border/20 bg-forge-panel/20">
+      <div className="flex items-center justify-between px-3 py-1.5 border-b border-forge-border/30 bg-forge-panel/25">
         <div className="flex items-center gap-2 min-w-0">
           <div className="w-0.5 h-3 bg-forge-blue/50 rounded-full flex-shrink-0" />
-          <span className="text-[10px] font-medium text-forge-chrome/70 tracking-wider uppercase forge-mono truncate">
+          <span className="text-[10px] font-semibold text-forge-chrome/85 tracking-wider uppercase forge-mono truncate">
             {title}
           </span>
           {label && (
-            <span className="text-[8px] forge-mono text-forge-muted/35 border border-forge-border/25 rounded px-1.5 py-px uppercase tracking-wider flex-shrink-0">
+            <span className="text-[8px] forge-mono text-forge-muted/55 border border-forge-border/30 rounded px-1.5 py-px uppercase tracking-wider flex-shrink-0">
               {label}
             </span>
           )}
@@ -85,8 +85,8 @@ function OutputCard({ title, index, label, body, code, content, onApply, applyDi
             className={`
               flex items-center gap-1 px-2 py-0.5 rounded text-[10px] forge-mono transition-all duration-150
               ${copied
-                ? "text-green-400/70 border border-green-500/20"
-                : "text-forge-muted/40 border border-transparent hover:border-forge-border/40 hover:text-forge-silver/60"}
+                ? "text-green-400/75 border border-green-500/25"
+                : "text-forge-silver/55 border border-transparent hover:border-forge-border/45 hover:text-forge-chrome/80"}
             `}
           >
             {copied ? (
@@ -120,15 +120,15 @@ function OutputCard({ title, index, label, body, code, content, onApply, applyDi
                     key={i}
                     className="flex gap-2 text-[12px] text-forge-silver/75 forge-mono leading-relaxed"
                   >
-                    <span className="text-forge-blue/40 flex-shrink-0 select-none">›</span>
+                    <span className="text-forge-blue/55 flex-shrink-0 select-none">›</span>
                     <span className="whitespace-pre-wrap break-words">{line}</span>
                   </li>
                 ))}
               </ul>
             )}
             {code && (
-              <pre className="mt-2 p-2.5 rounded bg-forge-black/50 border border-forge-border/20
-                text-[11px] text-forge-silver/70 forge-mono whitespace-pre-wrap break-words overflow-x-auto leading-relaxed">
+              <pre className="mt-2 p-2.5 rounded bg-forge-black/50 border border-forge-border/30
+                text-[11px] text-forge-silver/75 forge-mono whitespace-pre-wrap break-words overflow-x-auto leading-relaxed">
                 {code}
               </pre>
             )}

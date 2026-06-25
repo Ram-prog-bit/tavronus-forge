@@ -88,7 +88,7 @@ function TabStrip({
         style={{ scrollbarWidth: "none" }}
       >
         {openTabs.length === 0 ? (
-          <span className="px-3 text-[11px] forge-mono text-forge-muted/18 truncate">
+          <span className="px-3 text-[11px] forge-mono text-forge-muted/45 truncate">
             {workspaceMode === "mock-project" || workspaceMode === "project"
               ? projectName
               : "Forge Workspace"}
@@ -105,12 +105,12 @@ function TabStrip({
                 tabIndex={isActive ? 0 : -1}
                 onClick={() => onActivate(tab.id)}
                 onKeyDown={(e) => handleTabKeyDown(e, idx)}
-                className={`group flex items-center gap-1.5 px-3 h-full border-r border-forge-border/25
+                className={`group flex items-center gap-1.5 px-3 h-full border-r border-forge-border/30
                   text-[11px] forge-mono cursor-pointer flex-shrink-0 transition-colors outline-none
                   focus-visible:bg-white/[0.05] ${
                   isActive
-                    ? "bg-forge-obsidian/55 text-forge-chrome/85"
-                    : "text-forge-muted/45 hover:text-forge-silver/65 hover:bg-white/[0.03]"
+                    ? "bg-forge-obsidian/55 text-forge-chrome/90"
+                    : "text-forge-silver/55 hover:text-forge-silver/80 hover:bg-white/[0.03]"
                 }`}
                 style={isActive ? { boxShadow: "inset 0 1.5px 0 rgba(45,142,255,0.7)" } : undefined}
               >

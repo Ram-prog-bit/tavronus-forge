@@ -130,21 +130,21 @@ export default function EditorPane({ activeTab, content, onChange, welcomeComman
     <div className="flex flex-col flex-1 min-w-0 overflow-hidden border-r border-forge-border/40">
 
       {/* Editor meta bar */}
-      <div className="flex items-center justify-between px-4 h-8 border-b border-forge-border/20 bg-forge-obsidian/15 flex-shrink-0">
-        <div className="flex items-center gap-2 text-[10px] forge-mono text-forge-muted/30">
+      <div className="flex items-center justify-between px-4 h-8 border-b border-forge-border/30 bg-forge-obsidian/15 flex-shrink-0">
+        <div className="flex items-center gap-2 text-[10px] forge-mono text-forge-silver/55">
           {activeTab ? (
             <>
-              <span>{activeTab.name}</span>
-              <span>·</span>
-              <span className={activeTab.isDirty ? "text-forge-blue/45" : "text-forge-muted/20"}>
+              <span className="text-forge-chrome/80">{activeTab.name}</span>
+              <span className="text-forge-muted/40">·</span>
+              <span className={activeTab.isDirty ? "text-forge-blue/70" : "text-forge-muted/45"}>
                 {activeTab.isDirty ? "Unsaved" : activeTab.isUntitled ? "new file" : "mock file"}
               </span>
-              <span>·</span>
+              <span className="text-forge-muted/40">·</span>
               <span>{lineCount} {lineCount === 1 ? "line" : "lines"}</span>
               {isLargeFile && (
                 <>
-                  <span>·</span>
-                  <span className="text-forge-blue/35">large file · optimized</span>
+                  <span className="text-forge-muted/40">·</span>
+                  <span className="text-forge-blue/55">large file · optimized</span>
                 </>
               )}
             </>
@@ -153,9 +153,9 @@ export default function EditorPane({ activeTab, content, onChange, welcomeComman
           )}
         </div>
         {activeTab && (
-          <div className="flex items-center gap-2 text-[10px] forge-mono text-forge-muted/20">
+          <div className="flex items-center gap-2 text-[10px] forge-mono text-forge-muted/45">
             <span>{langLabel}</span>
-            <span>·</span>
+            <span className="text-forge-muted/30">·</span>
             <span>UTF-8</span>
           </div>
         )}
@@ -167,14 +167,14 @@ export default function EditorPane({ activeTab, content, onChange, welcomeComman
           {/* Line numbers (virtualized) */}
           <div
             ref={lineNumRef}
-            className="w-10 flex-shrink-0 border-r border-forge-border/12 overflow-hidden"
+            className="w-10 flex-shrink-0 border-r border-forge-border/30 overflow-hidden"
             style={{ scrollbarWidth: "none" }}
           >
             <div className="relative select-none" style={{ height: lineCount * lineHeight + PADDING_TOP * 2 }}>
               {lineNumbers.map((i) => (
                 <div
                   key={i}
-                  className="absolute right-0 pr-3 text-right text-[11px] text-forge-muted/18 forge-mono"
+                  className="absolute right-0 pr-3 text-right text-[11px] text-forge-muted/40 forge-mono"
                   style={{ top: PADDING_TOP + i * lineHeight, height: lineHeight, lineHeight: `${lineHeight}px` }}
                 >
                   {i + 1}
