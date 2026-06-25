@@ -1,7 +1,7 @@
 "use client";
 
 import { useReducer, useCallback } from "react";
-import { getContent, langOf } from "@/lib/mockFiles";
+import { langOf } from "@/lib/mockFiles";
 
 export type TabViewState = {
   scrollTop: number;
@@ -36,6 +36,7 @@ type Action =
   | { type: "ACTIVATE"; id: string }
   | { type: "UPDATE_CONTENT"; value: string }
   | { type: "UPDATE_VIEW"; id: string; view: TabViewState }
+  | { type: "MARK_SAVED" }
   | { type: "RESET" }
   | { type: "INIT_SINGLE"; name: string; path: string; content: string; isUntitled: boolean };
 
@@ -108,6 +109,14 @@ function reducer(state: State, action: Action): State {
       return { ...state, tabs };
     }
 
+    case "MARK_SAVED": {
+      // Mock save: the current content becomes the new baseline → dirty clears.
+      const tabs = state.tabs.map((t) =>
+        t.id === state.activeId ? { ...t, originalContent: t.content, isDirty: false } : t
+      );
+      return { ...state, tabs };
+    }
+
     case "RESET":
       return { ...state, tabs: [], activeId: null };
 
@@ -126,7 +135,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export function useTabs() {
+export function useTabs(readFile: (path: string) => string) {
   const [state, dispatch] = useReducer(reducer, INITIAL);
 
   const activeTab = state.tabs.find((t) => t.id === state.activeId) ?? null;
@@ -134,8 +143,8 @@ export function useTabs() {
   const createNewFile = useCallback(() => dispatch({ type: "CREATE_NEW" }), []);
   const openFile = useCallback(
     (path: string, name: string) =>
-      dispatch({ type: "OPEN_FILE", path, name, content: getContent(path, name) }),
-    []
+      dispatch({ type: "OPEN_FILE", path, name, content: readFile(path) }),
+    [readFile]
   );
   const closeTab = useCallback((id: string) => dispatch({ type: "CLOSE", id }), []);
   const activateTab = useCallback((id: string) => dispatch({ type: "ACTIVATE", id }), []);
@@ -147,6 +156,7 @@ export function useTabs() {
     (id: string, view: TabViewState) => dispatch({ type: "UPDATE_VIEW", id, view }),
     []
   );
+  const markActiveSaved = useCallback(() => dispatch({ type: "MARK_SAVED" }), []);
   const resetTabs = useCallback(() => dispatch({ type: "RESET" }), []);
 
   const initBlank = useCallback(
@@ -154,13 +164,13 @@ export function useTabs() {
     []
   );
   const initFile = useCallback(
-    (name: string) => dispatch({ type: "INIT_SINGLE", name, path: name, content: getContent(name, name), isUntitled: false }),
-    []
+    (name: string) => dispatch({ type: "INIT_SINGLE", name, path: name, content: readFile(name), isUntitled: false }),
+    [readFile]
   );
   const initProjectDefault = useCallback((projectName: string) => {
     const path = `${projectName}/app/page.tsx`;
-    dispatch({ type: "INIT_SINGLE", name: "page.tsx", path, content: getContent(path, "page.tsx"), isUntitled: false });
-  }, []);
+    dispatch({ type: "INIT_SINGLE", name: "page.tsx", path, content: readFile(path), isUntitled: false });
+  }, [readFile]);
 
   return {
     openTabs: state.tabs,
@@ -175,6 +185,7 @@ export function useTabs() {
     activateTab,
     updateActiveContent,
     updateTabViewState,
+    markActiveSaved,
     resetTabs,
     initBlank,
     initFile,

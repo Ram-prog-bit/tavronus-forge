@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, memo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import OutputCard from "./OutputCard";
@@ -8,9 +8,11 @@ import TabStrip from "./workspace/TabStrip";
 import EditorPane, { type WelcomeCommand } from "./workspace/EditorPane";
 import ForgeSessionCard from "./workspace/ForgeSessionCard";
 import { ModeId, getModeById, MODES } from "@/lib/modes";
-import { FileNode, FILE_MODE_TREE, PROJECT_MODE_TREE, getFileColor } from "@/lib/mockFiles";
+import { FileNode, getFileColor } from "@/lib/mockFiles";
+import { buildTreeFromPaths } from "@/lib/vfs";
 import { useTabs } from "@/hooks/useTabs";
 import { useForgeAI } from "@/hooks/useForgeAI";
+import { useVfs } from "@/hooks/useVfs";
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
@@ -253,12 +255,15 @@ export default function WorkspaceShell() {
 
   const editorRef = useRef<HTMLTextAreaElement>(null);
 
-  // Tab / file state
+  // Persistent virtual file system (localStorage-backed content store)
+  const { vfs, readFile, writeFile } = useVfs();
+
+  // Tab / file state (sources file content from the VFS)
   const {
     openTabs, activeTabId, activeTab, activeFileName, activeFilePath, editorContent,
-    createNewFile, openFile, closeTab, activateTab, updateActiveContent, updateTabViewState, resetTabs,
-    initBlank, initFile, initProjectDefault,
-  } = useTabs();
+    createNewFile, openFile, closeTab, activateTab, updateActiveContent, updateTabViewState,
+    markActiveSaved, resetTabs, initBlank, initFile, initProjectDefault,
+  } = useTabs(readFile);
 
   // Forge AI state
   const {
@@ -268,7 +273,16 @@ export default function WorkspaceShell() {
   } = useForgeAI();
 
   const mode = getModeById(activeMode);
-  const fileTree = workspaceMode === "file" ? FILE_MODE_TREE : PROJECT_MODE_TREE;
+
+  // Explorer tree derived from the VFS. Project modes show the demo project
+  // namespace; file mode shows the flat file set. Seeded to match the originals.
+  const fileTree = useMemo(() => {
+    const isProject = workspaceMode === "mock-project" || workspaceMode === "project";
+    const paths = Object.keys(vfs).filter((p) =>
+      isProject ? p.startsWith("tavronus-forge-demo/") : !p.startsWith("tavronus-forge-demo/")
+    );
+    return buildTreeFromPaths(paths);
+  }, [vfs, workspaceMode]);
 
   // URL → initial workspace state
   useEffect(() => {
@@ -392,6 +406,27 @@ export default function WorkspaceShell() {
     if (editorContent) navigator.clipboard?.writeText(editorContent).catch(() => {});
   }, [editorContent]);
 
+  // Mock save: persist the active tab's content to the VFS and clear its dirty dot.
+  const handleSave = useCallback(() => {
+    if (!activeTab) return;
+    writeFile(activeTab.path, activeTab.content);
+    markActiveSaved();
+  }, [activeTab, writeFile, markActiveSaved]);
+
+  // Ctrl/Cmd+S → save. Uses a ref so the listener subscribes once (no per-keystroke churn).
+  const saveRef = useRef(handleSave);
+  saveRef.current = handleSave;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) {
+        e.preventDefault();
+        saveRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const welcomeCommands: WelcomeCommand[] = [
     { label: "New File",          onClick: handleNewFile },
     { label: "Open Workspace",    onClick: () => showWelcome("workspace") },
@@ -414,6 +449,7 @@ export default function WorkspaceShell() {
   const menus: { name: string; items: { label: string; onClick: () => void; disabled?: boolean }[] }[] = [
     { name: "File", items: [
       { label: "New File", onClick: handleNewFile },
+      { label: "Save", onClick: handleSave, disabled: !activeTab },
       { label: "Open Workspace", onClick: () => showWelcome("workspace") },
       { label: "Open Mock Project", onClick: () => showWelcome("mock-project") },
     ] },
