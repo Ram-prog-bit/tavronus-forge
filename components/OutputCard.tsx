@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 
 interface OutputCardProps {
   title: string;
@@ -12,7 +12,7 @@ interface OutputCardProps {
   content?: string;
 }
 
-export default function OutputCard({ title, index, label, body, code, content }: OutputCardProps) {
+function OutputCard({ title, index, label, body, code, content }: OutputCardProps) {
   const [copied, setCopied] = useState(false);
 
   const copyText = body
@@ -118,3 +118,5 @@ export default function OutputCard({ title, index, label, body, code, content }:
     </div>
   );
 }
+
+export default memo(OutputCard);

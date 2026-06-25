@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import OutputCard from "./OutputCard";
@@ -37,7 +37,7 @@ interface TreeNodeProps {
   onDirToggle: (path: string) => void;
 }
 
-function TreeNode({
+const TreeNode = memo(function TreeNode({
   node, path, depth, activeFilePath, expandedPaths, onFileSelect, onDirToggle,
 }: TreeNodeProps) {
   const indent = depth * 10;
@@ -92,7 +92,7 @@ function TreeNode({
       </span>
     </button>
   );
-}
+});
 
 // ── Command palette ──────────────────────────────────────────────────────────
 
@@ -251,7 +251,7 @@ export default function WorkspaceShell() {
   // Tab / file state
   const {
     openTabs, activeTabId, activeTab, activeFileName, activeFilePath, editorContent,
-    createNewFile, openFile, closeTab, activateTab, updateActiveContent, resetTabs,
+    createNewFile, openFile, closeTab, activateTab, updateActiveContent, updateTabViewState, resetTabs,
     initBlank, initFile, initProjectDefault,
   } = useTabs();
 
@@ -325,10 +325,24 @@ export default function WorkspaceShell() {
     resetOutput();
   }, [openFile, resetOutput]);
 
+  // Capture the active tab's scroll/caret before leaving it.
+  const saveActiveView = useCallback(() => {
+    const ta = editorRef.current;
+    if (ta && activeTabId) {
+      updateTabViewState(activeTabId, {
+        scrollTop: ta.scrollTop,
+        selectionStart: ta.selectionStart,
+        selectionEnd: ta.selectionEnd,
+      });
+    }
+  }, [activeTabId, updateTabViewState]);
+
   const handleActivateTab = useCallback((id: string) => {
+    if (id === activeTabId) return;
+    saveActiveView();
     activateTab(id);
     resetOutput();
-  }, [activateTab, resetOutput]);
+  }, [activeTabId, saveActiveView, activateTab, resetOutput]);
 
   const showWelcome = useCallback((nextMode: "workspace" | "mock-project") => {
     setWorkspaceMode(nextMode);

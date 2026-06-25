@@ -3,6 +3,12 @@
 import { useReducer, useCallback } from "react";
 import { getContent, langOf } from "@/lib/mockFiles";
 
+export type TabViewState = {
+  scrollTop: number;
+  selectionStart: number;
+  selectionEnd: number;
+};
+
 export type OpenTab = {
   id: string;
   name: string;
@@ -12,6 +18,9 @@ export type OpenTab = {
   language: string;
   isDirty: boolean;
   isUntitled: boolean;
+  scrollTop?: number;
+  selectionStart?: number;
+  selectionEnd?: number;
 };
 
 type State = {
@@ -26,6 +35,7 @@ type Action =
   | { type: "CLOSE"; id: string }
   | { type: "ACTIVATE"; id: string }
   | { type: "UPDATE_CONTENT"; value: string }
+  | { type: "UPDATE_VIEW"; id: string; view: TabViewState }
   | { type: "RESET" }
   | { type: "INIT_SINGLE"; name: string; path: string; content: string; isUntitled: boolean };
 
@@ -84,6 +94,20 @@ function reducer(state: State, action: Action): State {
       return { ...state, tabs };
     }
 
+    case "UPDATE_VIEW": {
+      const tabs = state.tabs.map((t) =>
+        t.id === action.id
+          ? {
+              ...t,
+              scrollTop: action.view.scrollTop,
+              selectionStart: action.view.selectionStart,
+              selectionEnd: action.view.selectionEnd,
+            }
+          : t
+      );
+      return { ...state, tabs };
+    }
+
     case "RESET":
       return { ...state, tabs: [], activeId: null };
 
@@ -119,6 +143,10 @@ export function useTabs() {
     (value: string) => dispatch({ type: "UPDATE_CONTENT", value }),
     []
   );
+  const updateTabViewState = useCallback(
+    (id: string, view: TabViewState) => dispatch({ type: "UPDATE_VIEW", id, view }),
+    []
+  );
   const resetTabs = useCallback(() => dispatch({ type: "RESET" }), []);
 
   const initBlank = useCallback(
@@ -146,6 +174,7 @@ export function useTabs() {
     closeTab,
     activateTab,
     updateActiveContent,
+    updateTabViewState,
     resetTabs,
     initBlank,
     initFile,

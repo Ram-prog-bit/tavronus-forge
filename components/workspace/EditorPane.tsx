@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type RefObject } from "react";
+import { useRef, useState, useEffect, useLayoutEffect, type RefObject } from "react";
 import type { OpenTab } from "@/hooks/useTabs";
 
 export interface WelcomeCommand {
@@ -8,6 +8,13 @@ export interface WelcomeCommand {
   keys: string[];
   onClick: () => void;
 }
+
+// 1.6rem line-height at a 16px root = 25.6px per line. Padding mirrors the
+// textarea's py-3 (12px top) so gutter numbers align with text rows.
+const LINE_HEIGHT = 25.6;
+const PADDING_TOP = 12;
+const OVERSCAN = 8;
+const LARGE_FILE_LINES = 2000;
 
 function WelcomeScreen({ commands }: { commands: WelcomeCommand[] }) {
   return (
@@ -67,15 +74,57 @@ interface EditorPaneProps {
 
 export default function EditorPane({ activeTab, content, onChange, welcomeCommands, editorRef }: EditorPaneProps) {
   const lineNumRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [viewHeight, setViewHeight] = useState(600);
 
+  // Latest active tab (read inside id-keyed effects without re-running them).
+  const activeTabRef = useRef(activeTab);
+  activeTabRef.current = activeTab;
+
+  const activeId = activeTab?.id ?? null;
   const lineCount = content ? content.split("\n").length : 1;
   const langLabel = activeTab?.language ?? "Plain Text";
+  const isLargeFile = lineCount > LARGE_FILE_LINES;
 
   const handleScroll = () => {
-    if (editorRef.current && lineNumRef.current) {
-      lineNumRef.current.scrollTop = editorRef.current.scrollTop;
-    }
+    const ta = editorRef.current;
+    if (!ta) return;
+    if (lineNumRef.current) lineNumRef.current.scrollTop = ta.scrollTop;
+    setScrollTop(ta.scrollTop);
   };
+
+  // Measure the textarea viewport so we only render visible line numbers.
+  useEffect(() => {
+    const ta = editorRef.current;
+    if (!ta) return;
+    const measure = () => setViewHeight(ta.clientHeight || 600);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(ta);
+    return () => ro.disconnect();
+  }, [editorRef, activeId]);
+
+  // Restore caret + scroll when switching to a different tab.
+  useLayoutEffect(() => {
+    const ta = editorRef.current;
+    const t = activeTabRef.current;
+    if (!ta || !t) return;
+    if (t.selectionStart != null) {
+      ta.selectionStart = t.selectionStart;
+      ta.selectionEnd = t.selectionEnd ?? t.selectionStart;
+    }
+    const top = t.scrollTop ?? 0;
+    ta.scrollTop = top;
+    if (lineNumRef.current) lineNumRef.current.scrollTop = top;
+    setScrollTop(top);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId]);
+
+  // Visible window of line numbers (virtualized — bounded regardless of file size).
+  const start = Math.max(0, Math.floor(scrollTop / LINE_HEIGHT) - OVERSCAN);
+  const end = Math.min(lineCount, Math.ceil((scrollTop + viewHeight) / LINE_HEIGHT) + OVERSCAN);
+  const lineNumbers: number[] = [];
+  for (let i = start; i < end; i++) lineNumbers.push(i);
 
   return (
     <div className="flex flex-col flex-1 min-w-0 overflow-hidden border-r border-forge-border/25">
@@ -91,34 +140,42 @@ export default function EditorPane({ activeTab, content, onChange, welcomeComman
                 {activeTab.isDirty ? "Unsaved" : activeTab.isUntitled ? "new file" : "mock file"}
               </span>
               <span>·</span>
-              <span>{lineCount} lines</span>
+              <span>{lineCount} {lineCount === 1 ? "line" : "lines"}</span>
+              {isLargeFile && (
+                <>
+                  <span>·</span>
+                  <span className="text-forge-blue/35">large file · optimized</span>
+                </>
+              )}
             </>
           ) : (
             <span>No file open</span>
           )}
         </div>
-        <div className="flex items-center gap-2 text-[10px] forge-mono text-forge-muted/20">
-          <span>{langLabel}</span>
-          <span>·</span>
-          <span>UTF-8</span>
-        </div>
+        {activeTab && (
+          <div className="flex items-center gap-2 text-[10px] forge-mono text-forge-muted/20">
+            <span>{langLabel}</span>
+            <span>·</span>
+            <span>UTF-8</span>
+          </div>
+        )}
       </div>
 
       {/* Editor body */}
       {activeTab ? (
         <div className="flex flex-1 min-h-0 overflow-hidden">
-          {/* Line numbers */}
+          {/* Line numbers (virtualized) */}
           <div
             ref={lineNumRef}
             className="w-10 flex-shrink-0 border-r border-forge-border/12 overflow-hidden"
             style={{ scrollbarWidth: "none" }}
           >
-            <div className="py-3 select-none">
-              {Array.from({ length: lineCount }, (_, i) => (
+            <div className="relative select-none" style={{ height: lineCount * LINE_HEIGHT + PADDING_TOP * 2 }}>
+              {lineNumbers.map((i) => (
                 <div
                   key={i}
-                  className="text-right pr-3 text-[11px] text-forge-muted/18 forge-mono"
-                  style={{ lineHeight: "1.6rem" }}
+                  className="absolute right-0 pr-3 text-right text-[11px] text-forge-muted/18 forge-mono"
+                  style={{ top: PADDING_TOP + i * LINE_HEIGHT, height: "1.6rem", lineHeight: "1.6rem" }}
                 >
                   {i + 1}
                 </div>
