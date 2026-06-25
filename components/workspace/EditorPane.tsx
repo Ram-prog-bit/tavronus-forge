@@ -5,7 +5,6 @@ import type { OpenTab } from "@/hooks/useTabs";
 
 export interface WelcomeCommand {
   label: string;
-  keys: string[];
   onClick: () => void;
 }
 
@@ -32,9 +31,9 @@ function WelcomeScreen({ commands }: { commands: WelcomeCommand[] }) {
         />
       </div>
 
-      {/* Command rows */}
+      {/* Command rows — a subtle chevron signals clickability (no fake shortcut chips) */}
       <div className="flex flex-col w-full max-w-[258px]">
-        {commands.map(({ label, keys, onClick }, i) => (
+        {commands.map(({ label, onClick }, i) => (
           <button
             key={label}
             onClick={onClick}
@@ -46,18 +45,9 @@ function WelcomeScreen({ commands }: { commands: WelcomeCommand[] }) {
             <span className="text-[11px] text-forge-muted/35 group-hover:text-forge-silver/65 forge-mono transition-colors">
               {label}
             </span>
-            <div className="flex items-center gap-[3px]">
-              {keys.map((key) => (
-                <kbd
-                  key={key}
-                  className="inline-flex items-center px-[5px] py-[2px] rounded text-[9px]
-                    forge-mono text-forge-muted/22 group-hover:text-forge-muted/35 leading-none
-                    bg-forge-gunmetal/60 border border-forge-border/20 transition-colors"
-                >
-                  {key}
-                </kbd>
-              ))}
-            </div>
+            <span className="text-[11px] text-forge-muted/15 group-hover:text-forge-blue/40 transition-colors">
+              ›
+            </span>
           </button>
         ))}
       </div>

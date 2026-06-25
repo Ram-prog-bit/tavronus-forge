@@ -17,7 +17,7 @@ function TabStrip({
   openTabs, activeTabId, workspaceMode, projectName, onActivate, onClose,
 }: TabStripProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const activeRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [overflow, setOverflow] = useState({ left: false, right: false });
 
   const updateOverflow = () => {
@@ -31,7 +31,7 @@ function TabStrip({
 
   // Keep the active tab in view when it changes or tabs are added/removed.
   useLayoutEffect(() => {
-    activeRef.current?.scrollIntoView({ inline: "nearest", block: "nearest" });
+    if (activeTabId) tabRefs.current[activeTabId]?.scrollIntoView({ inline: "nearest", block: "nearest" });
     updateOverflow();
   }, [activeTabId, openTabs.length]);
 
@@ -44,6 +44,28 @@ function TabStrip({
     updateOverflow();
     return () => ro.disconnect();
   }, [openTabs.length]);
+
+  // Roving-tabindex keyboard navigation between tabs (ARIA tabs pattern).
+  const handleTabKeyDown = (e: React.KeyboardEvent, idx: number) => {
+    const n = openTabs.length;
+    if (n === 0) return;
+    let target = -1;
+    if (e.key === "ArrowRight") target = (idx + 1) % n;
+    else if (e.key === "ArrowLeft") target = (idx - 1 + n) % n;
+    else if (e.key === "Home") target = 0;
+    else if (e.key === "End") target = n - 1;
+    else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onActivate(openTabs[idx].id);
+      return;
+    } else return;
+    e.preventDefault();
+    const t = openTabs[target];
+    if (t) {
+      onActivate(t.id);
+      requestAnimationFrame(() => tabRefs.current[t.id]?.focus());
+    }
+  };
 
   return (
     <div className="flex-1 relative min-w-0 h-full">
@@ -60,6 +82,8 @@ function TabStrip({
       <div
         ref={scrollRef}
         onScroll={updateOverflow}
+        role="tablist"
+        aria-label="Open files"
         className="flex items-center h-full min-w-0 overflow-x-auto"
         style={{ scrollbarWidth: "none" }}
       >
@@ -70,15 +94,20 @@ function TabStrip({
               : "Forge Workspace"}
           </span>
         ) : (
-          openTabs.map((tab) => {
+          openTabs.map((tab, idx) => {
             const isActive = tab.id === activeTabId;
             return (
               <div
                 key={tab.id}
-                ref={isActive ? activeRef : undefined}
+                ref={(el) => { tabRefs.current[tab.id] = el; }}
+                role="tab"
+                aria-selected={isActive}
+                tabIndex={isActive ? 0 : -1}
                 onClick={() => onActivate(tab.id)}
+                onKeyDown={(e) => handleTabKeyDown(e, idx)}
                 className={`group flex items-center gap-1.5 px-3 h-full border-r border-forge-border/18
-                  text-[11px] forge-mono cursor-pointer flex-shrink-0 transition-colors ${
+                  text-[11px] forge-mono cursor-pointer flex-shrink-0 transition-colors outline-none
+                  focus-visible:bg-white/[0.04] ${
                   isActive
                     ? "bg-forge-black/25 text-forge-chrome/65"
                     : "text-forge-muted/35 hover:text-forge-silver/55 hover:bg-white/[0.02]"
@@ -93,6 +122,7 @@ function TabStrip({
                 <span className="truncate max-w-[120px]">{tab.name}</span>
                 <button
                   onClick={(e) => { e.stopPropagation(); onClose(tab.id); }}
+                  aria-label={`Close ${tab.name}`}
                   className="text-forge-muted/25 hover:text-forge-chrome/60 transition-colors leading-none flex-shrink-0 ml-0.5"
                 >
                   ×

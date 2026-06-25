@@ -145,10 +145,11 @@ export default function StartScreen() {
             ))}
           </div>
 
-          {/* Recent section */}
+          {/* Demo Recent section — these are illustrative mock entries, not real history */}
           <div>
             <p className="text-[9px] text-forge-muted/25 uppercase tracking-widest forge-mono mb-2">
-              Recent
+              Demo Recent{" "}
+              <span className="text-forge-muted/18 lowercase tracking-normal">· sample entries</span>
             </p>
             <div className="flex flex-col">
               {RECENT.map((item) => (

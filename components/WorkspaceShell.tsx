@@ -156,6 +156,9 @@ function CommandPalette({
     >
       <div className="absolute inset-0 bg-black/60" />
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Command palette"
         className="relative w-full max-w-[520px] rounded-lg border border-forge-blue/25 bg-forge-gunmetal/95 overflow-hidden"
         style={{ boxShadow: "0 0 0 1px rgba(45,142,255,0.06), 0 16px 48px rgba(0,0,0,0.55)" }}
         onMouseDown={(e) => e.stopPropagation()}
@@ -177,6 +180,7 @@ function CommandPalette({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Search commands..."
+          aria-label="Search commands"
           className="w-full bg-transparent px-4 py-3 text-sm text-forge-chrome forge-mono outline-none
             placeholder:text-forge-muted/25 border-b border-forge-border/20"
         />
@@ -344,11 +348,19 @@ export default function WorkspaceShell() {
     resetOutput();
   }, [activeTabId, saveActiveView, activateTab, resetOutput]);
 
+  // Confirm before discarding a dirty tab's unsaved edits.
+  const handleCloseTab = useCallback((id: string) => {
+    const tab = openTabs.find((t) => t.id === id);
+    if (tab?.isDirty && !window.confirm(`Discard unsaved changes to ${tab.name}?`)) return;
+    closeTab(id);
+  }, [openTabs, closeTab]);
+
   const showWelcome = useCallback((nextMode: "workspace" | "mock-project") => {
+    if (openTabs.some((t) => t.isDirty) && !window.confirm("Discard unsaved changes?")) return;
     setWorkspaceMode(nextMode);
     resetTabs();
     resetOutput();
-  }, [resetTabs, resetOutput]);
+  }, [openTabs, resetTabs, resetOutput]);
 
   const focusForgeAI = useCallback((m: ModeId) => {
     setActiveMode(m);
@@ -374,12 +386,12 @@ export default function WorkspaceShell() {
   }, [editorContent]);
 
   const welcomeCommands: WelcomeCommand[] = [
-    { label: "New File",          keys: ["Ctrl", "N"],          onClick: handleNewFile },
-    { label: "Open Workspace",    keys: ["Ctrl", "Shift", "W"], onClick: () => showWelcome("workspace") },
-    { label: "Open Mock Project", keys: ["Ctrl", "Alt", "P"],   onClick: () => showWelcome("mock-project") },
-    { label: "Generate Prompt",   keys: ["Ctrl", "G"],          onClick: () => focusForgeAI("prompt") },
-    { label: "Review Code",       keys: ["Ctrl", "Shift", "R"], onClick: () => focusForgeAI("review") },
-    { label: "Debug Error",       keys: ["Ctrl", "D"],          onClick: () => focusForgeAI("debug") },
+    { label: "New File",          onClick: handleNewFile },
+    { label: "Open Workspace",    onClick: () => showWelcome("workspace") },
+    { label: "Open Mock Project", onClick: () => showWelcome("mock-project") },
+    { label: "Generate Prompt",   onClick: () => focusForgeAI("prompt") },
+    { label: "Review Code",       onClick: () => focusForgeAI("review") },
+    { label: "Debug Error",       onClick: () => focusForgeAI("debug") },
   ];
 
   const paletteCommands: PaletteCommand[] = [
@@ -392,18 +404,18 @@ export default function WorkspaceShell() {
     { label: "Clear Output",      hint: "forge ai",  onClick: clearOutput },
   ];
 
-  const menus: { name: string; items: { label: string; onClick: () => void }[] }[] = [
+  const menus: { name: string; items: { label: string; onClick: () => void; disabled?: boolean }[] }[] = [
     { name: "File", items: [
       { label: "New File", onClick: handleNewFile },
       { label: "Open Workspace", onClick: () => showWelcome("workspace") },
       { label: "Open Mock Project", onClick: () => showWelcome("mock-project") },
     ] },
     { name: "Edit", items: [
-      { label: "Copy", onClick: copyEditor },
-      { label: "Clear Output", onClick: clearOutput },
+      { label: "Copy", onClick: copyEditor, disabled: !editorContent },
+      { label: "Clear Output", onClick: clearOutput, disabled: !aiInput && !aiOutput },
     ] },
     { name: "Selection", items: [
-      { label: "Select All", onClick: () => { editorRef.current?.focus(); editorRef.current?.select(); } },
+      { label: "Select All", onClick: () => { editorRef.current?.focus(); editorRef.current?.select(); }, disabled: !activeTab },
     ] },
     { name: "View", items: [
       { label: "Toggle Explorer", onClick: () => setSidebarOpen((o) => !o) },
@@ -413,7 +425,7 @@ export default function WorkspaceShell() {
       { label: "Command Palette…", onClick: () => setPaletteOpen(true) },
     ] },
     { name: "Run", items: [
-      { label: "Forge Output", onClick: () => handleGenerate() },
+      { label: "Forge Output", onClick: () => handleGenerate(), disabled: !aiInput.trim() || isGenerating },
     ] },
     { name: "Terminal", items: [
       { label: "Toggle Terminal", onClick: () => setTerminalOpen((o) => !o) },
@@ -438,6 +450,7 @@ export default function WorkspaceShell() {
           <button
             onClick={() => setSidebarOpen((o) => !o)}
             title="Toggle explorer"
+            aria-label="Toggle explorer"
             className="px-2.5 h-full flex items-center text-forge-silver/20 hover:text-forge-chrome/65 hover:bg-white/[0.04] transition-colors"
           >
             <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
@@ -465,6 +478,8 @@ export default function WorkspaceShell() {
             {menus.map((m) => (
               <button
                 key={m.name}
+                aria-haspopup="menu"
+                aria-expanded={menu?.name === m.name}
                 onClick={(e) => {
                   const r = e.currentTarget.getBoundingClientRect();
                   setSettings(null);
@@ -491,7 +506,7 @@ export default function WorkspaceShell() {
           workspaceMode={workspaceMode}
           projectName={urlName}
           onActivate={handleActivateTab}
-          onClose={closeTab}
+          onClose={handleCloseTab}
         />
 
         {/* RIGHT: status + utility icons */}
@@ -520,6 +535,8 @@ export default function WorkspaceShell() {
           <button
             onClick={() => { setMenu(null); setSettings(null); setPaletteOpen(true); }}
             title="Command palette"
+            aria-label="Open command palette"
+            aria-haspopup="dialog"
             className="hidden sm:flex items-center gap-1.5 mx-1 px-2 py-1 rounded border border-forge-border/30
               text-forge-muted/30 hover:text-forge-silver/55 hover:border-forge-border/50 transition-colors"
           >
@@ -537,6 +554,7 @@ export default function WorkspaceShell() {
           <button
             onClick={handleNewFile}
             title="New file"
+            aria-label="New file"
             className="px-2 h-full flex items-center text-forge-muted/22 hover:text-forge-chrome/65 hover:bg-white/[0.04] transition-colors"
           >
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -548,6 +566,7 @@ export default function WorkspaceShell() {
           <button
             onClick={() => setSidebarOpen((o) => !o)}
             title="Toggle layout"
+            aria-label="Toggle layout"
             className="px-2 h-full flex items-center text-forge-muted/22 hover:text-forge-chrome/65 hover:bg-white/[0.04] transition-colors"
           >
             <svg width="11" height="10" viewBox="0 0 11 10" fill="none">
@@ -560,6 +579,7 @@ export default function WorkspaceShell() {
           {/* Forge AI — blue tinted */}
           <button
             title="Focus Forge AI"
+            aria-label="Focus Forge AI input"
             onClick={() => { setMenu(null); setSettings(null); setAiPanelOpen(true); focusInput(); }}
             className="px-2 h-full flex items-center text-forge-blue/30 hover:text-forge-blue/60 hover:bg-white/[0.04] transition-colors"
           >
@@ -572,6 +592,9 @@ export default function WorkspaceShell() {
           {/* Settings */}
           <button
             title="Settings"
+            aria-label="Settings"
+            aria-haspopup="dialog"
+            aria-expanded={!!settings}
             onClick={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
               setMenu(null);
@@ -610,15 +633,22 @@ export default function WorkspaceShell() {
 
       {menu && (
         <div
+          role="menu"
+          aria-label={`${menu.name} menu`}
           className="fixed z-50 min-w-[190px] rounded-b-md border border-forge-border/30 bg-forge-gunmetal/95 py-1"
           style={{ left: menu.left, top: menu.top, boxShadow: "0 14px 34px rgba(0,0,0,0.5)" }}
         >
           {menus.find((m) => m.name === menu.name)?.items.map((it) => (
             <button
               key={it.label}
-              onClick={() => { it.onClick(); setMenu(null); }}
-              className="w-full text-left px-3 py-1.5 text-[11px] forge-mono text-forge-silver/55
-                hover:bg-forge-blue/10 hover:text-forge-chrome transition-colors"
+              role="menuitem"
+              disabled={it.disabled}
+              onClick={() => { if (!it.disabled) { it.onClick(); setMenu(null); } }}
+              className={`w-full text-left px-3 py-1.5 text-[11px] forge-mono transition-colors ${
+                it.disabled
+                  ? "text-forge-muted/25 cursor-not-allowed"
+                  : "text-forge-silver/55 hover:bg-forge-blue/10 hover:text-forge-chrome"
+              }`}
             >
               {it.label}
             </button>
@@ -756,6 +786,7 @@ export default function WorkspaceShell() {
               onChange={(e) => setAiInput(e.target.value)}
               onKeyDown={handleAIKeyDown}
               placeholder="Ask Forge about this file or project..."
+              aria-label="Forge AI prompt"
               rows={4}
               className="w-full bg-forge-black/40 border border-forge-border/35 rounded
                 text-xs text-forge-chrome forge-mono placeholder:text-forge-muted/22
