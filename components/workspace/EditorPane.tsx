@@ -127,7 +127,7 @@ export default function EditorPane({ activeTab, content, onChange, welcomeComman
   for (let i = start; i < end; i++) lineNumbers.push(i);
 
   return (
-    <div className="flex flex-col flex-1 min-w-0 overflow-hidden border-r border-forge-border/25">
+    <div className="flex flex-col flex-1 min-w-0 overflow-hidden border-r border-forge-border/40">
 
       {/* Editor meta bar */}
       <div className="flex items-center justify-between px-4 h-8 border-b border-forge-border/20 bg-forge-obsidian/15 flex-shrink-0">

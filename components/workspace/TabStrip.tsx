@@ -105,17 +105,21 @@ function TabStrip({
                 tabIndex={isActive ? 0 : -1}
                 onClick={() => onActivate(tab.id)}
                 onKeyDown={(e) => handleTabKeyDown(e, idx)}
-                className={`group flex items-center gap-1.5 px-3 h-full border-r border-forge-border/18
+                className={`group flex items-center gap-1.5 px-3 h-full border-r border-forge-border/25
                   text-[11px] forge-mono cursor-pointer flex-shrink-0 transition-colors outline-none
-                  focus-visible:bg-white/[0.04] ${
+                  focus-visible:bg-white/[0.05] ${
                   isActive
-                    ? "bg-forge-black/25 text-forge-chrome/65"
-                    : "text-forge-muted/35 hover:text-forge-silver/55 hover:bg-white/[0.02]"
+                    ? "bg-forge-obsidian/55 text-forge-chrome/85"
+                    : "text-forge-muted/45 hover:text-forge-silver/65 hover:bg-white/[0.03]"
                 }`}
-                style={isActive ? { boxShadow: "inset 0 1.5px 0 rgba(45,142,255,0.55)" } : undefined}
+                style={isActive ? { boxShadow: "inset 0 1.5px 0 rgba(45,142,255,0.7)" } : undefined}
               >
                 {tab.isDirty ? (
-                  <span className="w-1.5 h-1.5 rounded-full bg-forge-blue/70 flex-shrink-0" title="Unsaved" />
+                  <span
+                    className="w-1.5 h-1.5 rounded-full bg-forge-blue/90 flex-shrink-0"
+                    style={{ boxShadow: "0 0 4px rgba(45,142,255,0.45)" }}
+                    title="Unsaved"
+                  />
                 ) : (
                   <span className="text-[7px] flex-shrink-0" style={{ color: getFileColor(extOf(tab.name)) }}>●</span>
                 )}
@@ -123,7 +127,7 @@ function TabStrip({
                 <button
                   onClick={(e) => { e.stopPropagation(); onClose(tab.id); }}
                   aria-label={`Close ${tab.name}`}
-                  className="text-forge-muted/25 hover:text-forge-chrome/60 transition-colors leading-none flex-shrink-0 ml-0.5"
+                  className="text-forge-muted/25 hover:text-forge-chrome/75 hover:bg-white/[0.08] rounded-sm px-[3px] transition-colors leading-none flex-shrink-0 ml-0.5"
                 >
                   ×
                 </button>

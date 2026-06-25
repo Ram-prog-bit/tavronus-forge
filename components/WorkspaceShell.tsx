@@ -64,13 +64,13 @@ const TreeNode = memo(function TreeNode({
       <div>
         <button
           onClick={() => onDirToggle(path)}
-          className="w-full flex items-center gap-1.5 py-[3px] text-left hover:bg-forge-panel/25 transition-colors"
+          className="w-full flex items-center gap-1.5 py-[3px] text-left hover:bg-white/[0.03] transition-colors"
           style={{ paddingLeft: `${6 + indent}px`, paddingRight: "8px" }}
         >
-          <span className="text-forge-muted/25 text-[9px] w-3 flex-shrink-0">
+          <span className="text-forge-muted/40 text-[9px] w-3 flex-shrink-0">
             {isExpanded ? "▾" : "▸"}
           </span>
-          <span className="text-[11px] text-forge-silver/40 truncate">{node.name}</span>
+          <span className="text-[11px] text-forge-silver/55 truncate">{node.name}</span>
         </button>
         {isExpanded &&
           node.children?.map((child) => (
@@ -96,14 +96,14 @@ const TreeNode = memo(function TreeNode({
       className={`
         w-full flex items-center gap-1.5 py-[3px] text-left transition-all duration-100
         ${isActive
-          ? "bg-forge-blue/8 border-l-[2px] border-forge-blue/60"
-          : "border-l-[2px] border-transparent hover:bg-forge-panel/20"}
+          ? "bg-forge-blue/12 border-l-[2px] border-forge-blue/70"
+          : "border-l-[2px] border-transparent hover:bg-white/[0.03]"}
       `}
       style={{ paddingLeft: `${indent + 8}px`, paddingRight: "8px" }}
     >
       <span className="w-3 flex-shrink-0" />
       <span className="text-[7px] flex-shrink-0" style={{ color: getFileColor(node.ext) }}>●</span>
-      <span className={`text-[11px] truncate ${isActive ? "text-forge-chrome" : "text-forge-silver/40"}`}>
+      <span className={`text-[11px] truncate ${isActive ? "text-forge-chrome" : "text-forge-silver/55"}`}>
         {node.name}
       </span>
     </button>
@@ -526,7 +526,7 @@ export default function WorkspaceShell() {
     <div className="flex flex-col h-screen bg-forge-black text-forge-chrome overflow-hidden">
 
       {/* ── TOP BAR — IDE chrome ─────────────────────────────────── */}
-      <header className="flex items-center h-9 border-b border-forge-border/30 bg-[#0b0d10] flex-shrink-0 select-none overflow-hidden">
+      <header className="flex items-center h-9 border-b border-forge-border/45 bg-[#0b0d10] flex-shrink-0 select-none overflow-hidden">
 
         {/* LEFT: sidebar toggle + brand + menu items */}
         <div className="flex items-center h-full flex-shrink-0">
@@ -546,7 +546,7 @@ export default function WorkspaceShell() {
           </button>
 
           {/* Brand block */}
-          <div className="flex items-center gap-1.5 px-2.5 h-full border-r border-forge-border/22">
+          <div className="flex items-center gap-1.5 px-3 h-full border-r border-forge-border/30">
             <ForgeLogo />
             <div className="flex flex-col justify-center leading-none">
               <span className="text-[9px] font-semibold text-forge-chrome/78 tracking-[0.10em] uppercase">
@@ -572,10 +572,10 @@ export default function WorkspaceShell() {
                     cur?.name === m.name ? null : { name: m.name, left: r.left, top: r.bottom }
                   );
                 }}
-                className={`px-2 h-full text-[11px] transition-colors ${
+                className={`px-2.5 h-full text-[11px] transition-colors ${
                   menu?.name === m.name
-                    ? "text-forge-chrome/80 bg-white/[0.05]"
-                    : "text-forge-silver/32 hover:text-forge-chrome/70 hover:bg-white/[0.04]"
+                    ? "text-forge-chrome/85 bg-white/[0.06]"
+                    : "text-forge-silver/38 hover:text-forge-chrome/75 hover:bg-white/[0.04]"
                 }`}
               >
                 {m.name}
@@ -776,21 +776,21 @@ export default function WorkspaceShell() {
         {/* ── LEFT: Explorer ──────────────────────────────────────── */}
         <aside
           className={`
-            flex flex-col border-r border-forge-border/35 bg-forge-obsidian/35 flex-shrink-0
+            flex flex-col border-r border-forge-border/45 bg-forge-obsidian/40 flex-shrink-0
             transition-all duration-200
             ${sidebarOpen ? "w-56" : "w-0 overflow-hidden border-r-0"}
           `}
         >
-          <div className="flex items-center px-3 py-2 border-b border-forge-border/25">
-            <span className="text-[9px] text-forge-muted/30 uppercase tracking-widest forge-mono">
+          <div className="flex items-center px-3 py-2 border-b border-forge-border/30">
+            <span className="text-[9px] text-forge-muted/40 uppercase tracking-widest forge-mono">
               Explorer
             </span>
           </div>
           <div className="flex-1 overflow-y-auto py-1">
             {workspaceMode === "workspace" ? (
               <div className="px-3 py-4 flex flex-col gap-1.5">
-                <p className="text-[11px] text-forge-silver/40 forge-mono">No project opened</p>
-                <p className="text-[10px] text-forge-muted/28 forge-mono leading-relaxed">
+                <p className="text-[11px] text-forge-silver/50 forge-mono">No project opened</p>
+                <p className="text-[10px] text-forge-muted/35 forge-mono leading-relaxed">
                   Start a new file or open the mock project.
                 </p>
               </div>
@@ -979,11 +979,11 @@ export default function WorkspaceShell() {
       </div>
 
       {/* ── BOTTOM: Terminal + status ────────────────────────────── */}
-      <div className="border-t border-forge-border/35 bg-forge-black flex-shrink-0">
+      <div className="border-t border-forge-border/45 bg-forge-black flex-shrink-0">
 
         {/* Compact terminal line */}
         {terminalOpen && (
-          <div className="flex items-center gap-3 px-4 h-8 border-b border-forge-border/20 bg-forge-obsidian/30">
+          <div className="flex items-center gap-3 px-4 h-8 border-b border-forge-border/25 bg-forge-obsidian/30">
             <span className="text-[10px] forge-mono text-forge-muted/30">$</span>
             <span className="text-[10px] forge-mono text-forge-muted/40">npm run dev</span>
             <span className="text-[10px] forge-mono text-forge-muted/20">·</span>
