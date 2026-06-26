@@ -1016,10 +1016,21 @@ export default function WorkspaceShell() {
             ) : aiOutput ? (
               <div className="flex flex-col gap-2">
                 {outputContext && (
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 mb-0.5 rounded border border-forge-border/30 bg-forge-black/30">
-                    <span className="w-1 h-1 rounded-full bg-forge-blue/60 flex-shrink-0" />
-                    <span className="text-[10px] forge-mono text-forge-silver/55 truncate">
+                  <div className="flex items-center gap-2 px-2.5 py-1.5 mb-0.5 rounded border border-forge-border/30 bg-forge-black/30">
+                    <svg width="9" height="9" viewBox="0 0 12 12" fill="none" className="flex-shrink-0 text-forge-blue/60">
+                      <path d="M2 6.5L5 9.5L10 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="text-[10px] forge-mono text-forge-silver/55 truncate flex-1 min-w-0">
                       {outputContext}
+                    </span>
+                    <span
+                      className={`text-[8px] uppercase tracking-wider forge-mono px-1.5 py-px rounded border flex-shrink-0 ${
+                        outputFile
+                          ? "text-forge-blue/55 border-forge-blue/25"
+                          : "text-forge-muted/55 border-forge-border/30"
+                      }`}
+                    >
+                      {outputFile ? "File" : "Workspace"}
                     </span>
                   </div>
                 )}
