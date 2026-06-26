@@ -127,10 +127,18 @@ function OutputCard({ title, index, label, body, code, content, onApply, applyDi
               </ul>
             )}
             {code && (
-              <pre className="mt-2 p-2.5 rounded bg-forge-black/50 border border-forge-border/30
-                text-[11px] text-forge-silver/75 forge-mono whitespace-pre-wrap break-words overflow-x-auto leading-relaxed">
-                {code}
-              </pre>
+              <div className="mt-2 rounded border border-forge-border/30 bg-forge-black/50 overflow-hidden">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 border-b border-forge-border/25 bg-forge-black/40">
+                  <span className="w-1 h-1 rounded-full bg-forge-blue/50 flex-shrink-0" />
+                  <span className="text-[8px] uppercase tracking-wider forge-mono text-forge-muted/55">
+                    snippet
+                  </span>
+                </div>
+                <pre className="p-2.5 text-[11px] text-forge-silver/75 forge-mono
+                  whitespace-pre-wrap break-words overflow-x-auto leading-relaxed">
+                  {code}
+                </pre>
+              </div>
             )}
           </>
         ) : (

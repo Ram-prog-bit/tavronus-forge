@@ -27,6 +27,25 @@ const ACTIONABLE_TITLES = new Set([
   "Today",
 ]);
 
+// Display-only metadata for the Forge AI panel (no behavior — purely UI copy).
+// One-word "kind" describing what each mode produces, shown under the chips.
+const MODE_KIND: Record<ModeId, string> = {
+  plan: "Blueprint",
+  prompt: "Prompts",
+  review: "Audit",
+  debug: "Diagnosis",
+  checklist: "Tasks",
+};
+
+// Mode-aware placeholder so the input reads like a command composer.
+const MODE_PLACEHOLDER: Record<ModeId, string> = {
+  plan: "Describe the product or feature to blueprint…",
+  prompt: "Describe what you want a copy-paste AI prompt for…",
+  review: "Describe what to review — or open a file and ask…",
+  debug: "Paste the error or describe the bug to diagnose…",
+  checklist: "Describe the product to turn into day-one tasks…",
+};
+
 // ── Sub-components ───────────────────────────────────────────────────────────
 
 function ForgeLogo() {
@@ -846,58 +865,99 @@ export default function WorkspaceShell() {
 
           {/* AI panel header */}
           <div className="flex items-center justify-between px-4 h-9 border-b border-forge-border/40 flex-shrink-0">
-            <span className="text-xs font-semibold text-forge-chrome/90 tracking-wide">
-              ◈ Forge AI
-            </span>
-            {activeFileName && (
-              <span className="text-[10px] forge-mono text-forge-muted/50">
-                Context:{" "}
-                <span className="text-forge-silver/65">{activeFileName}</span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="flex-shrink-0">
+                <polygon points="7,1 13,4 13,10 7,13 1,10 1,4" stroke="#2D8EFF" strokeWidth="1.2" fill="none" />
+                <circle cx="7" cy="7" r="1.4" fill="#2D8EFF" />
+              </svg>
+              <span className="text-xs font-semibold text-forge-chrome/90 tracking-wide">
+                Forge AI
               </span>
-            )}
+            </div>
+            <span
+              className="flex items-center gap-1.5 text-[9px] forge-mono uppercase tracking-wider
+                text-forge-blue/60 border border-forge-blue/25 rounded px-1.5 py-0.5 flex-shrink-0"
+              title="Responses are generated locally from mock templates — no external AI is called."
+            >
+              <span className="w-1 h-1 rounded-full bg-forge-blue/60 animate-pulse" />
+              Local Mock
+            </span>
           </div>
 
-          {/* Mode chips */}
-          <div className="flex flex-wrap gap-1.5 px-3 py-3 border-b border-forge-border/30 flex-shrink-0">
-            {MODES.map((m) => (
-              <button
-                key={m.id}
-                onClick={() => setActiveMode(m.id)}
-                className={`
-                  forge-press px-2.5 py-1 rounded text-[11px] forge-mono font-medium
-                  ${activeMode === m.id
-                    ? "border border-forge-blue/55 bg-forge-blue/12 text-forge-blue"
-                    : "border border-forge-border/40 text-forge-silver/55 hover:text-forge-chrome/80 hover:border-forge-border/60"}
-                `}
-                style={activeMode === m.id ? { boxShadow: "0 0 6px rgba(45,142,255,0.12)" } : undefined}
-              >
-                {m.shortLabel}
-              </button>
-            ))}
+          {/* Mode chips — the tool loaded into the assistant */}
+          <div className="flex flex-wrap gap-1.5 px-3 pt-3 pb-2.5 border-b border-forge-border/30 flex-shrink-0">
+            {MODES.map((m) => {
+              const isActive = activeMode === m.id;
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => setActiveMode(m.id)}
+                  aria-pressed={isActive}
+                  title={m.description}
+                  className={`
+                    forge-press px-2.5 py-1 rounded text-[11px] forge-mono font-medium
+                    ${isActive
+                      ? "border border-forge-blue/55 bg-forge-blue/15 text-forge-blue"
+                      : "border border-forge-border/40 text-forge-silver/55 hover:text-forge-chrome/80 hover:border-forge-border/60 hover:bg-white/[0.03]"}
+                  `}
+                  style={isActive ? { boxShadow: "0 0 6px rgba(45,142,255,0.14)" } : undefined}
+                >
+                  {m.shortLabel}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Mode description (single subtle line) */}
-          <div className="px-3 py-2 border-b border-forge-border/30 flex-shrink-0">
+          {/* Active mode summary + what Forge is looking at */}
+          <div className="px-3 py-2.5 border-b border-forge-border/30 flex-shrink-0 flex flex-col gap-1.5">
+            <div className="flex items-baseline gap-2">
+              <span className="text-[11px] font-semibold forge-mono text-forge-chrome/85 tracking-wide flex-shrink-0">
+                {mode.label}
+              </span>
+              <span className="text-[9px] forge-mono uppercase tracking-wider text-forge-blue/55 flex-shrink-0">
+                {MODE_KIND[activeMode]}
+              </span>
+            </div>
             <p className="text-[10px] text-forge-silver/55 forge-mono leading-relaxed">
               {mode.description}
             </p>
+            <div className="flex items-center gap-1.5 text-[10px] forge-mono text-forge-muted/55 min-w-0">
+              <span className="w-1 h-1 rounded-full bg-forge-blue/55 flex-shrink-0" />
+              {activeFileName ? (
+                <span className="truncate">
+                  Editor-aware · <span className="text-forge-silver/70">{activeFileName}</span>
+                </span>
+              ) : (
+                <span className="truncate">Workspace context · no file open</span>
+              )}
+            </div>
           </div>
 
-          {/* AI input */}
+          {/* AI input — command composer */}
           <div className="px-3 py-3 border-b border-forge-border/30 flex-shrink-0">
-            <textarea
-              ref={aiInputRef}
-              value={aiInput}
-              onChange={(e) => setAiInput(e.target.value)}
-              onKeyDown={handleAIKeyDown}
-              placeholder="Ask Forge about this file or project..."
-              aria-label="Forge AI prompt"
-              rows={4}
-              className="w-full bg-forge-black/40 border border-forge-border/40 rounded
-                text-xs text-forge-chrome forge-mono placeholder:text-forge-muted/45
-                outline-none resize-none px-3 py-2.5 leading-relaxed
-                focus:border-forge-blue/40 transition-colors"
-            />
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[9px] uppercase tracking-widest forge-mono text-forge-muted/55">
+                Command
+              </span>
+              <span className="text-[9px] forge-mono text-forge-muted/40">
+                <span className="text-forge-silver/50">⌘⏎</span> to forge
+              </span>
+            </div>
+            <div className="rounded border border-forge-border/40 bg-forge-black/40
+              focus-within:border-forge-blue/45 transition-colors">
+              <textarea
+                ref={aiInputRef}
+                value={aiInput}
+                onChange={(e) => setAiInput(e.target.value)}
+                onKeyDown={handleAIKeyDown}
+                placeholder={MODE_PLACEHOLDER[activeMode]}
+                aria-label="Forge AI prompt"
+                rows={4}
+                className="w-full bg-transparent
+                  text-xs text-forge-chrome forge-mono placeholder:text-forge-muted/45
+                  outline-none resize-none px-3 py-2.5 leading-relaxed"
+              />
+            </div>
             <div className="flex items-center gap-2 mt-2">
               {(aiInput || aiOutput) && (
                 <button
@@ -985,11 +1045,19 @@ export default function WorkspaceShell() {
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center min-h-[100px] gap-2 text-center pt-8">
-                <p className="text-xs text-forge-silver/55 forge-mono">No output yet.</p>
-                <p className="text-[10px] text-forge-muted/45 forge-mono leading-relaxed max-w-[200px]">
-                  Ask Forge to plan, prompt, review, debug, or create a checklist.
-                </p>
+              <div className="flex flex-col items-center justify-center min-h-[100px] gap-3 text-center pt-8 px-3">
+                <svg width="22" height="22" viewBox="0 0 14 14" fill="none" className="opacity-25">
+                  <polygon points="7,1 13,4 13,10 7,13 1,10 1,4" stroke="#2D8EFF" strokeWidth="1" fill="none" />
+                  <circle cx="7" cy="7" r="1.4" fill="#2D8EFF" />
+                </svg>
+                <div className="flex flex-col gap-1">
+                  <p className="text-xs text-forge-silver/60 forge-mono">No output yet</p>
+                  <p className="text-[10px] text-forge-muted/45 forge-mono leading-relaxed max-w-[220px]">
+                    Write a command above, then press{" "}
+                    <span className="text-forge-silver/55">Forge Output</span> to generate{" "}
+                    <span className="text-forge-blue/55">{mode.label}</span> artifacts for this context.
+                  </p>
+                </div>
               </div>
             )}
           </div>

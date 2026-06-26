@@ -102,12 +102,17 @@ export default function ApplyPreview({ pending, onAccept, onCancel }: ApplyPrevi
 
         {/* Before / after */}
         <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
-          <Block label="Before" value={pending.before} />
-          <Block label="After" value={pending.after} accent />
+          <Block label="Current file" value={pending.before} />
+          <Block label="After apply" value={pending.after} accent />
         </div>
 
         {/* Actions */}
-        <div className="px-4 py-2.5 border-t border-forge-border/25 flex items-center justify-end gap-2 flex-shrink-0">
+        <div className="px-4 py-2.5 border-t border-forge-border/25 flex items-center justify-between gap-3 flex-shrink-0">
+          <p className="text-[9px] forge-mono text-forge-muted/45 leading-relaxed min-w-0">
+            Local mock patch · edits the open tab only · not saved until{" "}
+            <span className="text-forge-silver/55">⌘S</span>
+          </p>
+          <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={onCancel}
             className="forge-press text-[11px] forge-mono px-3 py-1.5 border border-forge-border/40 rounded
@@ -121,6 +126,7 @@ export default function ApplyPreview({ pending, onAccept, onCancel }: ApplyPrevi
           >
             Accept
           </button>
+          </div>
         </div>
       </div>
     </div>

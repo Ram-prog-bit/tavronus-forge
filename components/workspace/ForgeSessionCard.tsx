@@ -37,7 +37,8 @@ export default function ForgeSessionCard({ session, onReset, onEditGoal }: Forge
   return (
     <div className="px-3 py-2.5 border-b border-forge-border/30 flex-shrink-0">
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[9px] uppercase tracking-widest forge-mono text-forge-muted/55">
+        <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest forge-mono text-forge-muted/55">
+          <span className={`w-1 h-1 rounded-full flex-shrink-0 ${session ? "bg-forge-blue/70 animate-pulse" : "bg-forge-muted/40"}`} />
           Current Forge Session
         </span>
         {session && (
@@ -62,7 +63,7 @@ export default function ForgeSessionCard({ session, onReset, onEditGoal }: Forge
 
       {session ? (
         <div
-          className="rounded border border-forge-border/30 bg-forge-black/30 p-2.5 flex flex-col gap-1.5"
+          className="rounded border border-forge-border/30 border-l-2 border-l-forge-blue/40 bg-forge-black/30 p-2.5 flex flex-col gap-1.5"
           style={{ boxShadow: "inset 0 0 0 1px rgba(45,142,255,0.04)" }}
         >
           {/* Goal */}
@@ -83,7 +84,7 @@ export default function ForgeSessionCard({ session, onReset, onEditGoal }: Forge
                   px-1.5 py-0.5 text-forge-chrome outline-none focus:border-forge-blue/50"
               />
             ) : (
-              <span className="text-forge-silver/75 flex-1 min-w-0 truncate" title={session.projectGoal}>
+              <span className="text-forge-chrome/85 flex-1 min-w-0 truncate" title={session.projectGoal}>
                 {session.projectGoal || "—"}
               </span>
             )}
@@ -153,7 +154,8 @@ export default function ForgeSessionCard({ session, onReset, onEditGoal }: Forge
         </div>
       ) : (
         <p className="text-[10px] text-forge-silver/50 forge-mono leading-relaxed">
-          No active Forge session yet. Generate a plan to start tracking this build.
+          No active session yet. Run any Forge mode — Plan, Review, or Debug — to start
+          tracking this build&apos;s goal, phase, and artifacts.
         </p>
       )}
     </div>
