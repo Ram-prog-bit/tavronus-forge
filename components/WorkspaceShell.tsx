@@ -46,6 +46,20 @@ const MODE_PLACEHOLDER: Record<ModeId, string> = {
   checklist: "Describe the product to turn into day-one tasks…",
 };
 
+// ── Resizable panel geometry ─────────────────────────────────────────────────
+// Widths persist to their own localStorage keys; defaults match the original
+// w-56 / w-96 so first paint is byte-identical (no hydration mismatch). Min/max
+// keep both panels and the editor usable.
+const SIDEBAR_WIDTH_KEY = "tavronus-forge-sidebar-width-v1";
+const AI_PANEL_WIDTH_KEY = "tavronus-forge-ai-panel-width-v1";
+const SIDEBAR_MIN = 180, SIDEBAR_MAX = 320, SIDEBAR_DEFAULT = 224; // 224px = w-56
+const AI_PANEL_MIN = 320, AI_PANEL_MAX = 560, AI_PANEL_DEFAULT = 384; // 384px = w-96
+const EDITOR_MIN_RESERVE = 360; // keep at least this much editor width while dragging
+
+function clamp(v: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, v));
+}
+
 // ── Sub-components ───────────────────────────────────────────────────────────
 
 function ForgeLogo() {
@@ -305,6 +319,12 @@ export default function WorkspaceShell() {
   const [aiPanelOpen, setAiPanelOpen] = useState(true);
   const [terminalOpen, setTerminalOpen] = useState(true);
 
+  // Resizable panel widths (default to the original w-56 / w-96 pixel values so
+  // SSR and first client paint match; persisted values are loaded after mount).
+  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT);
+  const [aiPanelWidth, setAiPanelWidth] = useState(AI_PANEL_DEFAULT);
+  const [resizing, setResizing] = useState(false);
+
   const editorRef = useRef<HTMLTextAreaElement>(null);
 
   // Persistent virtual file system (localStorage-backed content store)
@@ -392,6 +412,58 @@ export default function WorkspaceShell() {
       return next;
     });
   }, []);
+
+  // Hydrate persisted panel widths (client-only; safe parse; clamped to min/max).
+  useEffect(() => {
+    try {
+      const s = parseInt(localStorage.getItem(SIDEBAR_WIDTH_KEY) ?? "", 10);
+      if (Number.isFinite(s)) setSidebarWidth(clamp(s, SIDEBAR_MIN, SIDEBAR_MAX));
+      const a = parseInt(localStorage.getItem(AI_PANEL_WIDTH_KEY) ?? "", 10);
+      if (Number.isFinite(a)) setAiPanelWidth(clamp(a, AI_PANEL_MIN, AI_PANEL_MAX));
+    } catch {
+      /* ignore unavailable / corrupt storage */
+    }
+  }, []);
+
+  // Generic column-resize drag. Updates width live, clamps to [min,max] and to a
+  // viewport-aware max (so the editor never gets squeezed unusably), then persists
+  // the final width on mouseup. Listeners are attached to document and cleaned up.
+  const beginResize = (
+    e: React.MouseEvent,
+    startWidth: number,
+    min: number,
+    max: number,
+    dir: 1 | -1,
+    apply: (w: number) => void,
+    storageKey: string,
+    otherPanelWidth: number,
+  ) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    setResizing(true);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    let finalWidth = startWidth;
+
+    const onMove = (ev: MouseEvent) => {
+      const dynamicMax = Math.max(
+        min,
+        Math.min(max, window.innerWidth - otherPanelWidth - EDITOR_MIN_RESERVE),
+      );
+      finalWidth = clamp(startWidth + (ev.clientX - startX) * dir, min, dynamicMax);
+      apply(finalWidth);
+    };
+    const onUp = () => {
+      setResizing(false);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      try { localStorage.setItem(storageKey, String(Math.round(finalWidth))); } catch { /* ignore */ }
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  };
 
   // ── Coordinated actions (tabs + AI + workspace mode) ──────────────────────
   const handleNewFile = useCallback(() => {
@@ -814,10 +886,11 @@ export default function WorkspaceShell() {
 
         {/* ── LEFT: Explorer ──────────────────────────────────────── */}
         <aside
+          style={{ width: sidebarOpen ? sidebarWidth : 0 }}
           className={`
             flex flex-col border-r border-forge-border/45 bg-forge-obsidian/40 flex-shrink-0
-            transition-all duration-200
-            ${sidebarOpen ? "w-56" : "w-0 overflow-hidden border-r-0"}
+            ${resizing ? "" : "transition-[width] duration-200 ease-out"}
+            ${sidebarOpen ? "" : "overflow-hidden border-r-0"}
           `}
         >
           <div className="flex items-center px-3 py-2 border-b border-forge-border/30">
@@ -850,6 +923,19 @@ export default function WorkspaceShell() {
           </div>
         </aside>
 
+        {/* Explorer resize handle (hidden when collapsed) */}
+        {sidebarOpen && (
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize Explorer panel"
+            className="forge-resize-handle"
+            onMouseDown={(e) =>
+              beginResize(e, sidebarWidth, SIDEBAR_MIN, SIDEBAR_MAX, 1, setSidebarWidth, SIDEBAR_WIDTH_KEY, aiPanelOpen ? aiPanelWidth : 0)
+            }
+          />
+        )}
+
         {/* ── CENTER: Editor ──────────────────────────────────────── */}
         <EditorPane
           activeTab={activeTab}
@@ -859,9 +945,25 @@ export default function WorkspaceShell() {
           editorRef={editorRef}
         />
 
+        {/* Forge AI resize handle (hidden when collapsed) */}
+        {aiPanelOpen && (
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize Forge AI panel"
+            className="forge-resize-handle"
+            onMouseDown={(e) =>
+              beginResize(e, aiPanelWidth, AI_PANEL_MIN, AI_PANEL_MAX, -1, setAiPanelWidth, AI_PANEL_WIDTH_KEY, sidebarOpen ? sidebarWidth : 0)
+            }
+          />
+        )}
+
         {/* ── RIGHT: Forge AI ─────────────────────────────────────── */}
         {aiPanelOpen && (
-        <div className="flex flex-col w-96 flex-shrink-0 bg-forge-obsidian/35 overflow-hidden">
+        <div
+          style={{ width: aiPanelWidth }}
+          className={`flex flex-col flex-shrink-0 bg-forge-obsidian/35 overflow-hidden ${resizing ? "" : "transition-[width] duration-200 ease-out"}`}
+        >
 
           {/* AI panel header */}
           <div className="flex items-center justify-between px-4 h-9 border-b border-forge-border/40 flex-shrink-0">
