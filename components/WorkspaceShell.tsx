@@ -52,9 +52,12 @@ const MODE_PLACEHOLDER: Record<ModeId, string> = {
 // keep both panels and the editor usable.
 const SIDEBAR_WIDTH_KEY = "tavronus-forge-sidebar-width-v1";
 const AI_PANEL_WIDTH_KEY = "tavronus-forge-ai-panel-width-v1";
+const SIDEBAR_OPEN_KEY = "tavronus-forge-sidebar-open-v1";
+const AI_PANEL_OPEN_KEY = "tavronus-forge-ai-panel-open-v1";
 const SIDEBAR_MIN = 180, SIDEBAR_MAX = 320, SIDEBAR_DEFAULT = 224; // 224px = w-56
 const AI_PANEL_MIN = 320, AI_PANEL_MAX = 560, AI_PANEL_DEFAULT = 384; // 384px = w-96
 const EDITOR_MIN_RESERVE = 360; // keep at least this much editor width while dragging
+const KEY_STEP = 16, KEY_STEP_LARGE = 48; // arrow-key resize nudges (Shift = large)
 
 function clamp(v: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, v));
@@ -413,17 +416,36 @@ export default function WorkspaceShell() {
     });
   }, []);
 
-  // Hydrate persisted panel widths (client-only; safe parse; clamped to min/max).
+  // Hydrate persisted panel widths + open/collapsed state (client-only; safe
+  // parse; widths clamped). Defaults preserve first-visit behavior (both open).
+  const panelStateHydrated = useRef(false);
   useEffect(() => {
     try {
       const s = parseInt(localStorage.getItem(SIDEBAR_WIDTH_KEY) ?? "", 10);
       if (Number.isFinite(s)) setSidebarWidth(clamp(s, SIDEBAR_MIN, SIDEBAR_MAX));
       const a = parseInt(localStorage.getItem(AI_PANEL_WIDTH_KEY) ?? "", 10);
       if (Number.isFinite(a)) setAiPanelWidth(clamp(a, AI_PANEL_MIN, AI_PANEL_MAX));
+      const so = localStorage.getItem(SIDEBAR_OPEN_KEY);
+      if (so === "true" || so === "false") setSidebarOpen(so === "true");
+      const ao = localStorage.getItem(AI_PANEL_OPEN_KEY);
+      if (ao === "true" || ao === "false") setAiPanelOpen(ao === "true");
     } catch {
       /* ignore unavailable / corrupt storage */
     }
+    panelStateHydrated.current = true;
   }, []);
+
+  // Persist panel open/collapsed state when toggled (skips the mount pass so it
+  // never writes defaults before hydration; widths keep their own persistence).
+  useEffect(() => {
+    if (!panelStateHydrated.current) return;
+    try {
+      localStorage.setItem(SIDEBAR_OPEN_KEY, String(sidebarOpen));
+      localStorage.setItem(AI_PANEL_OPEN_KEY, String(aiPanelOpen));
+    } catch {
+      /* ignore unavailable storage */
+    }
+  }, [sidebarOpen, aiPanelOpen]);
 
   // Generic column-resize drag. Updates width live, clamps to [min,max] and to a
   // viewport-aware max (so the editor never gets squeezed unusably), then persists
@@ -463,6 +485,40 @@ export default function WorkspaceShell() {
     };
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
+  };
+
+  // Apply a width delta (same clamps as drag) and persist it. Shared by the
+  // arrow-key resize path so keyboard and mouse stay consistent.
+  const nudgeWidth = (
+    current: number, min: number, max: number, delta: number,
+    apply: (w: number) => void, storageKey: string, otherPanelWidth: number,
+  ) => {
+    const dynamicMax = Math.max(
+      min,
+      Math.min(max, window.innerWidth - otherPanelWidth - EDITOR_MIN_RESERVE),
+    );
+    const next = clamp(current + delta, min, dynamicMax);
+    apply(next);
+    try { localStorage.setItem(storageKey, String(Math.round(next))); } catch { /* ignore */ }
+  };
+
+  // Keyboard resize on a focused separator. `dir` maps ArrowRight to the panel's
+  // "widen" direction (Explorer widens right → dir 1; Forge AI widens left → dir -1).
+  const onSeparatorKey = (
+    e: React.KeyboardEvent, current: number, min: number, max: number, dir: 1 | -1,
+    apply: (w: number) => void, storageKey: string, otherPanelWidth: number,
+  ) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const step = e.shiftKey ? KEY_STEP_LARGE : KEY_STEP;
+    const sign = e.key === "ArrowRight" ? 1 : -1;
+    nudgeWidth(current, min, max, sign * step * dir, apply, storageKey, otherPanelWidth);
+  };
+
+  // Double-click a separator → reset that panel to its default width.
+  const resetWidth = (defaultW: number, apply: (w: number) => void, storageKey: string) => {
+    apply(defaultW);
+    try { localStorage.setItem(storageKey, String(defaultW)); } catch { /* ignore */ }
   };
 
   // ── Coordinated actions (tabs + AI + workspace mode) ──────────────────────
@@ -854,7 +910,7 @@ export default function WorkspaceShell() {
 
       {settings && (
         <div
-          className="fixed z-50 w-[180px] rounded-md border border-forge-blue/25 bg-forge-gunmetal/95 p-3"
+          className="fixed z-50 w-[220px] rounded-md border border-forge-blue/25 bg-forge-gunmetal/95 p-3"
           style={{
             left: settings.left,
             top: settings.top,
@@ -875,6 +931,27 @@ export default function WorkspaceShell() {
               <div key={k} className="flex items-center justify-between">
                 <span className="text-forge-muted/55">{k}</span>
                 <span className="text-forge-silver/75">{v}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Shortcut discoverability (display-only) */}
+          <p className="text-[9px] uppercase tracking-widest forge-mono text-forge-muted/55 mt-3 mb-2 pt-2.5 border-t border-forge-border/30">
+            Shortcuts
+          </p>
+          <div className="flex flex-col gap-1.5 text-[10px] forge-mono">
+            {[
+              ["Ctrl K", "Command palette"],
+              ["Ctrl S", "Save mock file"],
+              ["Arrows", "Resize on divider"],
+              ["Dbl-click", "Reset divider"],
+              ["Esc", "Close overlay"],
+            ].map(([k, v]) => (
+              <div key={v} className="flex items-center justify-between gap-2">
+                <kbd className="text-[9px] forge-mono text-forge-silver/70 border border-forge-border/35 rounded px-1.5 py-px flex-shrink-0">
+                  {k}
+                </kbd>
+                <span className="text-forge-muted/55 truncate">{v}</span>
               </div>
             ))}
           </div>
@@ -928,11 +1005,20 @@ export default function WorkspaceShell() {
           <div
             role="separator"
             aria-orientation="vertical"
-            aria-label="Resize Explorer panel"
+            aria-label="Resize Explorer panel. Drag or use arrow keys; double-click to reset."
+            aria-valuenow={Math.round(sidebarWidth)}
+            aria-valuemin={SIDEBAR_MIN}
+            aria-valuemax={SIDEBAR_MAX}
+            tabIndex={0}
+            title="Drag to resize · arrow keys to resize · double-click to reset"
             className="forge-resize-handle"
             onMouseDown={(e) =>
               beginResize(e, sidebarWidth, SIDEBAR_MIN, SIDEBAR_MAX, 1, setSidebarWidth, SIDEBAR_WIDTH_KEY, aiPanelOpen ? aiPanelWidth : 0)
             }
+            onKeyDown={(e) =>
+              onSeparatorKey(e, sidebarWidth, SIDEBAR_MIN, SIDEBAR_MAX, 1, setSidebarWidth, SIDEBAR_WIDTH_KEY, aiPanelOpen ? aiPanelWidth : 0)
+            }
+            onDoubleClick={() => resetWidth(SIDEBAR_DEFAULT, setSidebarWidth, SIDEBAR_WIDTH_KEY)}
           />
         )}
 
@@ -950,11 +1036,20 @@ export default function WorkspaceShell() {
           <div
             role="separator"
             aria-orientation="vertical"
-            aria-label="Resize Forge AI panel"
+            aria-label="Resize Forge AI panel. Drag or use arrow keys; double-click to reset."
+            aria-valuenow={Math.round(aiPanelWidth)}
+            aria-valuemin={AI_PANEL_MIN}
+            aria-valuemax={AI_PANEL_MAX}
+            tabIndex={0}
+            title="Drag to resize · arrow keys to resize · double-click to reset"
             className="forge-resize-handle"
             onMouseDown={(e) =>
               beginResize(e, aiPanelWidth, AI_PANEL_MIN, AI_PANEL_MAX, -1, setAiPanelWidth, AI_PANEL_WIDTH_KEY, sidebarOpen ? sidebarWidth : 0)
             }
+            onKeyDown={(e) =>
+              onSeparatorKey(e, aiPanelWidth, AI_PANEL_MIN, AI_PANEL_MAX, -1, setAiPanelWidth, AI_PANEL_WIDTH_KEY, sidebarOpen ? sidebarWidth : 0)
+            }
+            onDoubleClick={() => resetWidth(AI_PANEL_DEFAULT, setAiPanelWidth, AI_PANEL_WIDTH_KEY)}
           />
         )}
 

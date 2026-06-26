@@ -202,3 +202,13 @@ button:focus-visible,
 .forge-resize-handle:active::after {
   background: rgba(45, 142, 255, 0.4);
 }
+/* Keyboard focus: a brighter, slightly wider line (distinct from hover) so the
+   focused separator is clearly visible without a bleeding box-shadow ring. */
+.forge-resize-handle:focus-visible {
+  outline: none;
+}
+.forge-resize-handle:focus-visible::after {
+  left: 1px;
+  width: 2px;
+  background: rgba(45, 142, 255, 0.75);
+}
