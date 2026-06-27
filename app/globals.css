@@ -155,6 +155,15 @@ code {
     inset 0 0 0 1px rgba(45, 142, 255, 0.04);
 }
 
+/* Planned / future-feature tag — dashed, muted, deliberately quiet so an
+   honest "coming later" nod (e.g. Forge Protocols) can never be mistaken for an
+   active feature. Pairs with copy like "Not active in Local Mock". */
+.forge-planned-tag {
+  border: 1px dashed rgba(74, 85, 104, 0.5);
+  color: rgba(138, 149, 163, 0.75);
+  background: rgba(13, 15, 18, 0.45);
+}
+
 /* ── Micro-interactions (restrained) ─────────────────────────────────────────
    Fast press feedback + a consistent electric-blue keyboard focus ring. */
 

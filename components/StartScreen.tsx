@@ -118,6 +118,9 @@ export default function StartScreen() {
             <p className="text-[13px] text-forge-silver/35">
               Create a file or open a project.
             </p>
+            <p className="text-[10px] text-forge-blue/45 forge-mono tracking-[0.3em] uppercase mt-3">
+              Plan. Prompt. Code. Ship.
+            </p>
           </div>
 
           {/* Action cards — flat horizontal tiles */}

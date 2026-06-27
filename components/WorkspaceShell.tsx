@@ -1265,6 +1265,9 @@ export default function WorkspaceShell() {
                     <span className="text-forge-silver/55">Forge Output</span> to generate{" "}
                     <span className="text-forge-blue/55">{mode.label}</span> artifacts for this context.
                   </p>
+                  <p className="text-[9px] text-forge-muted/35 forge-mono leading-relaxed max-w-[220px]">
+                    Generated locally from mock templates · no external AI is called.
+                  </p>
                 </div>
               </div>
             )}

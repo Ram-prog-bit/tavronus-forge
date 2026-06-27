@@ -129,6 +129,11 @@ export default function LandingPage() {
             Plan. Prompt. Code. Ship.
           </p>
 
+          {/* Honest mock status — parity with the in-app Local Mock labels */}
+          <p className="text-xs text-forge-muted/55 forge-mono">
+            Local mock today · no external AI is called yet · real AI planned (v0.2)
+          </p>
+
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row items-center gap-3 mt-2">
             <Link
@@ -271,6 +276,21 @@ export default function LandingPage() {
                 )}
               </div>
             ))}
+          </div>
+
+          {/* Planned Forge Protocols — honest, non-functional roadmap nod.
+              Clearly a future concept, never presented as a working feature. */}
+          <div className="mt-4 rounded-lg border border-dashed border-forge-border/40 bg-forge-obsidian/30 px-5 py-4">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="forge-planned-tag text-[9px] forge-mono uppercase tracking-wider rounded px-1.5 py-0.5">
+                Planned
+              </span>
+              <h3 className="text-sm font-semibold text-forge-chrome/85">Forge Protocols</h3>
+            </div>
+            <p className="text-xs text-forge-silver/55 leading-relaxed">
+              A future workflow layer on top of the cockpit — structured passes for UI polish,
+              checks, audits, and ship. A concept we&apos;re exploring, not active in Local Mock today.
+            </p>
           </div>
         </div>
       </section>

@@ -89,9 +89,19 @@ export default function ApplyPreview({ pending, onAccept, onCancel }: ApplyPrevi
             <p className="text-[9px] uppercase tracking-widest forge-mono text-forge-muted/55">Apply to File</p>
             <p className="text-[12px] forge-mono text-forge-chrome/85 mt-0.5 truncate">{pending.targetFile}</p>
           </div>
-          <kbd className="text-[9px] forge-mono text-forge-muted/30 border border-forge-border/25 rounded px-1.5 py-0.5 flex-shrink-0">
-            Esc
-          </kbd>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span
+              className="flex items-center gap-1.5 text-[8px] forge-mono uppercase tracking-wider
+                text-forge-blue/60 border border-forge-blue/25 rounded px-1.5 py-0.5"
+              title="Mock patch — edits the open tab in the local VFS only. No file is written to disk."
+            >
+              <span className="w-1 h-1 rounded-full bg-forge-blue/60" />
+              Local Mock
+            </span>
+            <kbd className="text-[9px] forge-mono text-forge-muted/30 border border-forge-border/25 rounded px-1.5 py-0.5">
+              Esc
+            </kbd>
+          </div>
         </div>
 
         {/* Summary */}
