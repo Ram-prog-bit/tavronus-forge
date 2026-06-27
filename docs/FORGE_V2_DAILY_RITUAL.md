@@ -15,6 +15,15 @@
 9. Assign agents (CEO plans, workers inspect, Frontend builds, Patch Guardian gates).
 10. Approve scope before any code.
 
+## Mid-day check
+
+1. Still on `forge-v2-rebuild`? Still one mission?
+2. Scope unchanged, or did it creep? (If it crept, re-approve or stop.)
+3. Still ≤4 agents? No parallel edits to the same files?
+4. Build still green after the latest change?
+5. Honesty labels still accurate for anything touched?
+6. Any blocker to surface to Ram now rather than at end of day?
+
 ## End-of-day checklist
 
 1. Run build/test/checks (`npm run build`).

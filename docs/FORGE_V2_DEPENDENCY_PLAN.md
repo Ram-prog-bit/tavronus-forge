@@ -40,6 +40,14 @@ Result: `added 6 packages`. Production `npm run build` passes; all 4 routes buil
 These four are exactly what Design System Day needs: a `cn()` utility (clsx +
 tailwind-merge), icons (lucide-react), and motion (framer-motion). Nothing more.
 
+**CEO Priming v2 update:** No new repo dependencies were added this pass. The only new
+tooling is **GStack**, installed **globally/personal** at `~/.claude/skills/gstack`
+(v1.58.5.0), **outside** the Forge repo — it is not a repo dependency and is not in
+`package.json`. Its activation (`./setup`) is **blocked by missing Bun** (a hard
+requirement). See `FORGE_V2_GSTACK_SETUP.md` and `FORGE_V2_LOCAL_TOOLCHAIN_STATUS.md`.
+**Bun was intentionally not installed** (it requires a non-GStack remote install script,
+outside the safe auto-action scope).
+
 ## Deliberately NOT installed (and why)
 
 | Package / tool | Decision | Reason |
@@ -47,7 +55,7 @@ tailwind-merge), icons (lucide-react), and motion (framer-motion). Nothing more.
 | `class-variance-authority` | **later** | only needed once we build variant-based primitives; defer until Design System Day actually needs it |
 | `shadcn/ui` | **no (blind install banned)** | do not scaffold blindly; revisit deliberately if/when wanted |
 | Graphify | **no** | not yet; planned integration only |
-| GStack / ECC | **no** | not yet; planned integration only |
+| ECC | **no** | not yet; planned integration only |
 | Ponytail | **no** | not yet |
 | Playwright | **no** | not present; needs explicit approval |
 | Vercel CLI (global) | **no** | needs explicit approval; Vercel already linked via dashboard |
@@ -69,6 +77,14 @@ Next.js upgrade as a separate, approved task.
 - `class-variance-authority` — for variant-driven primitives (likely Design System Day).
 - A test runner / Playwright — for QA automation, with approval.
 - Vercel CLI — only if local deploy control is wanted, with approval.
+- **Bun** — required to activate GStack (`./setup`). Install deliberately, with approval,
+  via the official installer (https://bun.sh/docs/installation), then run `./setup` from
+  Git Bash. Still deferred this pass.
+
+## Still deferred (needs approval)
+
+CVA · shadcn · Playwright · Vercel CLI · Graphify · ECC · Ponytail · MCP servers ·
+backend/auth/db/AI-SDK packages · browser-automation packages.
 
 ## Rule
 

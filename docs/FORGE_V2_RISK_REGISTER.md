@@ -87,7 +87,68 @@
 - **Rollback:** add/correct label; treat as a bug.
 
 ### 14. Secrets exposure
-- **Prevention:** never print/commit secrets; `.env` gitignored; Security Agent (later).
+- **Prevention:** never print/commit secrets; `.env` gitignored; Security Agent.
 - **Detection:** scan diffs for keys/tokens before commit.
 - **Rollback:** rotate the secret; purge from staging (never rewrite shared history
   without explicit approval).
+
+---
+
+## CEO Priming v2 — additional risks
+
+| # | Risk | Why it matters |
+|---|---|---|
+| 15 | Tool soup | Too many tools (GStack/Agent View/VS Code/MCP) dilute focus and add surface |
+| 16 | GStack misuse | `/ship`, `/land-and-deploy`, `/setup-browser-cookies` could deploy or leak creds |
+| 17 | Agent chaos | >4 agents or many parallel sessions cause confusion + token burn |
+| 18 | Parallel edit collisions | Two sessions editing the same files corrupt each other's work |
+| 19 | Vercel production risk | An accidental master push / merge / deploy changes production |
+| 20 | npm audit issue | Pre-existing Next/eslint-config-next vulns; `--force` would break the app |
+| 21 | Unstable design system | Skipping Design System Day discipline yields inconsistent UI |
+| 22 | Dependency bloat | Installing hype tools (shadcn/Graphify/ECC/Ponytail) bloats and risks the repo |
+| 23 | Bun/GStack half-state | GStack staged but not set up could be mistaken for active |
+
+### 15. Tool soup
+- **Prevention:** keep the Claude Code extension panel primary; add tools deliberately, documented.
+- **Detection:** tools referenced that aren't in the docs/setup files.
+- **Rollback:** stop using the extra tool; remove staged installs (e.g. delete `~/.claude/skills/gstack`).
+
+### 16. GStack misuse
+- **Prevention:** allow-list only planning/review/QA/security commands (`FORGE_V2_GSTACK_SETUP.md`).
+- **Detection:** any `/ship` / `/land-and-deploy` / `/setup-browser-cookies` invocation.
+- **Rollback:** abort the command; verify no deploy/credential action occurred; report.
+
+### 17. Agent chaos
+- **Prevention:** default 2–4 agents; CEO picks the smallest team; no 10-agent runs without approval.
+- **Detection:** >4 active agents/sessions.
+- **Rollback:** stop extra sessions; consolidate to the core roster.
+
+### 18. Parallel edit collisions
+- **Prevention:** one builder (Frontend) at a time; Agent View sessions are read-only; use worktrees for true parallel edits.
+- **Detection:** two sessions touching the same files; conflicting diffs.
+- **Rollback:** revert the conflicted area; redo serially.
+
+### 19. Vercel production risk
+- **Prevention:** push only `forge-v2-rebuild`; never `master`; no deploy commands.
+- **Detection:** target branch != `forge-v2-rebuild` in a push/merge.
+- **Rollback:** redeploy last known-good production commit; revert the merge.
+
+### 20. npm audit issue
+- **Prevention:** do not run `npm audit fix --force`; track a deliberate Next.js upgrade separately.
+- **Detection:** `npm audit` summary; unexpected major version bumps in the lockfile.
+- **Rollback:** restore `package.json`/`package-lock.json` from git.
+
+### 21. Unstable design system
+- **Prevention:** Design System Day first; Design Director sign-off; reuse tokens/primitives.
+- **Detection:** ad-hoc colors/spacing not from the scale; inconsistent components.
+- **Rollback:** refactor to tokens; revert one-off styling.
+
+### 22. Dependency bloat
+- **Prevention:** dependency plan gate; only safe essentials; deferred list enforced.
+- **Detection:** `package.json` diff adds unapproved packages.
+- **Rollback:** `npm uninstall`; restore lockfile.
+
+### 23. Bun/GStack half-state
+- **Prevention:** Reality Map labels GStack "staged, not activated"; docs state the Bun blocker.
+- **Detection:** assuming GStack `/` commands work before `./setup` ran.
+- **Rollback:** install Bun + run `./setup`, or delete the staged folder if abandoning.

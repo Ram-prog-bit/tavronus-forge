@@ -2,8 +2,20 @@
 
 ## Status
 
-- ✅ **Engine Priming completed** — planning docs, agent scaffolds, dependency readiness,
-  Vercel/GitHub workflow, and daily ritual are in place on `forge-v2-rebuild`.
+- ✅ **Engine Priming (pass 1) completed** — planning docs, agent scaffolds, dependency
+  readiness, Vercel/GitHub workflow, daily ritual — committed (`8c31e55`).
+- ✅ **CEO Engine Priming v2 completed** — committed pass 1; staged GStack; hardened
+  `CLAUDE.md`; rebuilt 10 active + 5 dormant agents; expanded to 12 commands; added CEO OS,
+  model routing, design-system-day spec, commands index, git/vercel flow, toolchain status,
+  setup + test-plan docs; pushed `forge-v2-rebuild` preview branch.
+
+## Immediate follow-ups (optional, for Ram)
+
+1. Review the CEO Priming v2 report (`FORGE_V2_ENGINE_PRIMING_V2.md`).
+2. Confirm GStack is staged (`~/.claude/skills/gstack`); install **Bun** then run
+   `./setup` to activate it (optional).
+3. Optionally run the tiny `claude agents` test (`FORGE_V2_AGENT_VIEW_TEST_PLAN.md`).
+4. Commit/push are already done for this pass (preview branch only).
 
 ## Next recommended task
 

@@ -8,28 +8,37 @@
 > **Every UI area must clearly label real / mock / planned / tested / untested state.**
 > Never animate or style a mock to look real. Never imply work that isn't happening.
 
-## Real (today)
+## Real (today, after CEO Priming v2)
 
 - Local Next.js 14 app (App Router) running on port **5642**.
 - Routes: `/`, `/workspace`, `/about` (v1, preserved).
 - The UI itself (components render real React).
-- Documentation (`docs/`).
-- Git branching model (`forge-v2-rebuild`, `backup/forge-v1-final`).
+- Documentation (`docs/`) — including the full CEO operating system + specs.
+- `CLAUDE.md` CEO operating manual.
+- `.claude/agents/` — 10 active + 5 dormant subagent definitions (real files; the
+  **orchestration they describe is still mock/planned**, but the agent configs exist).
+- `.claude/commands/` — 12 reusable workflow command prompts (real files).
+- Git branching model (`forge-v2-rebuild`, `backup/forge-v1-final`) + committed + pushed.
 - Vercel preview workflow (project linked; previews real when pushed).
-- Mock data **models** (typed shapes that real data will later fill).
+- UI dependencies installed (clsx, tailwind-merge, lucide-react, framer-motion).
+- Local `npm run build` passing.
+- **GStack: STAGED** — cloned to `~/.claude/skills/gstack` (v1.58.5.0), **outside** the
+  repo. `./setup` not run (Bun missing) → its `/` commands are **not yet active**.
 
 ## Mock / planned (NOT real yet)
 
-- Real AI agent orchestration (CEO + worker agents) — **planned**.
+- Real AI agent **orchestration** (the agents executing autonomously) — **planned**.
 - Real backend / API server — **planned**.
 - Real authentication — **planned**.
 - Real database / persistence — **planned**.
 - Real terminal execution — **planned**.
 - Real filesystem edits by agents — **planned**.
-- Real browser automation — **planned**.
+- Real browser automation — **planned** (no Playwright installed).
 - Real GitHub PR automation — **planned**.
 - Graphify / code-graph integration — **planned**.
-- GStack / ECC integration — **planned**.
+- ECC integration — **planned**.
+- GStack **active** skills — **staged, pending Bun + `./setup`** (clone real, not activated).
+- Production deployment automation — **planned** (no production actions taken).
 
 ## State legend
 
