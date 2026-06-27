@@ -22,6 +22,15 @@
 - Vercel preview workflow (project linked; previews real when pushed).
 - UI dependencies installed (clsx, tailwind-merge, lucide-react, framer-motion).
 - Local `npm run build` passing.
+- **Design system foundation (Design System Day, 2026-06-27) — REAL:**
+  - Design tokens in `tailwind.config.ts` (violet + status + surface tokens, radii,
+    shadows, 250ms duration).
+  - CSS variables + `prefers-reduced-motion` in `app/globals.css`.
+  - `cn()` utility (`lib/utils.ts`); motion tokens (`lib/motion.ts`).
+  - 11 UI primitives in `components/ui/` (Button, Panel, Card, Badge, Status, Tabs,
+    EmptyState, ErrorState, Skeleton, LogBlock, CodeBlock) + barrel index.
+  - **Built and tested** (type-checks + `npm run build` green). Note: primitives are
+    **not yet used by any screen** — the foundation exists, screens come later.
 - **GStack: STAGED** — cloned to `~/.claude/skills/gstack` (v1.58.5.0), **outside** the
   repo. `./setup` not run (Bun missing) → its `/` commands are **not yet active**.
 
@@ -54,8 +63,8 @@
 
 | Area | State | Notes |
 |---|---|---|
-| Design tokens / primitives | planned | Design System Day target |
-| App shell / layout | planned | Shell/Layout Day |
+| Design tokens / primitives | **real + tested** | built Design System Day; not yet used by screens |
+| App shell / layout | planned | Shell/Layout Day (apply primitives to existing shell) |
 | Mission Control screen | planned | mock data first |
 | Agent Board | mock (planned UI) | no real agents yet |
 | Project Memory | mock | docs-backed initially |

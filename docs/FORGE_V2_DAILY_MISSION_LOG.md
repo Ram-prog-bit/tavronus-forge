@@ -19,6 +19,30 @@
 
 ---
 
+## 2026-06-27 — Design System Day
+- **Mission:** Build the reusable Forge v2 visual foundation — tokens + primitives only.
+  No command-center screens.
+- Branch: `forge-v2-rebuild` | Git: clean at start | Build: ✅ passing | Port: 5642 unchanged.
+- **Files changed:**
+  - Modified (additive): `tailwind.config.ts` (tokens/radii/shadows/duration),
+    `app/globals.css` (CSS vars + reduced-motion).
+  - Created: `lib/utils.ts` (`cn()`), `lib/motion.ts`, `components/ui/*` (11 primitives +
+    `index.ts`).
+  - Docs: `FORGE_V2_DESIGN_SYSTEM.md` (implemented foundation + Anti-Vibe-Coded rules),
+    `FORGE_V2_REALITY_MAP.md`, this log.
+- **Primitives created:** ForgeButton, ForgePanel, ForgeCard (+Header/Title/Footer),
+  ForgeBadge, ForgeStatus, ForgeTabs, ForgeEmptyState, ForgeErrorState, ForgeSkeleton
+  (+Text), ForgeLogBlock, ForgeCodeBlock.
+- **Stayed forbidden:** no screen rebuilds (Home/Workspace/About untouched), no route/port
+  changes, no Mission Control/Agent Board/Evidence Vault/Patch Review, no real
+  integrations, no new deps, no CVA/shadcn.
+- **Build result:** ✅ `npm run build` passes; all 4 routes byte-identical (primitives not
+  yet imported by screens — proves foundation-only).
+- **Honesty:** design tokens + primitives now **real + tested**; everything else still
+  mock/planned.
+- **Next recommended day:** Shell/Layout Day — carefully apply primitives to the existing
+  app shell (no new screens, no integrations). Only on Ram's go.
+
 ## 2026-06-27 — CEO Engine Priming v2
 - **Phase:** CEO Engine Priming v2 (deeper pass). **Next phase:** Design System Day only.
 - Branch: `forge-v2-rebuild` | Git: clean at start | Preview: pushed this pass.

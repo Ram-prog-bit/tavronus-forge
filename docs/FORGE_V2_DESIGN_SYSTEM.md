@@ -163,3 +163,68 @@ The only permitted "infinite" animation is a tiny pulsing status dot (e.g. live/
 
 > **The first implementation day must be Design System Day only.** Build tokens and
 > primitives first. Do not implement command-center screens on Design System Day.
+
+---
+
+# Implemented Foundation (Design System Day — 2026-06-27)
+
+The design system is now **real** (tokens + primitives). It is **not yet wired into the
+app screens** — that is a later day. Status in `FORGE_V2_REALITY_MAP.md`.
+
+## Tokens added (Tailwind `forge.*`, additive — existing names unchanged)
+
+- Surfaces: `void #060709`, `graphite #101318`, `panel-raised #21262F`,
+  `border-strong #323945` (plus existing black/obsidian/gunmetal/panel/border).
+- Accents: `blue #2D8EFF` (primary, unchanged — app depends on it), `violet #7C5CFF`
+  (secondary, rare aura).
+- Status: `success #3FB950`, `warn #D29922`, `danger #F85149`, `mock #8A95A3`.
+- Radius: `rounded-forge-badge 6` · `rounded-forge-control 8` · `rounded-forge-card 10` ·
+  `rounded-forge-panel 12`.
+- Shadow: `shadow-forge-card` (depth), `shadow-forge-focus` (blue focus ring),
+  plus existing glow/panel shadows.
+- Duration: `duration-250` added (150/200/300 already exist).
+- CSS variables mirror these in `app/globals.css` (`--forge-*`), incl. motion + focus
+  tokens. A global `prefers-reduced-motion` block disables non-essential motion.
+
+## Primitive API (in `components/ui/`, exported from `components/ui/index.ts`)
+
+| Primitive | Key props | Notes |
+|---|---|---|
+| `ForgeButton` | `variant: primary\|secondary\|ghost\|danger\|icon`, `size: sm\|md\|lg` | one primary per view; focus ring; disabled state |
+| `ForgePanel` | `variant: base\|elevated\|command\|inset` | structural surface, hairline border |
+| `ForgeCard` (+ `Header/Title/Footer`) | `variant: default\|raised\|interactive\|subtle` | contained block; interactive = hover border lift |
+| `ForgeBadge` | `variant: real\|mock\|planned\|tested\|untested\|risk\|safe\|info` | honesty labels; readable, no glow |
+| `ForgeStatus` | `status: idle\|planning\|inspecting\|working\|blocked\|needsApproval\|complete\|failed` | dot + **text label** (never color-only); tiny pulse on active states |
+| `ForgeTabs` | `items`, `value/defaultValue`, `onValueChange` | accessible; does **not** replace workspace TabStrip |
+| `ForgeEmptyState` | `title`, `description?`, `icon?`, `action?` | calm placeholder for future surfaces |
+| `ForgeErrorState` | `title?`, `description?`, `icon?`, `action?` | plain-language, danger frame only |
+| `ForgeSkeleton` / `ForgeSkeletonText` | `lines?` | `motion-safe` pulse only |
+| `ForgeLogBlock` | `title?`, `tone: default\|success\|warn\|danger`, `lines?` | mono; tone on gutter, not every line |
+| `ForgeCodeBlock` | `title?`, `code?`, `diff?: ForgeCodeLine[]` | basic; **not** a diff engine (callers pre-classify lines) |
+
+Utilities: `cn()` in `lib/utils.ts` (clsx + tailwind-merge); motion tokens in
+`lib/motion.ts` (durations/easing/variants; no provider, no app-wide wrapping).
+
+## Anti-Vibe-Coded Rules
+
+The discipline that keeps Forge premium instead of template-y:
+
+1. **Align to the grid.** 4px base / 8px panel grid. No eyeballed one-off spacing.
+2. **No glow spam.** Glow is small and reserved for primary focus/active; depth uses
+   subtle shadow, not neon.
+3. **One clear primary action per panel.** Everything else is secondary/ghost.
+4. **Every card needs a reason to exist.** No decorative cards, no nesting for nesting.
+5. **Status must be readable without color.** Always pair a dot/icon with a text label.
+6. **Mock/real labels must be clear.** Use `ForgeBadge` honesty variants; never hide state.
+7. **Calm premium over dramatic neon.** Cold electric blue at ~8%, violet at ~2% aura.
+8. **No new visual language without updating this doc.** Tokens/primitives first, then use.
+9. **Reuse tokens/primitives.** Ad-hoc colors/spacing outside the scale are a bug.
+10. **Motion never lies.** ≤300ms, reduced-motion respected, no faux-progress animation.
+
+## How future screens should use these primitives
+
+- Compose screens from `ForgePanel` → `ForgeCard` → primitives; don't hand-roll surfaces.
+- Use `cn()` for conditional classes; extend variants in the primitive, not inline.
+- Label every data area's reality with `ForgeBadge` + `ForgeStatus`.
+- Add motion via `lib/motion.ts` tokens, opting into framer-motion locally where it earns
+  its place — never wrap the whole app in a motion provider.

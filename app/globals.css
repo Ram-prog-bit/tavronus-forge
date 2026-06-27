@@ -5,6 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 
 :root {
+  /* ── Base surfaces (existing) ───────────────────────────────────────────── */
   --forge-black: #080A0C;
   --forge-obsidian: #0D0F12;
   --forge-gunmetal: #161A20;
@@ -15,6 +16,40 @@
   --forge-chrome: #C8D0DC;
   --forge-silver: #8A95A3;
   --forge-muted: #4A5568;
+
+  /* ── Design System Day additions (additive; mirror tailwind forge tokens) ── */
+  --forge-void: #060709;
+  --forge-graphite: #101318;
+  --forge-panel-raised: #21262F;
+  --forge-border-strong: #323945;
+  --forge-violet: #7C5CFF;
+
+  /* Semantic surface/text aliases for primitives. */
+  --forge-bg: var(--forge-black);
+  --forge-surface: var(--forge-panel);
+  --forge-surface-raised: var(--forge-panel-raised);
+  --forge-text-primary: var(--forge-chrome);
+  --forge-text-secondary: var(--forge-silver);
+  --forge-text-muted: var(--forge-muted);
+  --forge-accent: var(--forge-blue);
+  --forge-accent-2: var(--forge-violet);
+
+  /* Status / honesty colors. */
+  --forge-success: #3FB950;
+  --forge-warn: #D29922;
+  --forge-danger: #F85149;
+  --forge-mock: #8A95A3;
+
+  /* Focus ring + panel depth. */
+  --forge-focus-ring: rgba(45, 142, 255, 0.55);
+  --forge-panel-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 16px -8px rgba(0, 0, 0, 0.45);
+
+  /* Motion tokens. */
+  --forge-duration-fast: 150ms;
+  --forge-duration: 200ms;
+  --forge-duration-slow: 250ms;
+  --forge-duration-slower: 300ms;
+  --forge-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -220,4 +255,19 @@ button:focus-visible,
   left: 1px;
   width: 2px;
   background: rgba(45, 142, 255, 0.75);
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────────
+   Honour the OS "reduce motion" setting: near-instant transitions and no looping
+   animations. The honesty layer applies to motion too — never animate to imply
+   work that isn't happening. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
