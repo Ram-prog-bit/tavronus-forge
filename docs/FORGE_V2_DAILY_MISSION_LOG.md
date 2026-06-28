@@ -19,6 +19,21 @@
 
 ---
 
+## 2026-06-27 — Production Merge Prep Day
+- **Mission:** Prepare a safe merge-readiness package for `forge-v2-rebuild` → `master`.
+  No merge performed.
+- Branch: `forge-v2-rebuild` | Build: ✅ passing | Port: 5642 unchanged.
+- **Branch comparison:** 12 commits ahead of `master`; 80 files changed, ~5548 insertions.
+  Clean linear lineage off `9681302` → conflict-free merge expected.
+- **Master/backup:** `master` @ `9681302`; `backup/forge-v1-final` + tag
+  `forge-v1-final-snapshot` intact. Production untouched.
+- **Secrets check:** clean — no `.env` tracked, no secret literals, `.gitignore` covers
+  `.env*`/`.vercel`.
+- **Files created:** `FORGE_V2_PRODUCTION_ROLLBACK_PLAN.md`,
+  `FORGE_V2_PRODUCTION_LAUNCH_CHECKLIST.md`, `FORGE_V2_MERGE_APPROVAL_PROMPT.md`.
+- **Decision: GO FOR PRODUCTION MERGE APPROVAL.**
+- **Next:** Production Merge Approval Day (human-approved merge).
+
 ## 2026-06-27 — Final V2 Preview QA Day
 - **Mission:** Final full QA of the v2 preview before production merge prep. Verification only.
 - Branch: `forge-v2-rebuild` | Build: ✅ passing | Port: 5642 unchanged.
