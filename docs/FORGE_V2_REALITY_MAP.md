@@ -65,9 +65,9 @@
 |---|---|---|
 | Design tokens / primitives | **real + tested** | built Design System Day; not yet used by screens |
 | App shell / layout | planned | Shell/Layout Day (apply primitives to existing shell) |
-| Mission Control screen | planned | mock data first |
+| Mission Control | **mock UI real** (static preview) | `MissionControlPreview` in workspace; phases from docs/commits, no live state |
 | Agent Board | mock (planned UI) | no real agents yet |
-| Project Memory | mock | docs-backed initially |
+| Project Memory | **mock UI real** (docs-backed) | `ProjectMemoryPreview` in workspace; static, no database/cloud memory |
 | Evidence Vault | **mock UI real** (static preview) | `EvidenceVaultPreview` in workspace; no real evidence store/ingestion |
 | Patch Review | **mock UI real** (static preview) | `PatchReviewPreview` in workspace; no diff engine/Git/patch apply |
 | Deployment Status | mock | real via Vercel later |

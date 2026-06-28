@@ -8,8 +8,10 @@ import TabStrip from "./workspace/TabStrip";
 import EditorPane, { type WelcomeCommand } from "./workspace/EditorPane";
 import ForgeSessionCard from "./workspace/ForgeSessionCard";
 import ApplyPreview, { type PendingApply } from "./workspace/ApplyPreview";
+import MissionControlPreview from "./workspace/MissionControlPreview";
 import EvidenceVaultPreview from "./workspace/EvidenceVaultPreview";
 import PatchReviewPreview from "./workspace/PatchReviewPreview";
+import ProjectMemoryPreview from "./workspace/ProjectMemoryPreview";
 import { ModeId, getModeById, MODES } from "@/lib/modes";
 import { FileNode, getFileColor, getFileIcon } from "@/lib/mockFiles";
 import { buildTreeFromPaths } from "@/lib/vfs";
@@ -1281,8 +1283,10 @@ export default function WorkspaceShell() {
                  review, and memory. No backend or live data — see each surface's
                  honesty footer and docs/FORGE_V2_REALITY_MAP.md. */}
             <div className="mt-4 pt-4 border-t border-forge-border/30 flex flex-col gap-4">
+              <MissionControlPreview />
               <EvidenceVaultPreview />
               <PatchReviewPreview />
+              <ProjectMemoryPreview />
             </div>
           </div>
 

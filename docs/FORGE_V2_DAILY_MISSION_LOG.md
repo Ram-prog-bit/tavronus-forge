@@ -19,6 +19,24 @@
 
 ---
 
+## 2026-06-27 — Mission Control / Project Memory Shell Day
+- **Mission:** Add static/mock Mission Control + docs-backed Project Memory shells to
+  `/workspace`. No database, no cloud memory, no live state.
+- Branch: `forge-v2-rebuild` | Build: ✅ passing | Port: 5642 unchanged | Routes intact.
+- **Files created:** `components/workspace/MissionControlPreview.tsx`,
+  `components/workspace/ProjectMemoryPreview.tsx`.
+- **Files modified:** `components/WorkspaceShell.tsx` (imports + command-center order:
+  Mission Control → Evidence Vault → Patch Review → Project Memory). Docs: this log, Reality Map.
+- **Mission Control:** current mission, 12-phase tracker (complete/current/planned), Real-vs-
+  Planned systems, next action, risk strip. **Project Memory:** 8 docs-backed memory cards
+  with source labels.
+- **Primitives used:** ForgeCard, ForgeBadge, ForgeStatus, cn().
+- **Honesty:** "Static preview", "Docs-backed", "No backend", "No database"; footers state
+  no backend/database/cloud-memory/Claude-Code connection; phase states reflect commits/docs.
+- **Stayed forbidden:** no backend/db/cloud memory, no runtime file reads, no routes/port
+  change, no deps, no modes/state changes.
+- **Next:** Workspace Integration Polish Day.
+
 ## 2026-06-27 — Patch Review Mock Planning Day
 - **Mission:** Build the first static/mock Patch Review surface in `/workspace` showing how
   Forge will review changes before applying them. No diff engine, no Git, no patch apply.
