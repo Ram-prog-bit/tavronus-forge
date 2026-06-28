@@ -1,5 +1,16 @@
 # Forge v2 — Next Steps
 
+## Build-day progress (forge-v2-rebuild)
+
+- ✅ Design System Day (`1485fd9`) · Shell/Layout Day (`91c6eb1`) · Workspace Command
+  Surface Day (`7455565`) · Home/About Honesty Polish Day (`ea8bb5c`) · Vercel Preview QA
+  Day (docs-only).
+- **Verified:** local build green; `/`, `/workspace`, `/about` return HTTP 200 locally;
+  production untouched (`master` @ `9681302`). Vercel preview status to be confirmed by Ram
+  in the dashboard (CLI unauthenticated).
+- **Recommended next:** Evidence Vault Mock Planning Day → Patch Review Mock Planning Day
+  → Mission Control / Project Memory Shell Day. All mock/static; no real integrations.
+
 ## Status
 
 - ✅ **Engine Priming (pass 1) completed** — planning docs, agent scaffolds, dependency

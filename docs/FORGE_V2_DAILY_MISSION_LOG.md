@@ -19,6 +19,23 @@
 
 ---
 
+## 2026-06-27 — Vercel Preview QA Day
+- **Mission:** Verify the `forge-v2-rebuild` preview health before more product builds.
+  Verification only — no feature work.
+- Branch: `forge-v2-rebuild` | Build: ✅ passing | Port: 5642 unchanged | Routes intact.
+- **Local build:** ✅ passes; routes `/`, `/about`, `/workspace`, `/_not-found`.
+- **Local route smoke test (automated, not visual):** dev server on 5642; `curl` returned
+  **HTTP 200** for `/`, `/workspace`, `/about`. Dev server stopped after.
+- **Vercel preview:** CLI installed (54.14.5) but **not authenticated** — login flow was
+  declined (no deploy/login per scope). Preview status **Unknown via CLI**; Ram should
+  verify in the Vercel dashboard. Latest preview-eligible commit pushed: `ea8bb5c`.
+- **Production:** untouched — `master` and `backup/forge-v1-final` remain at `9681302`.
+  No `vercel --prod`, no promote, no master push.
+- **Honesty scan:** clean — only negated/planned statements ("will not fake…", items under
+  Planned). No overclaiming phrases.
+- **Issues found:** none requiring a fix. **Fixes made:** none (docs-only day).
+- **Next:** Evidence Vault Mock Planning Day (or Agent Board Mock Planning Day).
+
 ## 2026-06-27 — Home/About Product Honesty Polish Day
 - **Mission:** Make `/` and `/about` explain Forge clearly and honestly — mission-control
   positioning + an explicit real-vs-planned honesty layer. No new systems.
