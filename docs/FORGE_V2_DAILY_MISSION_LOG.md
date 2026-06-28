@@ -19,6 +19,23 @@
 
 ---
 
+## 2026-06-27 — Evidence Vault Mock Planning Day
+- **Mission:** Build the first static/mock Evidence Vault surface in `/workspace` showing
+  how Forge will organize proof. No backend, no ingestion.
+- Branch: `forge-v2-rebuild` | Build: ✅ passing | Port: 5642 unchanged | Routes intact.
+- **Files created:** `components/workspace/EvidenceVaultPreview.tsx`.
+- **Files modified:** `components/WorkspaceShell.tsx` (import + a contained
+  "command-center preview" section appended inside the AI panel's scroll area). Docs: this
+  log, Reality Map.
+- **Evidence categories:** build, route, qa, honesty, design, patch, preview, risk, docs
+  (9 static example records). **Statuses:** complete/needsApproval/blocked via ForgeStatus.
+- **Primitives used:** ForgeCard, ForgeBadge, ForgeStatus, ForgeLogBlock, cn().
+- **Honesty:** "Static preview", "No backend", filter chips labeled static, footer states
+  no backend/database/automated ingestion is connected.
+- **Stayed forbidden:** no real ingestion/backend/Git/CI, no routes/port change, no deps,
+  no modes/state changes (Plan/Prompt/Review/Debug/Checklist intact).
+- **Next:** Patch Review Mock Planning Day.
+
 ## 2026-06-27 — Vercel Preview QA Day
 - **Mission:** Verify the `forge-v2-rebuild` preview health before more product builds.
   Verification only — no feature work.

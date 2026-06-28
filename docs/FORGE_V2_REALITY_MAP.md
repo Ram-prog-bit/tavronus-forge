@@ -68,7 +68,7 @@
 | Mission Control screen | planned | mock data first |
 | Agent Board | mock (planned UI) | no real agents yet |
 | Project Memory | mock | docs-backed initially |
-| Evidence Vault | mock | no real evidence store yet |
+| Evidence Vault | **mock UI real** (static preview) | `EvidenceVaultPreview` in workspace; no real evidence store/ingestion |
 | Patch Review | mock | no real patch application |
 | Deployment Status | mock | real via Vercel later |
 | Daily Mission Log | partially real | backed by docs |
