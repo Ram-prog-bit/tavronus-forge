@@ -19,6 +19,24 @@
 
 ---
 
+## 2026-06-27 — Final V2 Preview QA Day
+- **Mission:** Final full QA of the v2 preview before production merge prep. Verification only.
+- Branch: `forge-v2-rebuild` | Build: ✅ passing | Port: 5642 unchanged.
+- **Build:** ✅ 6 static pages; `/` 4.58kB, `/about` 6.83kB, `/workspace` 30.1kB.
+- **Route smoke test (automated):** `/`, `/workspace`, `/about` all HTTP 200 locally.
+- **Systems checked:** Design System, Shell/Layout, Workspace command surface, Home/About
+  honesty, Evidence Vault, Patch Review, Mission Control, Project Memory, consolidated
+  honesty layer — all present and labeled static/mock.
+- **Honesty scan:** clean — no overclaiming phrases (no "live AI", "connected to…",
+  "patch applied", "cloud memory active", etc.).
+- **Accessibility/responsive:** ForgeStatus pairs dot+text (not color-only); disabled
+  controls use ForgeButton disabled; grids fall to single column on narrow widths;
+  reduced-motion respected globally. (Not a full formal audit.)
+- **Production:** untouched (`master` @ `9681302`).
+- **Issues found:** none blocking. **Fixes made:** none (docs-only day).
+- **Decision: GO FOR PRODUCTION MERGE PREP.**
+- **Next:** Production Merge Prep Day.
+
 ## 2026-06-27 — Workspace Integration Polish Day
 - **Mission:** Make the stacked workspace mock surfaces read as one coherent command
   center. No new systems.
