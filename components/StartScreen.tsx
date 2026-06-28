@@ -112,11 +112,14 @@ export default function StartScreen() {
             <h1 className="text-xl font-semibold text-forge-chrome mb-1.5 tracking-tight">
               Start building.
             </h1>
-            <p className="text-[13px] text-forge-silver/35">
-              Create a file or open a project.
+            <p className="text-[13px] text-forge-silver/55">
+              Mission control for AI coding agents. Create a file or open a project.
             </p>
-            <p className="text-[10px] text-forge-blue/45 forge-mono tracking-[0.3em] uppercase mt-3">
+            <p className="text-[10px] text-forge-blue/55 forge-mono tracking-[0.3em] uppercase mt-3">
               Plan. Prompt. Code. Ship.
+            </p>
+            <p className="text-[10px] text-forge-muted/55 forge-mono mt-2">
+              Local mock preview · no external AI connected yet
             </p>
           </div>
 

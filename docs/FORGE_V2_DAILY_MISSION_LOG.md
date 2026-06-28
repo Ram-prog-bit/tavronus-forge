@@ -19,6 +19,23 @@
 
 ---
 
+## 2026-06-27 — Home/About Product Honesty Polish Day
+- **Mission:** Make `/` and `/about` explain Forge clearly and honestly — mission-control
+  positioning + an explicit real-vs-planned honesty layer. No new systems.
+- Branch: `forge-v2-rebuild` | Build: ✅ passing | Port: 5642 unchanged | Routes intact.
+- **Files changed:** `components/StartScreen.tsx` (home hero positioning + mock-preview
+  line, readability), `components/LandingPage.tsx` (about hero reframed to mission-control
+  thesis, honest hero badge, new "Honesty layer" section with Real/Planned ForgeCards +
+  ForgeBadges). Docs: this log.
+- **Sections improved:** home hero copy; about hero + new honesty section ("Clear about
+  what's real and what's planned") listing Real today vs Planned/not-connected.
+- **Copy/honesty:** added "Mission control for AI coding agents", "Local mock preview · no
+  external AI connected yet", and an explicit "Forge will not fake live agents, real
+  terminals, or connected backends" statement. No overclaiming phrases.
+- **Primitives used:** ForgeCard, ForgeBadge.
+- **Stayed forbidden:** no new routes, no real integrations, no new deps, no new systems.
+- **Next:** Vercel Preview QA Day.
+
 ## 2026-06-27 — Workspace Command Surface Day
 - **Mission:** Make the `/workspace` command surface more premium and honest using shared
   primitives — without touching modes or state logic.
