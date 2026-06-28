@@ -69,7 +69,7 @@
 | Agent Board | mock (planned UI) | no real agents yet |
 | Project Memory | mock | docs-backed initially |
 | Evidence Vault | **mock UI real** (static preview) | `EvidenceVaultPreview` in workspace; no real evidence store/ingestion |
-| Patch Review | mock | no real patch application |
+| Patch Review | **mock UI real** (static preview) | `PatchReviewPreview` in workspace; no diff engine/Git/patch apply |
 | Deployment Status | mock | real via Vercel later |
 | Daily Mission Log | partially real | backed by docs |
 

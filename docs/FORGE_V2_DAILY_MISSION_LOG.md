@@ -19,6 +19,25 @@
 
 ---
 
+## 2026-06-27 — Patch Review Mock Planning Day
+- **Mission:** Build the first static/mock Patch Review surface in `/workspace` showing how
+  Forge will review changes before applying them. No diff engine, no Git, no patch apply.
+- Branch: `forge-v2-rebuild` | Build: ✅ passing | Port: 5642 unchanged | Routes intact.
+- **Files created:** `components/workspace/PatchReviewPreview.tsx`.
+- **Files modified:** `components/WorkspaceShell.tsx` (import + appended below Evidence
+  Vault in the command-center preview section). Docs: this log, Reality Map.
+- **Patch categories:** layout polish, copy/honesty, UI primitive usage, docs, risk note
+  (5 example patches). **Statuses:** approved/needsApproval/blocked via ForgeStatus.
+- **Diff preview:** static `ForgeCodeBlock` diff (add/remove lines) labeled "not generated
+  by a diff engine". **Approval controls:** ForgeButton disabled + "Controls disabled in
+  mock mode".
+- **Primitives used:** ForgeCard, ForgeBadge, ForgeStatus, ForgeButton, ForgeCodeBlock, cn().
+- **Honesty:** "Static preview", "No Git", "No filesystem"; footer: no filesystem/Git/patch
+  application connected today.
+- **Stayed forbidden:** no real patch apply/Git/filesystem, no routes/port change, no deps,
+  no modes/state changes.
+- **Next:** Mission Control / Project Memory Shell Day.
+
 ## 2026-06-27 — Evidence Vault Mock Planning Day
 - **Mission:** Build the first static/mock Evidence Vault surface in `/workspace` showing
   how Forge will organize proof. No backend, no ingestion.
