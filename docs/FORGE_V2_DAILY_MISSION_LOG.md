@@ -19,6 +19,23 @@
 
 ---
 
+## 2026-06-27 — Workspace Command Surface Day
+- **Mission:** Make the `/workspace` command surface more premium and honest using shared
+  primitives — without touching modes or state logic.
+- Branch: `forge-v2-rebuild` | Build: ✅ passing | Port: 5642 unchanged | Routes intact.
+- **Files changed:** `components/WorkspaceShell.tsx` (ForgeBadge import + 3 honesty-badge
+  conversions). Docs: this log.
+- **Areas improved:** the two hand-rolled "Local Mock" indicators (status bar + Forge AI
+  panel header) now use the shared `ForgeBadge variant="mock"`; the "No output yet" empty
+  state gained a "Local mock · no external AI" badge.
+- **Primitives used:** ForgeBadge.
+- **Modes preserved:** Plan/Prompt/Review/Debug/Checklist unchanged (no state/logic edits).
+- **Honesty:** strengthened — mock labels now consistent with the shared honesty layer;
+  "no external AI is called" copy preserved.
+- **Stayed forbidden:** no real AI/backend, no Agent Board/Evidence Vault/Patch Review, no
+  route/port changes, no new deps, no WorkspaceShell structural rewrite.
+- **Next:** Home/About Product Honesty Polish Day.
+
 ## 2026-06-27 — Shell/Layout Day
 - **Mission:** Apply the design-system foundation to the visible app shell — palette
   consistency, honesty badges, card primitives. No screen rebuilds.

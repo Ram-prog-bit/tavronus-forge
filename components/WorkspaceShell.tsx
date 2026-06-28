@@ -13,6 +13,7 @@ import { FileNode, getFileColor, getFileIcon } from "@/lib/mockFiles";
 import { buildTreeFromPaths } from "@/lib/vfs";
 import { buildPatch } from "@/lib/forgePatch";
 import { useTabs } from "@/hooks/useTabs";
+import { ForgeBadge } from "@/components/ui";
 import { useForgeAI } from "@/hooks/useForgeAI";
 import { useVfs } from "@/hooks/useVfs";
 
@@ -772,13 +773,15 @@ export default function WorkspaceShell() {
 
           <div className="w-px h-3.5 bg-forge-border/30 mx-0.5 hidden sm:block" />
 
-          {/* Local Mock Mode */}
-          <div
-            className="hidden lg:flex items-center gap-1.5 px-2.5 text-[10px] forge-mono"
-            style={{ color: "rgba(45,142,255,0.62)" }}
-          >
-            <div className="w-1.5 h-1.5 rounded-full bg-forge-blue/60 animate-pulse" />
-            <span>Local Mock Mode</span>
+          {/* Local Mock Mode — shared honesty badge */}
+          <div className="hidden lg:flex items-center px-2.5">
+            <ForgeBadge
+              variant="mock"
+              className="forge-mono"
+              title="Responses are generated locally from mock templates — no external AI is called."
+            >
+              Local Mock Mode
+            </ForgeBadge>
           </div>
 
           <div className="w-px h-3.5 bg-forge-border/30 mx-0.5 hidden lg:block" />
@@ -1071,14 +1074,13 @@ export default function WorkspaceShell() {
                 Forge AI
               </span>
             </div>
-            <span
-              className="flex items-center gap-1.5 text-[9px] forge-mono uppercase tracking-wider
-                text-forge-blue/60 border border-forge-blue/25 rounded px-1.5 py-0.5 flex-shrink-0"
+            <ForgeBadge
+              variant="mock"
+              className="flex-shrink-0 forge-mono uppercase tracking-wider"
               title="Responses are generated locally from mock templates — no external AI is called."
             >
-              <span className="w-1 h-1 rounded-full bg-forge-blue/60 animate-pulse" />
               Local Mock
-            </span>
+            </ForgeBadge>
           </div>
 
           {/* Mode chips — the tool loaded into the assistant */}
@@ -1258,16 +1260,16 @@ export default function WorkspaceShell() {
                   <polygon points="7,1 13,4 13,10 7,13 1,10 1,4" stroke="#2D8EFF" strokeWidth="1" fill="none" />
                   <circle cx="7" cy="7" r="1.4" fill="#2D8EFF" />
                 </svg>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col items-center gap-1.5">
                   <p className="text-xs text-forge-silver/60 forge-mono">No output yet</p>
                   <p className="text-[10px] text-forge-muted/45 forge-mono leading-relaxed max-w-[220px]">
                     Write a command above, then press{" "}
                     <span className="text-forge-silver/55">Forge Output</span> to generate{" "}
                     <span className="text-forge-blue/55">{mode.label}</span> artifacts for this context.
                   </p>
-                  <p className="text-[9px] text-forge-muted/35 forge-mono leading-relaxed max-w-[220px]">
-                    Generated locally from mock templates · no external AI is called.
-                  </p>
+                  <ForgeBadge variant="mock" className="mt-1 forge-mono">
+                    Local mock · no external AI
+                  </ForgeBadge>
                 </div>
               </div>
             )}
