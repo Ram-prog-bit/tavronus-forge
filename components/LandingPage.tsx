@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import FakeIDEPreview from "./FakeIDEPreview";
+import { ForgeCard } from "@/components/ui";
 
 const FEATURES = [
   {
@@ -173,15 +174,15 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {FEATURES.map((f) => (
-              <div
+              <ForgeCard
                 key={f.title}
-                className="rounded-lg border border-forge-border/50 p-6 group hover:border-forge-blue/30 transition-all duration-300"
-                style={{ background: "rgba(22,26,32,0.6)" }}
+                variant="subtle"
+                className="group p-6 transition-colors duration-300 hover:border-forge-blue/30"
               >
                 <div className="text-2xl mb-3 text-forge-blue/70">{f.icon}</div>
                 <h3 className="text-base font-semibold text-forge-chrome mb-2">{f.title}</h3>
                 <p className="text-sm text-forge-silver/60 leading-relaxed">{f.desc}</p>
-              </div>
+              </ForgeCard>
             ))}
           </div>
         </div>
@@ -270,8 +271,8 @@ export default function LandingPage() {
                 <span className="text-sm text-forge-silver/70">{item.label}</span>
                 {item.active && (
                   <div className="ml-auto flex items-center gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500/70 animate-pulse" />
-                    <span className="text-xs forge-mono text-green-500/60">Live</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-forge-success/70 animate-pulse" />
+                    <span className="text-xs forge-mono text-forge-success/70">Local</span>
                   </div>
                 )}
               </div>

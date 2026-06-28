@@ -119,7 +119,7 @@ function OutputCard({ title, index, label, body, code, content, onApply, applyDi
             className={`
               forge-press flex items-center gap-1 px-2 py-0.5 rounded text-[10px] forge-mono
               ${copied
-                ? "text-green-400/75 border border-green-500/25"
+                ? "text-forge-success/80 border border-forge-success/25"
                 : "text-forge-silver/55 border border-transparent hover:border-forge-border/45 hover:text-forge-chrome/80"}
             `}
           >
@@ -181,7 +181,7 @@ function OutputCard({ title, index, label, body, code, content, onApply, applyDi
                     aria-label={isPrompt ? `Copy ${title} prompt` : `Copy ${title} snippet`}
                     className={`forge-press flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] forge-mono flex-shrink-0 ${
                       snippetCopied
-                        ? "text-green-400/75"
+                        ? "text-forge-success/80"
                         : "text-forge-silver/45 hover:text-forge-chrome/80"
                     }`}
                   >

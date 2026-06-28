@@ -765,7 +765,7 @@ export default function WorkspaceShell() {
         <div className="flex items-center h-full flex-shrink-0">
 
           {/* Ready */}
-          <div className="hidden sm:flex items-center gap-1 px-2.5 text-[10px] forge-mono text-green-400/65">
+          <div className="hidden sm:flex items-center gap-1 px-2.5 text-[10px] forge-mono text-forge-success/70">
             <span>✓</span>
             <span>Ready</span>
           </div>
@@ -1286,7 +1286,7 @@ export default function WorkspaceShell() {
             <span className="text-[10px] forge-mono text-forge-muted/50">$</span>
             <span className="text-[10px] forge-mono text-forge-silver/60">next dev -p 5642</span>
             <span className="text-[10px] forge-mono text-forge-muted/30">·</span>
-            <span className="text-[10px] forge-mono text-green-400/70">ready</span>
+            <span className="text-[10px] forge-mono text-forge-success/70">ready</span>
             <span className="text-[10px] forge-mono text-forge-muted/30">·</span>
             <span className="text-[10px] forge-mono text-forge-blue/65">http://localhost:5642</span>
           </div>
@@ -1295,8 +1295,8 @@ export default function WorkspaceShell() {
         {/* Status bar */}
         <div className="flex items-center justify-between px-4 h-6">
           <div className="flex items-center gap-2.5">
-            <span className="flex items-center gap-1.5 text-[10px] forge-mono text-green-400/70">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400/70" />
+            <span className="flex items-center gap-1.5 text-[10px] forge-mono text-forge-success/70">
+              <span className="w-1.5 h-1.5 rounded-full bg-forge-success/70" />
               Forge shell active
             </span>
             <span className="text-[10px] forge-mono text-forge-muted/30">·</span>

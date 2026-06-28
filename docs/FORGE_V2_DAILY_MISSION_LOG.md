@@ -19,6 +19,23 @@
 
 ---
 
+## 2026-06-27 — Shell/Layout Day
+- **Mission:** Apply the design-system foundation to the visible app shell — palette
+  consistency, honesty badges, card primitives. No screen rebuilds.
+- Branch: `forge-v2-rebuild` | Build: ✅ passing | Port: 5642 unchanged | Routes intact.
+- **Files changed:** `components/StartScreen.tsx` (ForgeBadge mock chip, success token),
+  `components/LandingPage.tsx` (3 feature cards → ForgeCard, success token, "Live"→"Local"),
+  `components/OutputCard.tsx`, `components/FakeIDEPreview.tsx`, `components/WorkspaceShell.tsx`
+  (status tokens). Docs: this log.
+- **Areas improved:** unified all "ready/active/live" status from raw Tailwind `green-*` to
+  the `forge-success` token across 5 components; honesty badge on home topbar; feature
+  cards now use `ForgeCard`.
+- **Primitives used:** ForgeBadge, ForgeCard.
+- **Stayed forbidden:** no route/port changes, no new screens, no integrations, no new deps,
+  no violet additions, no WorkspaceShell structural changes.
+- **Honesty:** "Live" roadmap label → "Local" (more honest); mock badge clarifies local mode.
+- **Next:** Workspace Command Surface Day.
+
 ## 2026-06-27 — Design System Day
 - **Mission:** Build the reusable Forge v2 visual foundation — tokens + primitives only.
   No command-center screens.

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ForgeBadge } from "@/components/ui";
 
 function ForgeLogo() {
   return (
@@ -90,13 +91,9 @@ export default function StartScreen() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div
-            className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded border border-forge-border/30 text-[10px] forge-mono"
-            style={{ color: "rgba(45,142,255,0.45)" }}
-          >
-            <div className="w-1 h-1 rounded-full bg-forge-blue/45 animate-pulse" />
+          <ForgeBadge variant="mock" className="hidden sm:inline-flex forge-mono">
             Local Mock Mode
-          </div>
+          </ForgeBadge>
           <Link
             href="/about"
             className="text-[10px] text-forge-muted/30 hover:text-forge-silver/60 transition-colors forge-mono"
@@ -182,7 +179,7 @@ export default function StartScreen() {
       {/* ── STATUS BAR ──────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-4 h-6 border-t border-forge-border/30 bg-forge-black flex-shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-1 h-1 rounded-full bg-green-500/45 animate-pulse" />
+          <div className="w-1 h-1 rounded-full bg-forge-success/45 animate-pulse" />
           <span className="text-[10px] forge-mono text-forge-muted/30">Forge shell active</span>
           <span className="text-[10px] forge-mono text-forge-border/40">·</span>
           <span className="text-[10px] forge-mono text-forge-muted/25">localhost:5642</span>
