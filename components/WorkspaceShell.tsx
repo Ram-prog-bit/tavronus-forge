@@ -1283,6 +1283,29 @@ export default function WorkspaceShell() {
                  review, and memory. No backend or live data — see each surface's
                  honesty footer and docs/FORGE_V2_REALITY_MAP.md. */}
             <div className="mt-4 pt-4 border-t border-forge-border/30 flex flex-col gap-4">
+              {/* Unified command-center header + single preview-mode honesty strip,
+                  so the stacked surfaces read as one center instead of separate mocks. */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-widest forge-mono text-forge-chrome/80">
+                    Command Center
+                  </span>
+                  <ForgeBadge variant="mock" className="forge-mono">Preview mode</ForgeBadge>
+                </div>
+                <div className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-[10px] forge-mono text-forge-silver/45">
+                  {["Mission Control", "Evidence Vault", "Patch Review", "Project Memory"].map((s, i, arr) => (
+                    <span key={s} className="flex items-center gap-1.5">
+                      <span className="text-forge-silver/55">{s}</span>
+                      {i < arr.length - 1 && <span className="text-forge-blue/40">→</span>}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-[10px] text-forge-muted/55 forge-mono leading-relaxed rounded-forge-control border border-forge-border/40 bg-forge-black/30 px-2.5 py-1.5">
+                  Static local preview — no external AI, backend, database, filesystem,
+                  terminal, Git, or browser automation is connected yet. Each surface below
+                  is mock/static; see its footer and docs/FORGE_V2_REALITY_MAP.md.
+                </p>
+              </div>
               <MissionControlPreview />
               <EvidenceVaultPreview />
               <PatchReviewPreview />

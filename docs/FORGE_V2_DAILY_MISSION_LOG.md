@@ -19,6 +19,20 @@
 
 ---
 
+## 2026-06-27 — Workspace Integration Polish Day
+- **Mission:** Make the stacked workspace mock surfaces read as one coherent command
+  center. No new systems.
+- Branch: `forge-v2-rebuild` | Build: ✅ passing | Port: 5642 unchanged | Routes intact.
+- **Files modified:** `components/WorkspaceShell.tsx` (added a unified "Command Center"
+  header + "Preview mode" badge + connective flow indicator Mission Control → Evidence
+  Vault → Patch Review → Project Memory + one consolidated honesty strip). Docs: this log.
+- **Integration:** single shared honesty strip at the top of the section (each surface
+  keeps its own footer); flow labels connect the surfaces.
+- **Primitives used:** ForgeBadge (existing surfaces unchanged).
+- **Stayed forbidden:** no real integrations, no routes/port change, no deps, no new
+  systems, modes intact.
+- **Next:** Final V2 Preview QA Day.
+
 ## 2026-06-27 — Mission Control / Project Memory Shell Day
 - **Mission:** Add static/mock Mission Control + docs-backed Project Memory shells to
   `/workspace`. No database, no cloud memory, no live state.
