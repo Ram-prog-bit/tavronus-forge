@@ -152,3 +152,19 @@
 - **Prevention:** Reality Map labels GStack "staged, not activated"; docs state the Bun blocker.
 - **Detection:** assuming GStack `/` commands work before `./setup` ran.
 - **Rollback:** install Bun + run `./setup`, or delete the staged folder if abandoning.
+
+---
+
+## Real-integration risks (added Real Integration Architecture Day)
+
+| # | Risk | Prevention / detection / rollback |
+|---|---|---|
+| 24 | Real integration complexity (rushing into AI/backend) | Staged roadmap, one capability at a time, read-only first; detect via changes spanning stages; rollback = revert branch |
+| 25 | Mock UI mistaken for live systems | `isRuntimeLive` flag + honesty labels stay "static/docs-backed"; detect via Reality Map audit; rollback = correct label |
+| 26 | Secret/API-key exposure (future AI/GitHub/Vercel) | Keys via env only, never committed; `.env*` gitignored; server-side only; rotate on exposure |
+| 27 | Path traversal / overbroad file scanning | Fixed relative allowlist; no browser-supplied paths; no whole-drive scan; reject `..`/absolute/symlink-escape |
+| 28 | Prompt injection (docs → AI later) | Treat content as untrusted; no model tool access; never auto-apply output; human-approved patches only |
+| 29 | Pre-existing npm audit advisories | Tracked; fix via a deliberate Maintenance day, never `--force` |
+| 30 | Need human visual QA before real work | Recommend production screenshots review before Manifest Foundation Day |
+
+See `FORGE_REAL_INTEGRATION_SECURITY_MODEL.md` for the full threat model.

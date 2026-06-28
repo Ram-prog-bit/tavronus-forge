@@ -3,8 +3,18 @@
 ## 🚀 Forge v2 preview MVP — LAUNCHED & LOCKED (2026-06-27)
 
 Production is live (`master` @ `b038e8e`, tag `forge-v2-preview-production`). V1 archived.
-**Stop building random mock-UI days.** Recommended immediate step: a human visual review of
-production screenshots. Then pick ONE next era:
+**Stop building random mock-UI days.**
+
+### Real-integration track (started)
+- ✅ **Real Integration Architecture Day** — chose **Project Context Reader + Docs-Backed
+  Memory v1** (Hybrid Project Manifest); see `FORGE_REAL_INTEGRATION_ARCHITECTURE.md`,
+  `FORGE_REAL_INTEGRATION_ROADMAP.md`, `FORGE_REAL_INTEGRATION_SECURITY_MODEL.md`.
+- ▶ **Next recommended task: Manifest Foundation Day (Stage 1)** — typed static manifest;
+  Mission Control + Project Memory consume it (replace inline duplicate data). Read-only,
+  no scanner, no AI, no secrets.
+
+Recommended immediate step before more building: a human visual review of production
+screenshots. Other eras still available:
 
 1. **Real Integration Architecture** — choose the first real capability (AI backend,
    memory persistence, GitHub/Vercel metadata, evidence ingestion, or patch workflow);

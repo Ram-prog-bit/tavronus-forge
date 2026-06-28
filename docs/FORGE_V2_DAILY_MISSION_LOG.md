@@ -19,6 +19,23 @@
 
 ---
 
+## 2026-06-27 — Real Integration Architecture Day
+- **Mission:** Choose + design the first real integration (no implementation).
+- Branch: `forge-real-integration-architecture` (planning) | Build: ✅ passing | Port: 5642
+  unchanged | Production untouched.
+- **Inventory finding:** command-center data is hardcoded inline in
+  `components/workspace/*Preview.tsx`, duplicating doc truth — motivates a context manifest.
+- **Decision:** first real integration = **Project Context Reader + Docs-Backed Memory v1**,
+  built as a **Hybrid Project Manifest** (manual typed manifest → local generator → optional
+  read-only API later). Read-only, secret-free, deployment-safe.
+- **Rejected as first:** AI endpoint (keys/cost/injection), GitHub/Vercel readers (tokens),
+  patch apply / terminal / browser automation (low reversibility).
+- **Docs created:** `FORGE_REAL_INTEGRATION_ARCHITECTURE.md`,
+  `FORGE_REAL_INTEGRATION_ROADMAP.md`, `FORGE_REAL_INTEGRATION_SECURITY_MODEL.md`. Updated
+  Next Steps, Risk Register, this log.
+- **No code implemented** (docs only). **Decision: ARCHITECTURE READY ✅.**
+- **Next:** Manifest Foundation Day (Stage 1).
+
 ## 2026-06-27 — Final v2 Lock / Tag / Archive Day
 - **Mission:** Lock the Forge v2 preview MVP after a confirmed production launch.
 - Branch: `master` | Build: ✅ passing | Port: 5642 unchanged.
