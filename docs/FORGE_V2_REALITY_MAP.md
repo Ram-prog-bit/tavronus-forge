@@ -8,6 +8,17 @@
 > **Every UI area must clearly label real / mock / planned / tested / untested state.**
 > Never animate or style a mock to look real. Never imply work that isn't happening.
 
+## Production launch status (2026-06-27)
+
+- **Production = Forge v2.** `master` @ `b038e8e` (`merge: launch forge v2 preview`),
+  deployed live at https://tavronus-forge-the-real-one.vercel.app (verified: `/`,
+  `/workspace`, `/about` HTTP 200; v2 honesty layer served). Tag:
+  `forge-v2-preview-production`.
+- **V1 preserved:** `backup/forge-v1-final` + `forge-v1-final-snapshot` @ `9681302`.
+- **Production is a static/mock preview MVP** — no real AI/backend/database/cloud memory/
+  filesystem/terminal/patch-execution/evidence-ingestion is connected; each such surface
+  is labeled static/mock/planned. `forge-v2-rebuild` kept as the historical build branch.
+
 ## Real (today, after CEO Priming v2)
 
 - Local Next.js 14 app (App Router) running on port **5642**.

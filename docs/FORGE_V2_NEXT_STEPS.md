@@ -1,5 +1,20 @@
 # Forge v2 — Next Steps
 
+## 🚀 Forge v2 preview MVP — LAUNCHED & LOCKED (2026-06-27)
+
+Production is live (`master` @ `b038e8e`, tag `forge-v2-preview-production`). V1 archived.
+**Stop building random mock-UI days.** Recommended immediate step: a human visual review of
+production screenshots. Then pick ONE next era:
+
+1. **Real Integration Architecture** — choose the first real capability (AI backend,
+   memory persistence, GitHub/Vercel metadata, evidence ingestion, or patch workflow);
+   add auth/database only when needed; build one real capability at a time, behind the
+   honesty layer (flip a label only when truly real).
+2. **Demo / Screenshots / README** — public polish: README, product story, screenshots,
+   demo video, landing refinement.
+3. **Maintenance / Dependency Safety** — carefully address the pre-existing npm audit
+   advisories, configure ESLint non-interactively, plan dependency upgrades + testing.
+
 ## Build-day progress (forge-v2-rebuild)
 
 - ✅ Design System Day (`1485fd9`) · Shell/Layout Day (`91c6eb1`) · Workspace Command
