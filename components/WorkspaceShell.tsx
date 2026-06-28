@@ -8,11 +8,16 @@ import TabStrip from "./workspace/TabStrip";
 import EditorPane, { type WelcomeCommand } from "./workspace/EditorPane";
 import ForgeSessionCard from "./workspace/ForgeSessionCard";
 import ApplyPreview, { type PendingApply } from "./workspace/ApplyPreview";
+import MissionControlPreview from "./workspace/MissionControlPreview";
+import EvidenceVaultPreview from "./workspace/EvidenceVaultPreview";
+import PatchReviewPreview from "./workspace/PatchReviewPreview";
+import ProjectMemoryPreview from "./workspace/ProjectMemoryPreview";
 import { ModeId, getModeById, MODES } from "@/lib/modes";
 import { FileNode, getFileColor, getFileIcon } from "@/lib/mockFiles";
 import { buildTreeFromPaths } from "@/lib/vfs";
 import { buildPatch } from "@/lib/forgePatch";
 import { useTabs } from "@/hooks/useTabs";
+import { ForgeBadge } from "@/components/ui";
 import { useForgeAI } from "@/hooks/useForgeAI";
 import { useVfs } from "@/hooks/useVfs";
 
@@ -765,20 +770,22 @@ export default function WorkspaceShell() {
         <div className="flex items-center h-full flex-shrink-0">
 
           {/* Ready */}
-          <div className="hidden sm:flex items-center gap-1 px-2.5 text-[10px] forge-mono text-green-400/65">
+          <div className="hidden sm:flex items-center gap-1 px-2.5 text-[10px] forge-mono text-forge-success/70">
             <span>✓</span>
             <span>Ready</span>
           </div>
 
           <div className="w-px h-3.5 bg-forge-border/30 mx-0.5 hidden sm:block" />
 
-          {/* Local Mock Mode */}
-          <div
-            className="hidden lg:flex items-center gap-1.5 px-2.5 text-[10px] forge-mono"
-            style={{ color: "rgba(45,142,255,0.62)" }}
-          >
-            <div className="w-1.5 h-1.5 rounded-full bg-forge-blue/60 animate-pulse" />
-            <span>Local Mock Mode</span>
+          {/* Local Mock Mode — shared honesty badge */}
+          <div className="hidden lg:flex items-center px-2.5">
+            <ForgeBadge
+              variant="mock"
+              className="forge-mono"
+              title="Responses are generated locally from mock templates — no external AI is called."
+            >
+              Local Mock Mode
+            </ForgeBadge>
           </div>
 
           <div className="w-px h-3.5 bg-forge-border/30 mx-0.5 hidden lg:block" />
@@ -1071,14 +1078,13 @@ export default function WorkspaceShell() {
                 Forge AI
               </span>
             </div>
-            <span
-              className="flex items-center gap-1.5 text-[9px] forge-mono uppercase tracking-wider
-                text-forge-blue/60 border border-forge-blue/25 rounded px-1.5 py-0.5 flex-shrink-0"
+            <ForgeBadge
+              variant="mock"
+              className="flex-shrink-0 forge-mono uppercase tracking-wider"
               title="Responses are generated locally from mock templates — no external AI is called."
             >
-              <span className="w-1 h-1 rounded-full bg-forge-blue/60 animate-pulse" />
               Local Mock
-            </span>
+            </ForgeBadge>
           </div>
 
           {/* Mode chips — the tool loaded into the assistant */}
@@ -1258,19 +1264,53 @@ export default function WorkspaceShell() {
                   <polygon points="7,1 13,4 13,10 7,13 1,10 1,4" stroke="#2D8EFF" strokeWidth="1" fill="none" />
                   <circle cx="7" cy="7" r="1.4" fill="#2D8EFF" />
                 </svg>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col items-center gap-1.5">
                   <p className="text-xs text-forge-silver/60 forge-mono">No output yet</p>
                   <p className="text-[10px] text-forge-muted/45 forge-mono leading-relaxed max-w-[220px]">
                     Write a command above, then press{" "}
                     <span className="text-forge-silver/55">Forge Output</span> to generate{" "}
                     <span className="text-forge-blue/55">{mode.label}</span> artifacts for this context.
                   </p>
-                  <p className="text-[9px] text-forge-muted/35 forge-mono leading-relaxed max-w-[220px]">
-                    Generated locally from mock templates · no external AI is called.
-                  </p>
+                  <ForgeBadge variant="mock" className="mt-1 forge-mono">
+                    Local mock · no external AI
+                  </ForgeBadge>
                 </div>
               </div>
             )}
+
+            {/* ── Command-center preview surfaces (static / mock) ─────────────
+                 Static previews of how agent work will be supported by proof,
+                 review, and memory. No backend or live data — see each surface's
+                 honesty footer and docs/FORGE_V2_REALITY_MAP.md. */}
+            <div className="mt-4 pt-4 border-t border-forge-border/30 flex flex-col gap-4">
+              {/* Unified command-center header + single preview-mode honesty strip,
+                  so the stacked surfaces read as one center instead of separate mocks. */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-widest forge-mono text-forge-chrome/80">
+                    Command Center
+                  </span>
+                  <ForgeBadge variant="mock" className="forge-mono">Preview mode</ForgeBadge>
+                </div>
+                <div className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-[10px] forge-mono text-forge-silver/45">
+                  {["Mission Control", "Evidence Vault", "Patch Review", "Project Memory"].map((s, i, arr) => (
+                    <span key={s} className="flex items-center gap-1.5">
+                      <span className="text-forge-silver/55">{s}</span>
+                      {i < arr.length - 1 && <span className="text-forge-blue/40">→</span>}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-[10px] text-forge-muted/55 forge-mono leading-relaxed rounded-forge-control border border-forge-border/40 bg-forge-black/30 px-2.5 py-1.5">
+                  Static local preview — no external AI, backend, database, filesystem,
+                  terminal, Git, or browser automation is connected yet. Each surface below
+                  is mock/static; see its footer and docs/FORGE_V2_REALITY_MAP.md.
+                </p>
+              </div>
+              <MissionControlPreview />
+              <EvidenceVaultPreview />
+              <PatchReviewPreview />
+              <ProjectMemoryPreview />
+            </div>
           </div>
 
         </div>
@@ -1286,7 +1326,7 @@ export default function WorkspaceShell() {
             <span className="text-[10px] forge-mono text-forge-muted/50">$</span>
             <span className="text-[10px] forge-mono text-forge-silver/60">next dev -p 5642</span>
             <span className="text-[10px] forge-mono text-forge-muted/30">·</span>
-            <span className="text-[10px] forge-mono text-green-400/70">ready</span>
+            <span className="text-[10px] forge-mono text-forge-success/70">ready</span>
             <span className="text-[10px] forge-mono text-forge-muted/30">·</span>
             <span className="text-[10px] forge-mono text-forge-blue/65">http://localhost:5642</span>
           </div>
@@ -1295,8 +1335,8 @@ export default function WorkspaceShell() {
         {/* Status bar */}
         <div className="flex items-center justify-between px-4 h-6">
           <div className="flex items-center gap-2.5">
-            <span className="flex items-center gap-1.5 text-[10px] forge-mono text-green-400/70">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400/70" />
+            <span className="flex items-center gap-1.5 text-[10px] forge-mono text-forge-success/70">
+              <span className="w-1.5 h-1.5 rounded-full bg-forge-success/70" />
               Forge shell active
             </span>
             <span className="text-[10px] forge-mono text-forge-muted/30">·</span>

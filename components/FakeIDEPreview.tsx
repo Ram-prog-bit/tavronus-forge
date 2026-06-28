@@ -162,7 +162,7 @@ export default function FakeIDEPreview() {
           <div className="border-t border-forge-border/40 bg-forge-black/80 px-4 py-2 h-14 flex-shrink-0">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs text-forge-muted/50 forge-mono uppercase tracking-widest">Terminal</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500/60 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-forge-success/60 animate-pulse" />
             </div>
             <div className="forge-mono text-xs">
               <span className="text-forge-blue/60">$ </span>

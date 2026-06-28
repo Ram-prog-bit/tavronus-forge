@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ForgeBadge } from "@/components/ui";
 
 function ForgeLogo() {
   return (
@@ -90,13 +91,9 @@ export default function StartScreen() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div
-            className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded border border-forge-border/30 text-[10px] forge-mono"
-            style={{ color: "rgba(45,142,255,0.45)" }}
-          >
-            <div className="w-1 h-1 rounded-full bg-forge-blue/45 animate-pulse" />
+          <ForgeBadge variant="mock" className="hidden sm:inline-flex forge-mono">
             Local Mock Mode
-          </div>
+          </ForgeBadge>
           <Link
             href="/about"
             className="text-[10px] text-forge-muted/30 hover:text-forge-silver/60 transition-colors forge-mono"
@@ -115,11 +112,14 @@ export default function StartScreen() {
             <h1 className="text-xl font-semibold text-forge-chrome mb-1.5 tracking-tight">
               Start building.
             </h1>
-            <p className="text-[13px] text-forge-silver/35">
-              Create a file or open a project.
+            <p className="text-[13px] text-forge-silver/55">
+              Mission control for AI coding agents. Create a file or open a project.
             </p>
-            <p className="text-[10px] text-forge-blue/45 forge-mono tracking-[0.3em] uppercase mt-3">
+            <p className="text-[10px] text-forge-blue/55 forge-mono tracking-[0.3em] uppercase mt-3">
               Plan. Prompt. Code. Ship.
+            </p>
+            <p className="text-[10px] text-forge-muted/55 forge-mono mt-2">
+              Local mock preview · no external AI connected yet
             </p>
           </div>
 
@@ -182,7 +182,7 @@ export default function StartScreen() {
       {/* ── STATUS BAR ──────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-4 h-6 border-t border-forge-border/30 bg-forge-black flex-shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-1 h-1 rounded-full bg-green-500/45 animate-pulse" />
+          <div className="w-1 h-1 rounded-full bg-forge-success/45 animate-pulse" />
           <span className="text-[10px] forge-mono text-forge-muted/30">Forge shell active</span>
           <span className="text-[10px] forge-mono text-forge-border/40">·</span>
           <span className="text-[10px] forge-mono text-forge-muted/25">localhost:5642</span>

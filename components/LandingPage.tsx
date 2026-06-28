@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import FakeIDEPreview from "./FakeIDEPreview";
+import { ForgeCard, ForgeBadge } from "@/components/ui";
 
 const FEATURES = [
   {
@@ -104,7 +105,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-forge-blue/25 bg-forge-blue/5">
             <div className="w-1.5 h-1.5 rounded-full bg-forge-blue animate-pulse" />
             <span className="text-xs text-forge-blue/80 forge-mono tracking-wide">
-              Tavronus Forge v0.1 · Local AI Coding Workspace
+              Tavronus Forge v0.1 · Local-first · Mock preview
             </span>
           </div>
 
@@ -120,8 +121,10 @@ export default function LandingPage() {
 
           {/* Subheadline */}
           <p className="text-lg text-forge-silver/70 max-w-2xl leading-relaxed">
-            Tavronus Forge is a simple AI coding cockpit for planning projects, generating
-            prompts, reviewing code, debugging errors, and building software from one workspace.
+            Mission control for AI coding agents — a local-first command center to plan,
+            prompt, review, debug, and ship from one workspace, with honest mock/real
+            labeling at every step. Not just an editor; the discipline layer around
+            agent-driven development.
           </p>
 
           {/* Tagline */}
@@ -160,6 +163,75 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── HONESTY LAYER ─── */}
+      <section id="honesty" className="py-20 px-6 border-t border-forge-border/30">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-xs text-forge-blue/60 forge-mono uppercase tracking-widest mb-3">
+              Honesty layer
+            </p>
+            <h2 className="text-3xl font-bold text-forge-chrome">
+              Clear about what&apos;s real and what&apos;s planned.
+            </h2>
+            <p className="text-sm text-forge-silver/55 leading-relaxed mt-3 max-w-2xl mx-auto">
+              Forge labels every surface honestly. The current preview is local and
+              mock-only — no external AI backend is connected yet.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Real today */}
+            <ForgeCard variant="subtle" className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <ForgeBadge variant="real" />
+                <h3 className="text-sm font-semibold text-forge-chrome">Real today</h3>
+              </div>
+              <ul className="flex flex-col gap-2">
+                {[
+                  "Local Next.js app + Forge v2 design system",
+                  "Visible app shell, home, about, and workspace surface",
+                  "Workspace command surface (local mock templates)",
+                  "Docs-backed project memory + agent config files",
+                  "Branch preview workflow on forge-v2-rebuild",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-forge-silver/65 leading-relaxed">
+                    <span className="text-forge-success/70 mt-0.5 flex-shrink-0">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </ForgeCard>
+
+            {/* Planned / mock */}
+            <ForgeCard variant="subtle" className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <ForgeBadge variant="planned" />
+                <h3 className="text-sm font-semibold text-forge-chrome">Planned · not connected yet</h3>
+              </div>
+              <ul className="flex flex-col gap-2">
+                {[
+                  "Real AI orchestration inside the app",
+                  "Agent Board, Evidence Vault, Patch Review",
+                  "Backend, auth, and database",
+                  "Real terminal, filesystem, and browser automation",
+                  "Automated deployment promotion",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-forge-silver/55 leading-relaxed">
+                    <span className="text-forge-warn/70 mt-0.5 flex-shrink-0">○</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </ForgeCard>
+          </div>
+
+          <p className="text-center text-xs text-forge-muted/55 forge-mono mt-6 leading-relaxed max-w-2xl mx-auto">
+            Forge will not fake live agents, real terminals, or connected backends. When a
+            system becomes real, its label changes — never before.
+          </p>
+        </div>
+      </section>
+
       {/* ─── FEATURES ─── */}
       <section id="features" className="py-20 px-6 border-t border-forge-border/30">
         <div className="max-w-5xl mx-auto">
@@ -173,15 +245,15 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {FEATURES.map((f) => (
-              <div
+              <ForgeCard
                 key={f.title}
-                className="rounded-lg border border-forge-border/50 p-6 group hover:border-forge-blue/30 transition-all duration-300"
-                style={{ background: "rgba(22,26,32,0.6)" }}
+                variant="subtle"
+                className="group p-6 transition-colors duration-300 hover:border-forge-blue/30"
               >
                 <div className="text-2xl mb-3 text-forge-blue/70">{f.icon}</div>
                 <h3 className="text-base font-semibold text-forge-chrome mb-2">{f.title}</h3>
                 <p className="text-sm text-forge-silver/60 leading-relaxed">{f.desc}</p>
-              </div>
+              </ForgeCard>
             ))}
           </div>
         </div>
@@ -270,8 +342,8 @@ export default function LandingPage() {
                 <span className="text-sm text-forge-silver/70">{item.label}</span>
                 {item.active && (
                   <div className="ml-auto flex items-center gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500/70 animate-pulse" />
-                    <span className="text-xs forge-mono text-green-500/60">Live</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-forge-success/70 animate-pulse" />
+                    <span className="text-xs forge-mono text-forge-success/70">Local</span>
                   </div>
                 )}
               </div>
