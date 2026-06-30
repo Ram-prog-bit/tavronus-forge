@@ -371,3 +371,61 @@ body {
   background: linear-gradient(90deg, var(--forge-blue), transparent);
   opacity: 0.85;
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Level 3 — command-system boot-up motion (scroll reveals).
+   The single tiny client component (components/TavronusReveal.tsx) drives this:
+   it adds `tv-js-reveal` to <html> and toggles `tv-visible` as sections enter
+   the viewport. Motion lives here in CSS (transform/opacity/filter only).
+
+   No-JS safe: the hidden state below is scoped to `.tv-js-reveal`, so without
+   JavaScript every section renders fully visible. Reduced-motion is handled by
+   the global guard above *and* an explicit fallback at the end of this block.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Resting (visible) state by default — only hidden once JS confirms it can
+   animate the reveal. Sections "come online": rise + focus-in from a soft blur. */
+.tv-js-reveal .tv-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  filter: blur(6px);
+  transition:
+    opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+    filter 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--tv-reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.tv-js-reveal .tv-reveal.tv-visible {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* Hero core "powers on" — a one-time focus-in (blur → sharp) on the inner
+   symbol, layered over the wrapper's on-load tv-rise. Reads as the core coming
+   online. Runs on the symbol only, so it never fights the wrapper's opacity. */
+.tv-core-boot {
+  animation: tv-core-boot 1s ease-out 360ms both;
+}
+@keyframes tv-core-boot {
+  from {
+    filter: blur(10px);
+    transform: scale(0.9);
+  }
+  to {
+    filter: blur(0);
+    transform: scale(1);
+  }
+}
+
+/* Reduced-motion / no-JS safety net — force every reveal target fully visible
+   regardless of the JS path, so content is never trapped at opacity 0. */
+@media (prefers-reduced-motion: reduce) {
+  .tv-js-reveal .tv-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
