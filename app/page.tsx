@@ -102,12 +102,15 @@ export default function HomePage() {
         Skip to content
       </a>
 
-      {/* Ambient background — faint grid + a single soft brand aura. */}
+      {/* Ambient background — layered command-center atmosphere (CSS only):
+          blue top glow → structural grid → brand aura → edge vignette. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 tv-topglow" />
       <div aria-hidden className="pointer-events-none absolute inset-0 tv-grid" />
       <div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-[-18rem] h-[42rem] w-[42rem] -translate-x-1/2 tv-aura tv-aura-breathe blur-2xl"
       />
+      <div aria-hidden className="pointer-events-none absolute inset-0 tv-vignette" />
 
       <div
         id="main-content"
@@ -115,7 +118,7 @@ export default function HomePage() {
         className="relative mx-auto max-w-6xl px-6 focus:outline-none sm:px-10 lg:px-14"
       >
         {/* ── System bar ─────────────────────────────────────────────────── */}
-        <header className="flex items-center justify-between border-b border-forge-border/70 py-5">
+        <header className="tv-hairline-b flex items-center justify-between py-5">
           <div className="flex items-center gap-3">
             <Image
               src="/tavronus-symbol.png"
@@ -143,7 +146,7 @@ export default function HomePage() {
         {/* ── Hero ───────────────────────────────────────────────────────── */}
         <section className="grid gap-12 py-20 lg:grid-cols-[1.3fr_1fr] lg:items-center lg:gap-8 lg:py-28">
           <div>
-            <p className="tv-rise font-mono text-xs uppercase tracking-[0.32em] text-forge-blue">
+            <p className="tv-rise tv-eyebrow font-mono text-xs uppercase tracking-[0.32em] text-forge-blue">
               Tavronus // Command System
             </p>
             <h1 className="tv-rise tv-d1 mt-6 text-6xl font-semibold leading-[0.95] tracking-tight text-forge-chrome sm:text-7xl">
@@ -159,7 +162,7 @@ export default function HomePage() {
             <div className="tv-rise tv-d4 mt-10 flex flex-wrap items-center gap-x-5 gap-y-4">
               <a
                 href="#systems"
-                className="group inline-flex items-center gap-2 rounded-forge-control border border-forge-blue/40 bg-forge-blue/10 px-5 py-3 text-sm font-medium text-forge-chrome transition duration-250 hover:-translate-y-px hover:border-forge-blue/70 hover:bg-forge-blue/15 hover:shadow-[0_10px_26px_-12px_rgba(45,142,255,0.55)] focus-visible:outline-none focus-visible:shadow-forge-focus"
+                className="tv-cta group inline-flex items-center gap-2 rounded-forge-control border border-forge-blue/40 bg-forge-blue/10 px-5 py-3 text-sm font-medium text-forge-chrome transition duration-250 hover:-translate-y-px hover:border-forge-blue/70 hover:bg-forge-blue/15 hover:shadow-[0_10px_26px_-12px_rgba(45,142,255,0.55)] focus-visible:outline-none focus-visible:shadow-forge-focus"
               >
                 Enter Command Center
                 <ArrowRight
@@ -178,12 +181,19 @@ export default function HomePage() {
           {/* Core visual — restrained: symbol, hairline rings, single aura. */}
           <div className="tv-rise tv-d3 relative mx-auto hidden aspect-square w-full max-w-sm items-center justify-center lg:flex">
             <div aria-hidden className="absolute inset-0 tv-aura tv-aura-breathe blur-2xl opacity-70" />
+            <div aria-hidden className="absolute inset-[20%] tv-core-glow blur-xl" />
             <div aria-hidden className="tv-core-ring absolute inset-0" />
+            <div aria-hidden className="absolute inset-0 tv-core-ticks" />
             <div aria-hidden className="tv-core-ring absolute inset-[14%]" />
             <div aria-hidden className="tv-core-ring tv-ring-glow absolute inset-[28%]" />
-            {/* Slow orbiting accent — the only continuous motion in the core. */}
+            {/* HUD radar sweep — slow masked conic highlight around the core. */}
+            <div aria-hidden className="absolute inset-[5%] tv-scan-sweep" />
+            {/* Slow orbiting accents — the only continuous motion in the core. */}
             <div aria-hidden className="tv-orbit absolute inset-0">
               <span className="tv-orbit-dot" />
+            </div>
+            <div aria-hidden className="tv-orbit-rev absolute inset-[22%]">
+              <span className="tv-orbit-dot-sm" />
             </div>
             <span
               aria-hidden
@@ -208,10 +218,10 @@ export default function HomePage() {
         </section>
 
         {/* ── Systems manifest (the signature) ───────────────────────────── */}
-        <section id="systems" className="scroll-mt-8 border-t border-forge-border/70 py-16">
+        <section id="systems" className="tv-hairline scroll-mt-8 py-16">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.28em] text-forge-silver">
+              <p className="tv-eyebrow font-mono text-xs uppercase tracking-[0.28em] text-forge-silver">
                 Systems Manifest
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forge-chrome">
@@ -227,7 +237,7 @@ export default function HomePage() {
             {modules.map(({ code, name, domain, description, status, Icon }) => (
               <article
                 key={code}
-                className="group relative rounded-forge-card border border-forge-border bg-forge-obsidian/70 p-6 shadow-forge-card transition duration-250 hover:-translate-y-0.5 hover:border-forge-border-strong hover:bg-forge-obsidian hover:shadow-[0_16px_36px_-16px_rgba(0,0,0,0.75)]"
+                className="tv-card group relative rounded-forge-card border border-forge-border p-6 shadow-forge-card transition duration-250 hover:-translate-y-0.5 hover:border-forge-border-strong hover:shadow-[0_18px_40px_-16px_rgba(0,0,0,0.8)]"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3.5">
@@ -265,8 +275,8 @@ export default function HomePage() {
         </section>
 
         {/* ── Build philosophy ───────────────────────────────────────────── */}
-        <section className="border-t border-forge-border/70 py-16">
-          <p className="font-mono text-xs uppercase tracking-[0.28em] text-forge-silver">
+        <section className="tv-hairline py-16">
+          <p className="tv-eyebrow font-mono text-xs uppercase tracking-[0.28em] text-forge-silver">
             Build Philosophy
           </p>
           <h2 className="mt-2 max-w-2xl text-2xl font-semibold leading-snug tracking-tight text-forge-chrome">
@@ -284,7 +294,7 @@ export default function HomePage() {
         </section>
 
         {/* ── Footer ─────────────────────────────────────────────────────── */}
-        <footer className="flex flex-col gap-2 border-t border-forge-border/70 py-10 sm:flex-row sm:items-center sm:justify-between">
+        <footer className="tv-hairline flex flex-col gap-2 py-10 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-mono text-xs tracking-[0.18em] text-forge-silver">
             TAVRONUS AI · CLEAN RESTART FOUNDATION
           </p>

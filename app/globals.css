@@ -209,3 +209,165 @@ body {
   border-color: rgba(45, 142, 255, 0.22);
   animation: tv-spin 34s linear infinite reverse;
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Level 2B — Cinematic CSS depth pass. Still CSS-only, no JS, no libraries.
+   Black-glass command-center atmosphere: layered background, HUD core, glass
+   cards, gradient hairlines. All loops/transitions freeze cleanly under the
+   prefers-reduced-motion guard above.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Background layering — faint blue atmosphere at the top, dark vignette toward
+   the edges/bottom so content sits inside depth rather than on flat black. */
+.tv-topglow {
+  background: radial-gradient(60% 42% at 50% -6%, rgba(45, 142, 255, 0.08), transparent 70%);
+}
+.tv-vignette {
+  background:
+    radial-gradient(ellipse 130% 90% at 50% 108%, rgba(0, 0, 0, 0.55), transparent 58%),
+    radial-gradient(ellipse 140% 100% at 50% 50%, transparent 62%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+/* Hero core — a focused glow behind the symbol (static, just depth). */
+.tv-core-glow {
+  border-radius: 9999px;
+  background: radial-gradient(
+    closest-side,
+    rgba(45, 142, 255, 0.3),
+    rgba(45, 142, 255, 0.07) 58%,
+    transparent 76%
+  );
+}
+
+/* HUD radar sweep — a conic highlight masked to a thin ring band, rotating
+   slowly. Reads as a command-center scan, not neon. */
+.tv-scan-sweep {
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(45, 142, 255, 0) 0deg,
+    rgba(45, 142, 255, 0) 250deg,
+    rgba(45, 142, 255, 0.32) 348deg,
+    rgba(45, 142, 255, 0) 360deg
+  );
+  -webkit-mask: radial-gradient(closest-side, transparent 63%, #000 66%, #000 99%, transparent 100%);
+  mask: radial-gradient(closest-side, transparent 63%, #000 66%, #000 99%, transparent 100%);
+  animation: tv-spin 9s linear infinite;
+}
+
+/* Faint precision tick marks near the outer ring — HUD instrument feel. */
+.tv-core-ticks {
+  border-radius: 9999px;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(200, 208, 220, 0.16) 0deg 0.35deg,
+    transparent 0.35deg 15deg
+  );
+  -webkit-mask: radial-gradient(closest-side, transparent 91%, #000 93%, #000 99%, transparent 100%);
+  mask: radial-gradient(closest-side, transparent 91%, #000 93%, #000 99%, transparent 100%);
+}
+
+/* Second, slower counter-orbit at an inner radius for parallax depth. */
+.tv-orbit-rev {
+  animation: tv-spin 38s linear infinite reverse;
+}
+.tv-orbit-dot-sm {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  height: 3px;
+  width: 3px;
+  margin-left: -1.5px;
+  border-radius: 9999px;
+  background: var(--forge-blue-dim);
+  box-shadow: 0 0 6px rgba(45, 142, 255, 0.5);
+}
+
+/* Glass module card — gradient surface, a permanent faint top highlight, and a
+   blue top-edge line that lights on hover. Depth, not glow. */
+.tv-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(158deg, rgba(22, 26, 32, 0.88), rgba(13, 15, 18, 0.72) 66%);
+}
+.tv-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200, 208, 220, 0.1), transparent);
+  pointer-events: none;
+}
+.tv-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(45, 142, 255, 0.55), transparent);
+  opacity: 0;
+  transition: opacity 250ms ease;
+  pointer-events: none;
+}
+.tv-card:hover::after {
+  opacity: 1;
+}
+
+/* Gradient hairline dividers — fade in/out instead of a flat solid rule. */
+.tv-hairline {
+  border: 0;
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(
+      90deg,
+      transparent,
+      rgba(80, 90, 105, 0.55) 22%,
+      rgba(80, 90, 105, 0.55) 78%,
+      transparent
+    )
+    1;
+}
+.tv-hairline-b {
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(
+      90deg,
+      transparent,
+      rgba(80, 90, 105, 0.55) 22%,
+      rgba(80, 90, 105, 0.55) 78%,
+      transparent
+    )
+    1;
+}
+
+/* Premium CTA — a single restrained sheen sweep on hover. */
+.tv-cta {
+  position: relative;
+  overflow: hidden;
+}
+.tv-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.1) 50%, transparent 58%);
+  transform: translateX(-130%);
+  transition: transform 650ms ease;
+  pointer-events: none;
+}
+.tv-cta:hover::after {
+  transform: translateX(130%);
+}
+
+/* Section eyebrow — a small blue HUD lead-in line before the label text. */
+.tv-eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 1px;
+  margin-right: 9px;
+  vertical-align: middle;
+  background: linear-gradient(90deg, var(--forge-blue), transparent);
+  opacity: 0.85;
+}
