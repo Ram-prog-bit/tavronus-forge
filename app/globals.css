@@ -429,3 +429,329 @@ body {
     transition: none !important;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Level 7 · Scene 1 — Frozen Command Core
+   A full-bleed cinematic opening: a CSS frosted-ice chamber (the always-on
+   fallback) with a WebGL command core composited on top, and a HUD text
+   overlay. Scroll drives a transformation: the headline recedes as the core
+   dissipates. Everything degrades safely — no JS / no WebGL / reduced motion
+   all leave the text and a static frosted chamber fully visible.
+
+   Icy palette (extends the brand blue toward frost), scoped to this block:
+     frost #eaf6ff · ice #bfe6ff · cyan #7cc4ff · brand #2d8eff · chamber #04060b
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.l7-scene {
+  --scene-progress: 0;
+  position: relative;
+  width: 100%;
+  background: #04060b;
+}
+.l7-scene--tall {
+  height: 220vh;
+}
+.l7-scene--static {
+  min-height: 100vh;
+}
+
+/* Sticky stage — the canvas + overlay hold the viewport while the section
+   scrolls past, mapping scroll distance onto the transformation. */
+.l7-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Layer 0 — frosted ice chamber. Cold depth: a high blue glow, a colder floor
+   wash, and a dark body, with an inner vignette so content sits inside depth. */
+.l7-chamber {
+  position: absolute;
+  inset: 0;
+  background:
+    /* high blue glow */
+    radial-gradient(120% 70% at 50% 4%, rgba(45, 142, 255, 0.2), transparent 52%),
+    /* reactor floor glow */
+    radial-gradient(64% 40% at 50% 104%, rgba(45, 142, 255, 0.16), transparent 62%),
+    radial-gradient(90% 70% at 50% 122%, rgba(124, 196, 255, 0.1), transparent 60%),
+    /* darkened chamber side walls */
+    linear-gradient(90deg, rgba(2, 4, 9, 0.78), transparent 20%, transparent 80%, rgba(2, 4, 9, 0.78)),
+    /* cold body */
+    linear-gradient(180deg, #08101d 0%, #050a14 46%, #03050c 100%);
+}
+/* Frost grain — self-contained SVG noise, faint, masked to the centre. */
+.l7-chamber::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  mix-blend-mode: screen;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 25%, transparent 85%);
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 25%, transparent 85%);
+}
+.l7-chamber::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(135% 105% at 50% 46%, transparent 56%, rgba(0, 0, 0, 0.62) 100%);
+}
+
+/* Central frost glow — reads as the command core even with no WebGL, and adds
+   bloom behind the transparent canvas where the real core sits. */
+.l7-chamber-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(62vmin, 620px);
+  height: min(62vmin, 620px);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    closest-side,
+    rgba(190, 230, 255, 0.32),
+    rgba(45, 142, 255, 0.12) 46%,
+    transparent 72%
+  );
+  filter: blur(6px);
+  animation: l7-breathe 8s ease-in-out infinite;
+}
+@keyframes l7-breathe {
+  0%, 100% { opacity: 0.78; transform: translate(-50%, -50%) scale(0.97); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
+}
+
+/* Faint instrument grid, masked to fade toward the edges. */
+.l7-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(124, 196, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(124, 196, 255, 0.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 20%, transparent 78%);
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 20%, transparent 78%);
+}
+
+/* Layer 1 — WebGL canvas, composited over the chamber. */
+.l7-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.l7-canvas canvas {
+  display: block;
+}
+
+/* Layer 2 — HUD overlay. Real, readable content; never blocks scroll/focus. */
+.l7-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  pointer-events: none;
+  text-align: center;
+}
+
+/* Spacer holds the upper-centre clear so the core isn't covered. */
+.l7-spacer {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Lower cluster — headline + gauge/cue, lifted above a readability scrim. */
+.l7-lower {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+.l7-lower > .l7-headline,
+.l7-lower > .l7-hud {
+  position: relative;
+  z-index: 1;
+}
+.l7-scrim {
+  position: absolute;
+  inset: -3rem -4rem -4rem;
+  z-index: 0;
+  background: linear-gradient(
+    to top,
+    rgba(3, 5, 11, 0.88) 0%,
+    rgba(3, 5, 11, 0.55) 42%,
+    rgba(3, 5, 11, 0) 100%
+  );
+}
+
+/* Corner brackets — a command-instrument frame. */
+.l7-bracket {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(124, 196, 255, 0.4);
+}
+.l7-bracket--tl { top: clamp(1rem, 3vw, 2rem); left: clamp(1rem, 3vw, 2rem); border-right: 0; border-bottom: 0; }
+.l7-bracket--tr { top: clamp(1rem, 3vw, 2rem); right: clamp(1rem, 3vw, 2rem); border-left: 0; border-bottom: 0; }
+.l7-bracket--bl { bottom: clamp(1rem, 3vw, 2rem); left: clamp(1rem, 3vw, 2rem); border-right: 0; border-top: 0; }
+.l7-bracket--br { bottom: clamp(1rem, 3vw, 2rem); right: clamp(1rem, 3vw, 2rem); border-left: 0; border-top: 0; }
+
+/* HUD rows (top brand line / bottom gauge + cue). */
+.l7-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.l7-hud--bottom {
+  align-items: flex-end;
+}
+
+.l7-kicker {
+  font-family: "JetBrains Mono", monospace;
+  font-size: clamp(0.625rem, 1.4vw, 0.75rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #9fc4ee;
+}
+.l7-kicker--dim { color: #51688a; }
+
+/* Headline cluster — vertically centered, recedes as the core dissipates. */
+.l7-headline {
+  margin-inline: auto;
+  max-width: 46rem;
+  transform: translateY(calc(var(--scene-progress) * -42px));
+  opacity: clamp(0, calc(1 - var(--scene-progress) * 1.85), 1);
+  filter: blur(calc(var(--scene-progress) * 7px));
+  will-change: opacity, transform, filter;
+}
+.l7-eyebrow {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: #6aa6e6;
+}
+.l7-title {
+  margin-top: 0.75rem;
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(2.75rem, 7.5vw, 5.5rem);
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+  background: linear-gradient(180deg, #eaf6ff 0%, #c6def5 46%, #6aa6e6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 28px rgba(45, 142, 255, 0.35));
+}
+.l7-subtitle {
+  margin: 1.25rem auto 0;
+  max-width: 34rem;
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+  line-height: 1.55;
+  color: #aebfd2;
+}
+.l7-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7d8aaa;
+}
+.l7-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #7cc4ff;
+  box-shadow: 0 0 10px rgba(124, 196, 255, 0.8);
+}
+
+/* Transformation gauge — the honest scroll readout (0 → 100%). */
+.l7-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  text-align: left;
+}
+.l7-gauge-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #51688a;
+}
+.l7-gauge-value {
+  font-family: "JetBrains Mono", monospace;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #d6ecff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Scroll cue — fades out almost immediately once scrolling begins. */
+.l7-scrollcue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  opacity: clamp(0, calc(1 - var(--scene-progress) * 9), 1);
+}
+.l7-scrollcue-text {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #6f87a8;
+}
+.l7-scrollcue-track {
+  position: relative;
+  width: 18px;
+  height: 28px;
+  border: 1px solid rgba(124, 196, 255, 0.4);
+  border-radius: 10px;
+}
+.l7-scrollcue-dot {
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  border-radius: 9999px;
+  background: #bfe6ff;
+  animation: l7-scrollcue 1.8s ease-in-out infinite;
+}
+@keyframes l7-scrollcue {
+  0% { transform: translateY(0); opacity: 0; }
+  30% { opacity: 1; }
+  80% { transform: translateY(13px); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Mobile — bring the brand/gauge rows in a touch and keep text breathing room. */
+@media (max-width: 640px) {
+  .l7-hud--bottom { flex-direction: column-reverse; align-items: center; gap: 1.25rem; }
+  .l7-gauge { align-items: center; text-align: center; }
+}
+
+/* Reduced motion — the global guard already freezes loops/transitions; here we
+   additionally pin the headline fully visible regardless of any progress var. */
+@media (prefers-reduced-motion: reduce) {
+  .l7-headline {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .l7-scrollcue { opacity: 1 !important; }
+}

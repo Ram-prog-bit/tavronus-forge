@@ -1,7 +1,8 @@
 import Image from "next/image";
-import { Hammer, ShieldCheck, Compass, LineChart, ArrowRight } from "lucide-react";
+import { Hammer, ShieldCheck, Compass, LineChart } from "lucide-react";
 import type { CSSProperties } from "react";
 import TavronusReveal from "@/components/TavronusReveal";
+import FrozenCommandScene from "@/components/level7/FrozenCommandScene";
 
 /* ──────────────────────────────────────────────────────────────────────────
    Tavronus AI — Level 1 landing (premium static command-console foundation).
@@ -98,7 +99,7 @@ const principles: { label: string; title: string; body: string }[] = [
 
 export default function HomePage() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-forge-void">
+    <main className="relative min-h-screen overflow-x-clip bg-forge-void">
       {/* Level 3 boot-up: tiny client component that reveals sections on scroll
           (IntersectionObserver). No-JS safe, respects reduced motion. */}
       <TavronusReveal />
@@ -117,6 +118,11 @@ export default function HomePage() {
         className="pointer-events-none absolute left-1/2 top-[-18rem] h-[42rem] w-[42rem] -translate-x-1/2 tv-aura tv-aura-breathe blur-2xl"
       />
       <div aria-hidden className="pointer-events-none absolute inset-0 tv-vignette" />
+
+      {/* ── Level 7 · Scene 1 — Frozen Command Core (full-bleed opener) ──────
+          Replaces the old Level 3 hero. The existing command-system content
+          (manifest, philosophy, footer) continues below as the site proper. */}
+      <FrozenCommandScene />
 
       <div
         id="main-content"
@@ -149,79 +155,8 @@ export default function HomePage() {
           </div>
         </header>
 
-        {/* ── Hero ───────────────────────────────────────────────────────── */}
-        <section className="grid gap-12 py-20 lg:grid-cols-[1.3fr_1fr] lg:items-center lg:gap-8 lg:py-28">
-          <div>
-            <p className="tv-rise tv-eyebrow font-mono text-xs uppercase tracking-[0.32em] text-forge-blue">
-              Tavronus // Command System
-            </p>
-            <h1 className="tv-rise tv-d1 mt-6 text-6xl font-semibold leading-[0.95] tracking-tight text-forge-chrome sm:text-7xl">
-              Tavronus AI
-            </h1>
-            <p className="tv-rise tv-d2 mt-6 max-w-xl text-lg leading-relaxed text-forge-silver">
-              A clean foundation for a next-generation AI command system.
-            </p>
-            <p className="tv-rise tv-d3 mt-3 max-w-xl text-base leading-relaxed text-forge-dim">
-              Forge, Sentinel, Atlas, and Quant are being rebuilt from a controlled base.
-            </p>
-
-            <div className="tv-rise tv-d4 mt-10 flex flex-wrap items-center gap-x-5 gap-y-4">
-              <a
-                href="#systems"
-                className="tv-cta group inline-flex items-center gap-2 rounded-forge-control border border-forge-blue/40 bg-forge-blue/10 px-5 py-3 text-sm font-medium text-forge-chrome transition duration-250 hover:-translate-y-px hover:border-forge-blue/70 hover:bg-forge-blue/15 hover:shadow-[0_10px_26px_-12px_rgba(45,142,255,0.55)] focus-visible:outline-none focus-visible:shadow-forge-focus"
-              >
-                Enter Command Center
-                <ArrowRight
-                  size={16}
-                  strokeWidth={2}
-                  aria-hidden
-                  className="transition-transform duration-250 group-hover:translate-x-0.5"
-                />
-              </a>
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-forge-dim">
-                Foundation online · Systems rebuilding · No external AI connected yet
-              </p>
-            </div>
-          </div>
-
-          {/* Core visual — restrained: symbol, hairline rings, single aura. */}
-          <div className="tv-rise tv-d3 relative mx-auto hidden aspect-square w-full max-w-sm items-center justify-center lg:flex">
-            <div aria-hidden className="absolute inset-0 tv-aura tv-aura-breathe blur-2xl opacity-70" />
-            <div aria-hidden className="absolute inset-[20%] tv-core-glow blur-xl" />
-            <div aria-hidden className="tv-core-ring absolute inset-0" />
-            <div aria-hidden className="absolute inset-0 tv-core-ticks" />
-            <div aria-hidden className="tv-core-ring absolute inset-[14%]" />
-            <div aria-hidden className="tv-core-ring tv-ring-glow absolute inset-[28%]" />
-            {/* HUD radar sweep — slow masked conic highlight around the core. */}
-            <div aria-hidden className="absolute inset-[5%] tv-scan-sweep" />
-            {/* Slow orbiting accents — the only continuous motion in the core. */}
-            <div aria-hidden className="tv-orbit absolute inset-0">
-              <span className="tv-orbit-dot" />
-            </div>
-            <div aria-hidden className="tv-orbit-rev absolute inset-[22%]">
-              <span className="tv-orbit-dot-sm" />
-            </div>
-            <span
-              aria-hidden
-              className="absolute left-1/2 top-3 -translate-x-1/2 font-mono text-[10px] tracking-[0.3em] text-forge-muted"
-            >
-              CORE
-            </span>
-            <span
-              aria-hidden
-              className="absolute bottom-3 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-[0.3em] text-forge-muted"
-            >
-              v0.1 · FOUNDATION
-            </span>
-            <Image
-              src="/tavronus-symbol.png"
-              alt=""
-              width={132}
-              height={132}
-              className="tv-core-boot relative h-[34%] w-auto opacity-95 drop-shadow-[0_0_24px_rgba(45,142,255,0.35)]"
-            />
-          </div>
-        </section>
+        {/* Old Level 3 hero lives at commit 044ceea; replaced by the full-bleed
+            Level 7 Scene 1 opener above. (Its CSS in globals.css is retained.) */}
 
         {/* ── Systems manifest (the signature) ───────────────────────────── */}
         <section id="systems" className="tv-hairline scroll-mt-8 py-16">
