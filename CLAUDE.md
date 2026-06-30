@@ -55,24 +55,26 @@ Never force push, never rewrite history, never delete a backup branch/tag, never
 Run `npm run build` before committing. Confirm port 5642 and routes are intact. If build
 fails: report the exact error and suggest the smallest fix — do not start a broad refactor.
 
-## 12. Live deployment status (Level 2A)
-- **Level 2A is live in production on Vercel.** (Supersedes Level 1.)
+## 12. Live deployment status (Level 2B)
+- **Level 2B is live in production on Vercel.** (Supersedes Level 2A.)
 - Live URL: `https://tavronus-forge-the-real-one.vercel.app`
-- Production deployment ID: `dpl_4ZT9PM758o9w5wJ9bhhi33k6L8ZZ`
+- Production deployment ID: `dpl_6S1kqojx15LifAc5pG3mcMCTCnho`
 - Branch: `reset/tavronus-ai-blank-foundation`
-- Level 2A commit: `b89a7e9` (`level2: add CSS motion and accessibility polish`)
-- **What Level 2A added:** CSS-only motion (staggered hero entrance, slow core
-  orbit/ring/aura) + accessibility polish (skip link, focus-visible rings, WCAG-AA
-  contrast via the additive `forge-dim` token, clearer status chips).
-- **Stayed lightweight:** First Load JS held at **92.9 kB** (unchanged from Level 1) —
-  no new dependencies, no JS motion, no 3D, no backend, no fake AI, no GitHub auto-deploy.
+- Level 2B commit: `d6ef368` (`level2b: add cinematic CSS depth polish`)
+- **What Level 2B added:** a cinematic CSS depth polish pass (visual depth refinement
+  only — no behavioral or functional change).
+- **Stayed lightweight:** First Load JS held at **92.9 kB** (unchanged from Level 2A) —
+  no new dependencies, no JS motion, no 3D, no backend, no fake AI, no workspace
+  functionality, no GitHub auto-deploy.
 - **Route honesty:** `/workspace` and `/about` correctly return **404** — no old Forge
   workspace or old About page is exposed.
-- Level 1 (previous): commit `61a04cd`, deployment `dpl_BM7eeJakSo9WdHLSDSs24qugSmEH`.
+- Level 2A (previous): commit `b89a7e9` (`level2: add CSS motion and accessibility
+  polish`), deployment `dpl_4ZT9PM758o9w5wJ9bhhi33k6L8ZZ`.
+- Level 1 (older): commit `61a04cd`, deployment `dpl_BM7eeJakSo9WdHLSDSs24qugSmEH`.
 - **Deploys are manual only** (via `vercel deploy --prod`). The local `.vercel` CLI
   link is NOT wired to GitHub auto-deploy — pushing to GitHub does not deploy.
 - **Do NOT set up GitHub auto-deploy** unless Ram explicitly approves.
-- **Level 2B has NOT started yet.** Do not begin Level 2B work without Ram's go-ahead.
+- **Level 3 has NOT started yet.** Do not begin Level 3 work without Ram's go-ahead.
 - (No secrets, tokens, project IDs, org IDs, or env values are recorded here by design.)
 
 ## Commands
