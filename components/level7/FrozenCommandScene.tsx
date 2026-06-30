@@ -37,15 +37,15 @@ class CanvasBoundary extends Component<{ children: ReactNode }, { failed: boolea
   }
 }
 
-function webglSupported() {
+function detectGL() {
   try {
     const canvas = document.createElement("canvas");
-    return (
-      !!window.WebGLRenderingContext &&
-      !!(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
-    );
+    const webgl2 = !!canvas.getContext("webgl2");
+    const webgl =
+      webgl2 || !!(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
+    return { webgl, webgl2 };
   } catch {
-    return false;
+    return { webgl: false, webgl2: false };
   }
 }
 
@@ -56,19 +56,32 @@ export default function FrozenCommandScene() {
 
   const [showCanvas, setShowCanvas] = useState(false);
   const [interactive, setInteractive] = useState(true); // tall + scroll-driven
-  const [counts, setCounts] = useState({ shardCount: 30, particleCount: 440 });
+  const [quality, setQuality] = useState<"high" | "low">("high");
+  const [postFx, setPostFx] = useState(true);
+  const [counts, setCounts] = useState({ shardCount: 30, particleCount: 440, burstCount: 560 });
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const narrow = window.innerWidth < 768;
+    const { webgl, webgl2 } = detectGL();
 
+    // Low tier on small screens or modest hardware; postprocessing needs WebGL2.
+    const low =
+      narrow ||
+      (navigator.hardwareConcurrency || 8) <= 4 ||
+      ((navigator as Navigator & { deviceMemory?: number }).deviceMemory || 8) <= 4;
+
+    setQuality(low ? "low" : "high");
+    setPostFx(webgl2);
     setCounts(
-      narrow ? { shardCount: 16, particleCount: 180 } : { shardCount: 30, particleCount: 440 },
+      low
+        ? { shardCount: 16, particleCount: 180, burstCount: 260 }
+        : { shardCount: 30, particleCount: 440, burstCount: 560 },
     );
 
     // Reduced motion or no WebGL → static frosted chamber, content revealed,
     // no forced scroll. (Canvas + ScrollTrigger are simply never set up.)
-    if (reduceMotion || !webglSupported()) {
+    if (reduceMotion || !webgl) {
       setInteractive(false);
       progressRef.current = 0;
       return;
@@ -133,8 +146,11 @@ export default function FrozenCommandScene() {
             <CanvasBoundary>
               <FrozenCoreCanvas
                 progressRef={progressRef}
+                quality={quality}
+                postFx={postFx}
                 shardCount={counts.shardCount}
                 particleCount={counts.particleCount}
+                burstCount={counts.burstCount}
               />
             </CanvasBoundary>
           </div>
