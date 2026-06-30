@@ -55,5 +55,17 @@ Never force push, never rewrite history, never delete a backup branch/tag, never
 Run `npm run build` before committing. Confirm port 5642 and routes are intact. If build
 fails: report the exact error and suggest the smallest fix — do not start a broad refactor.
 
+## 12. Live deployment status (Level 1)
+- **Level 1 is live in production on Vercel.**
+- Live URL: `https://tavronus-forge-the-real-one.vercel.app`
+- Production deployment ID: `dpl_BM7eeJakSo9WdHLSDSs24qugSmEH`
+- Branch: `reset/tavronus-ai-blank-foundation`
+- Level 1 commit: `61a04cd` (`level1: build premium Tavronus landing foundation`)
+- **Deploys are manual only** (via `vercel deploy --prod`). The local `.vercel` CLI
+  link is NOT wired to GitHub auto-deploy — pushing to GitHub does not deploy.
+- **Do NOT set up GitHub auto-deploy** unless Ram explicitly approves.
+- **Level 2 has NOT started yet.** Do not begin Level 2 work without Ram's go-ahead.
+- (No secrets, tokens, project IDs, org IDs, or env values are recorded here by design.)
+
 ## Commands
 `npm run dev` (port 5642) · `npm run build` · `npm run lint`.
