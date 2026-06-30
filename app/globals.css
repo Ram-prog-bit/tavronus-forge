@@ -65,3 +65,37 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Level 1 landing — command-console background utilities (CSS only).
+   No JS, no animation libraries. Atmosphere stays faint and disciplined.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Faint structural grid, masked to fade toward the edges so it never reads
+   as a busy pattern — just the suggestion of a coordinate system. */
+.tv-grid {
+  background-image:
+    linear-gradient(to right, rgba(200, 208, 220, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(200, 208, 220, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 80%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 80%);
+}
+
+/* Soft brand aura — blue with a rare violet edge. Used once, behind the core. */
+.tv-aura {
+  background:
+    radial-gradient(closest-side, rgba(45, 142, 255, 0.18), transparent 70%),
+    radial-gradient(closest-side, rgba(124, 92, 255, 0.1), transparent 75%);
+}
+
+/* Concentric "core" rings, drawn with hairlines only. */
+.tv-core-ring {
+  border: 1px solid rgba(50, 57, 69, 0.7);
+  border-radius: 9999px;
+}
+
+/* Honest status dot — faint, slow pulse (respects reduced motion via globals). */
+.tv-pulse {
+  animation: glow-pulse 3.2s ease-in-out infinite;
+}
