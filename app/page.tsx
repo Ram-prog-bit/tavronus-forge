@@ -56,6 +56,21 @@ const statusLabel: Record<Status, string> = {
   planned: "Planned",
 };
 
+/* Honest, distinct chip styling per status — active rebuild reads in brand
+   blue, planned work in caution amber. Color + label, no fake "live" motion. */
+const statusChip: Record<Status, { wrap: string; dot: string; text: string }> = {
+  rebuilding: {
+    wrap: "border-forge-blue/35 bg-forge-blue/10",
+    dot: "bg-forge-blue",
+    text: "text-forge-blue",
+  },
+  planned: {
+    wrap: "border-forge-warn/30 bg-forge-warn/10",
+    dot: "bg-forge-warn",
+    text: "text-forge-warn",
+  },
+};
+
 const principles: { label: string; title: string; body: string }[] = [
   {
     label: "01",
@@ -82,14 +97,23 @@ const principles: { label: string; title: string; body: string }[] = [
 export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-forge-void">
+      {/* Keyboard skip link — first focusable element on the page. */}
+      <a href="#main-content" className="tv-skip-link">
+        Skip to content
+      </a>
+
       {/* Ambient background — faint grid + a single soft brand aura. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 tv-grid" />
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-[-18rem] h-[42rem] w-[42rem] -translate-x-1/2 tv-aura blur-2xl"
+        className="pointer-events-none absolute left-1/2 top-[-18rem] h-[42rem] w-[42rem] -translate-x-1/2 tv-aura tv-aura-breathe blur-2xl"
       />
 
-      <div className="relative mx-auto max-w-6xl px-6 sm:px-10 lg:px-14">
+      <div
+        id="main-content"
+        tabIndex={-1}
+        className="relative mx-auto max-w-6xl px-6 focus:outline-none sm:px-10 lg:px-14"
+      >
         {/* ── System bar ─────────────────────────────────────────────────── */}
         <header className="flex items-center justify-between border-b border-forge-border/70 py-5">
           <div className="flex items-center gap-3">
@@ -118,24 +142,24 @@ export default function HomePage() {
 
         {/* ── Hero ───────────────────────────────────────────────────────── */}
         <section className="grid gap-12 py-20 lg:grid-cols-[1.3fr_1fr] lg:items-center lg:gap-8 lg:py-28">
-          <div className="animate-fade-in">
-            <p className="font-mono text-xs uppercase tracking-[0.32em] text-forge-blue">
+          <div>
+            <p className="tv-rise font-mono text-xs uppercase tracking-[0.32em] text-forge-blue">
               Tavronus // Command System
             </p>
-            <h1 className="mt-6 text-6xl font-semibold leading-[0.95] tracking-tight text-forge-chrome sm:text-7xl">
+            <h1 className="tv-rise tv-d1 mt-6 text-6xl font-semibold leading-[0.95] tracking-tight text-forge-chrome sm:text-7xl">
               Tavronus AI
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-forge-silver">
+            <p className="tv-rise tv-d2 mt-6 max-w-xl text-lg leading-relaxed text-forge-silver">
               A clean foundation for a next-generation AI command system.
             </p>
-            <p className="mt-3 max-w-xl text-base leading-relaxed text-forge-muted">
+            <p className="tv-rise tv-d3 mt-3 max-w-xl text-base leading-relaxed text-forge-dim">
               Forge, Sentinel, Atlas, and Quant are being rebuilt from a controlled base.
             </p>
 
-            <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-4">
+            <div className="tv-rise tv-d4 mt-10 flex flex-wrap items-center gap-x-5 gap-y-4">
               <a
                 href="#systems"
-                className="group inline-flex items-center gap-2 rounded-forge-control border border-forge-blue/40 bg-forge-blue/10 px-5 py-3 text-sm font-medium text-forge-chrome transition duration-250 hover:border-forge-blue/70 hover:bg-forge-blue/15 focus-visible:outline-none focus-visible:shadow-forge-focus"
+                className="group inline-flex items-center gap-2 rounded-forge-control border border-forge-blue/40 bg-forge-blue/10 px-5 py-3 text-sm font-medium text-forge-chrome transition duration-250 hover:-translate-y-px hover:border-forge-blue/70 hover:bg-forge-blue/15 hover:shadow-[0_10px_26px_-12px_rgba(45,142,255,0.55)] focus-visible:outline-none focus-visible:shadow-forge-focus"
               >
                 Enter Command Center
                 <ArrowRight
@@ -145,18 +169,22 @@ export default function HomePage() {
                   className="transition-transform duration-250 group-hover:translate-x-0.5"
                 />
               </a>
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-forge-muted">
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-forge-dim">
                 Foundation online · Systems rebuilding · No external AI connected yet
               </p>
             </div>
           </div>
 
           {/* Core visual — restrained: symbol, hairline rings, single aura. */}
-          <div className="relative mx-auto hidden aspect-square w-full max-w-sm animate-fade-in items-center justify-center lg:flex">
-            <div aria-hidden className="absolute inset-0 tv-aura blur-2xl opacity-70" />
+          <div className="tv-rise tv-d3 relative mx-auto hidden aspect-square w-full max-w-sm items-center justify-center lg:flex">
+            <div aria-hidden className="absolute inset-0 tv-aura tv-aura-breathe blur-2xl opacity-70" />
             <div aria-hidden className="tv-core-ring absolute inset-0" />
             <div aria-hidden className="tv-core-ring absolute inset-[14%]" />
-            <div aria-hidden className="tv-core-ring absolute inset-[28%]" />
+            <div aria-hidden className="tv-core-ring tv-ring-glow absolute inset-[28%]" />
+            {/* Slow orbiting accent — the only continuous motion in the core. */}
+            <div aria-hidden className="tv-orbit absolute inset-0">
+              <span className="tv-orbit-dot" />
+            </div>
             <span
               aria-hidden
               className="absolute left-1/2 top-3 -translate-x-1/2 font-mono text-[10px] tracking-[0.3em] text-forge-muted"
@@ -190,7 +218,7 @@ export default function HomePage() {
                 Four modules, one command system
               </h2>
             </div>
-            <p className="max-w-xs text-sm leading-relaxed text-forge-muted">
+            <p className="max-w-xs text-sm leading-relaxed text-forge-dim">
               Placeholders for now. Each module shows its honest status — none are connected yet.
             </p>
           </div>
@@ -199,29 +227,36 @@ export default function HomePage() {
             {modules.map(({ code, name, domain, description, status, Icon }) => (
               <article
                 key={code}
-                className="group relative rounded-forge-card border border-forge-border bg-forge-obsidian/70 p-6 transition duration-250 hover:border-forge-border-strong hover:bg-forge-obsidian"
+                className="group relative rounded-forge-card border border-forge-border bg-forge-obsidian/70 p-6 shadow-forge-card transition duration-250 hover:-translate-y-0.5 hover:border-forge-border-strong hover:bg-forge-obsidian hover:shadow-[0_16px_36px_-16px_rgba(0,0,0,0.75)]"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3.5">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-forge-control border border-forge-border bg-forge-gunmetal text-forge-silver transition duration-250 group-hover:text-forge-blue">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-forge-control border border-forge-border bg-forge-gunmetal text-forge-silver transition duration-250 group-hover:border-forge-border-strong group-hover:text-forge-blue">
                       <Icon size={18} strokeWidth={1.75} aria-hidden />
                     </span>
                     <div>
                       <h3 className="text-base font-medium text-forge-chrome">{name}</h3>
-                      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-forge-muted">
+                      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-forge-dim">
                         {code} · {domain}
                       </p>
                     </div>
                   </div>
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-forge-badge border border-forge-warn/25 bg-forge-warn/10 px-2.5 py-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-forge-warn" aria-hidden />
-                    <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-forge-warn">
+                  <span
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-forge-badge border px-2.5 py-1 ${statusChip[status].wrap}`}
+                  >
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${statusChip[status].dot}`}
+                      aria-hidden
+                    />
+                    <span
+                      className={`font-mono text-[10px] uppercase tracking-[0.16em] ${statusChip[status].text}`}
+                    >
                       {statusLabel[status]}
                     </span>
                   </span>
                 </div>
                 <p className="mt-4 text-sm leading-relaxed text-forge-silver">{description}</p>
-                <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.16em] text-forge-muted">
+                <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.16em] text-forge-dim">
                   Not connected
                 </p>
               </article>
@@ -242,7 +277,7 @@ export default function HomePage() {
               <div key={label} className="border-t border-forge-border/70 pt-4">
                 <span className="font-mono text-xs tracking-[0.2em] text-forge-blue">{label}</span>
                 <h3 className="mt-3 text-base font-medium text-forge-chrome">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-forge-muted">{body}</p>
+                <p className="mt-2 text-sm leading-relaxed text-forge-silver">{body}</p>
               </div>
             ))}
           </div>
@@ -253,7 +288,7 @@ export default function HomePage() {
           <p className="font-mono text-xs tracking-[0.18em] text-forge-silver">
             TAVRONUS AI · CLEAN RESTART FOUNDATION
           </p>
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-forge-muted">
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-forge-dim">
             No external AI connected
           </p>
         </footer>

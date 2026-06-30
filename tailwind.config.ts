@@ -29,7 +29,8 @@ const config: Config = {
           // ── Text ──────────────────────────────────────────────────────────
           chrome: "#C8D0DC",
           silver: "#8A95A3",
-          muted: "#4A5568",
+          dim: "#748090",            // secondary readable text — passes WCAG AA on void
+          muted: "#4A5568",          // decorative only (aria-hidden marks); fails AA for body text
           // ── Status / honesty (use only when meaningful) ───────────────────
           success: "#3FB950",         // real / passing / tested
           warn: "#D29922",            // planned / caution / untested
