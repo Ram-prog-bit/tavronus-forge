@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Tavronus Forge — Command your build.",
-  description:
-    "Tavronus Forge is a simple AI coding cockpit for planning projects, generating prompts, reviewing code, debugging errors, and building software from one workspace.",
-  keywords: ["AI coding", "coding cockpit", "developer tool", "prompt engineering"],
+  title: "Tavronus AI",
+  description: "Clean restart foundation — building the next version from a blank, controlled base.",
 };
 
 export default function RootLayout({
@@ -17,7 +15,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
       </head>
